@@ -1,32 +1,32 @@
-import { useCallback } from "react";
 
-// Lightweight fallback toast hook.
-// The original code expected a ToastContext which isn't present in this repo.
-// Provide no-op / console-based functions so components can call toasts
-// without the app crashing. If you want a visual toast system later,
-// implement `ToastContext` and replace this hook's implementation.
+import { useCallback, useContext } from "react";
+import { useToastContext } from "../components/ui/ToastProvider";
+
+// Toast hook: uses ToastContext if present, else falls back to console
 export default function useToast() {
-  const success = useCallback((message) => {
+  const ctx = useToastContext?.();
+  const success = useCallback((msg) => {
+    if (ctx?.success) return ctx.success(msg);
     // eslint-disable-next-line no-console
-    console.info("Toast success:", message);
-  }, []);
-
-  const error = useCallback((message) => {
+    console.info("Toast success:", msg);
+  }, [ctx]);
+  const error = useCallback((msg) => {
+    if (ctx?.error) return ctx.error(msg);
     // eslint-disable-next-line no-console
-    console.error("Toast error:", message);
-  }, []);
-
-  const warning = useCallback((message) => {
+    console.error("Toast error:", msg);
+  }, [ctx]);
+  const warning = useCallback((msg) => {
+    if (ctx?.warning) return ctx.warning(msg);
     // eslint-disable-next-line no-console
-    console.warn("Toast warning:", message);
-  }, []);
-
-  const info = useCallback((message) => {
+    console.warn("Toast warning:", msg);
+  }, [ctx]);
+  const info = useCallback((msg) => {
+    if (ctx?.info) return ctx.info(msg);
     // eslint-disable-next-line no-console
-    console.log("Toast info:", message);
-  }, []);
-
-  const removeToast = useCallback(() => {}, []);
-
+    console.log("Toast info:", msg);
+  }, [ctx]);
+  const removeToast = useCallback(() => {
+    if (ctx?.removeToast) return ctx.removeToast();
+  }, [ctx]);
   return { success, error, warning, info, removeToast };
 }

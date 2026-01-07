@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useContext, useCallback } from "react";
+import useToast from "../../../hooks/useToast";
 import useAuth from "../../../hooks/useAuth";
 import LoveNoteForm from "../components/LoveNoteForm";
 import LoveNotesList from "../components/LoveNotesList";
@@ -10,6 +11,7 @@ import CoupleContext from "../../../context/CoupleContext.jsx";
 
 export default function LoveNotesPage() {
   const { user, isAuthenticated } = useAuth();
+  const { error: showError } = useToast();
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const ctx = useContext(CoupleContext) || {};
@@ -58,8 +60,7 @@ export default function LoveNotesPage() {
       const res = await loveNotesApi.create(payload);
       setNotes((prev) => [res.data, ...prev]);
     } catch (e) {
-      // fallback: add locally if backend fails
-      setNotes((prev) => [note, ...prev]);
+      showError("Failed to save note. Please try again.");
     }
   };
 

@@ -23,28 +23,23 @@ function createResourceRouter(resourceName) {
 
 
   /* ===================== LIST ===================== */
-  // For loveNotes: allow GET for guests (no requireAuth), but filter by user if logged in
-  if (resourceName === "loveNotes" || resourceName === "healing") {
-    router.get("/", async (req, res) => {
+  // For loveNotes and all user-owned resources, require auth and always filter by userId
+  if (isUserResource) {
+    router.get("/", requireAuth, async (req, res) => {
       try {
         let items = await db.all(resourceName);
-        // If user is logged in, filter by userId; else show all public data (or all data if no privacy)
-        if (req.user && req.user.id) {
-          items = items.filter((i) => i.userId === req.user.id);
-        }
-        res.json(items);
+        const filtered = items.filter((i) => i.userId === req.user.id);
+        console.log(`[${resourceName}] userId:`, req.user.id, '| total:', items.length, '| filtered:', filtered.length);
+        res.json(filtered);
       } catch (e) {
         console.error("List error:", e);
         res.status(500).json({ message: "Internal error" });
       }
     });
   } else {
-    router.get("/", requireAuth, async (req, res) => {
+    router.get("/", async (req, res) => {
       try {
         let items = await db.all(resourceName);
-        if (isUserResource) {
-          items = items.filter((i) => i.userId === req.user.id);
-        }
         res.json(items);
       } catch (e) {
         console.error("List error:", e);
