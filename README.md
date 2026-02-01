@@ -75,7 +75,27 @@ Ourspace/
 
 ## Contributing
 
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
+
+## 🤝 Contributing (Especially for Young & New Developers!)
+
+We welcome contributions from everyone, especially young and new developers who want to learn and grow! Whether you’re a student, beginner, or just starting out in open source, this project is a great place to get involved.
+
+### How to Get Started
+
+1. **Fork this repository** and clone it to your computer.
+2. **Read through the codebase**—start with the README and explore the `client` and `server` folders.
+3. **Check out the [Issues](https://github.com/yourusername/our_space/issues)**—look for those labeled `good first issue` or `beginner friendly`.
+4. **Ask questions!** If you’re unsure about anything, open an issue or start a discussion. We’re happy to help and mentor you.
+5. **Make your changes**—even small improvements (like fixing typos or improving documentation) are valuable!
+6. **Open a Pull Request**—describe what you changed and why. Don’t worry if it’s not perfect; we’ll review and help you improve it.
+
+### Resources for New Developers
+
+- [How to create a Pull Request](https://opensource.guide/how-to-contribute/)
+- [GitHub Docs: Forking a repo](https://docs.github.com/en/get-started/quickstart/fork-a-repo)
+- [First Contributions Guide](https://firstcontributions.github.io/)
+
+We believe in learning by doing. Don’t hesitate to reach out—your ideas and energy are welcome here!
 
 ## License
 
