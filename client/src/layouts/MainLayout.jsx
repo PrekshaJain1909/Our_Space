@@ -131,7 +131,7 @@ export default function MainLayout() {
               aria-label="Open navigation menu"
               onClick={() => setIsDrawerOpen(true)}
             >
-              <span className="sr-only">Open menu</span>
+              {/* <span className="sr-only">Open menu</span> */}
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
             </button>
             <div className="desktop-welcome desktop-welcome-center">
