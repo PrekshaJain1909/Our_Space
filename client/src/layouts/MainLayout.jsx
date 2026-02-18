@@ -29,6 +29,52 @@ export default function MainLayout() {
   /**
    * Update time every minute for dynamic greeting
    */
+  const handleInvite = async () => {
+  if (!user?._id) return;
+
+  const inviteLink = `${window.location.origin}/join/${user._id}`;
+
+  try {
+    // Copy to clipboard
+    await navigator.clipboard.writeText(inviteLink);
+
+    // If device supports share API (mobile)
+    if (navigator.share) {
+      await navigator.share({
+  title: "Join Me In Ourspace 💖",
+  text: `Hi Love 💗
+
+I don’t want just memories…
+I want a space that belongs to us.
+
+A place to write, laugh, plan, and build our future together.
+
+Tap the link and step into our world 💞
+
+Always yours,
+${user.name} 🤍`,
+  url: inviteLink,
+});
+
+    } else {
+      Swal.fire({
+              icon: "success",
+              title: "Invite Link Copied 💌",
+              text: "The invite link has been copied to your clipboard.",
+              confirmButtonColor: "#ff66c4",
+            });
+    }
+  } catch (err) {
+    console.error("Invite error:", err);
+    Swal.fire({
+            icon: "error",
+            title: "Failed to generate invite link. 💔",
+            text: "Please try again.",
+            confirmButtonColor: "#ff66c4",
+          });
+  }
+};
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date());
@@ -224,7 +270,7 @@ export default function MainLayout() {
               <div className="auth-buttons">
                 <button
                   className="auth-btn auth-btn-register"
-                  onClick={() => navigate("/invite-partner")}
+                  onClick={handleInvite}
                 >
                   Invite Partner 💌
                 </button>

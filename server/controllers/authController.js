@@ -68,7 +68,6 @@ exports.registerPartnerA = asyncHandler(async (req, res) => {
   const inviteLink = tokenService.buildInviteLink(inviteToken);
 
   await mailService.sendOTPEmail(email, otp);
-  await mailService.sendInviteEmail(email, inviteLink);
 
   res.status(201).json({
     message: "Partner A registered. Verify OTP.",
