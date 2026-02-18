@@ -31,9 +31,10 @@ exports.verifyOTP = asyncHandler(async (req, res) => {
 
   // 4️⃣ Activate couple if both verified
   if (user.coupleId) {
-    const couple = await Couple.findById(user.coupleId)
-      .populate("partnerA")
-      .populate("partnerB");
+  const couple = await Couple.findById(user.coupleId)
+  .populate("partnerA", "isVerified")
+  .populate("partnerB", "isVerified");
+
 
     if (
       couple &&
@@ -52,11 +53,20 @@ exports.verifyOTP = asyncHandler(async (req, res) => {
     { userId: user._id, email: user.email },
     process.env.JWT_SECRET,
     { expiresIn: "7d" }
-  );
+  ); 
 
-  res.json({
-    message: "OTP verified successfully",
-    token,
-    user
-  });
+res.json({
+  message: "OTP verified successfully",
+  token,
+  user: {
+    _id: user._id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    coupleId: user.coupleId,
+    isVerified: user.isVerified,
+    isActive: user.isActive,
+  }
+});
+
 });

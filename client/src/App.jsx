@@ -16,6 +16,14 @@ import TimelinePage from "./features/timeline/pages/TimelinePage.jsx";
 import MemoryBoxPage from "./features/memoryBox/pages/MemoryBoxPage.jsx";
 import MoodPage from "./features/mood/pages/MoodPage.jsx";
 import VerifyOtpPage from "./features/auth/pages/VerifyOtpPage.jsx";
+import InvitePage from "./features/invite/pages/InvitePage.jsx";
+import { AuthProvider } from "./features/context/AuthContext";
+
+<AuthProvider>
+  <App />
+</AuthProvider>
+
+
 
 // Simple fallback page
 function NotFoundPage() {
@@ -55,6 +63,7 @@ export default function App() {
           <Route path="/love-notes" element={<LoveNotesPage />} />
           <Route path="/healing-zone" element={<HealingZonePage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
+          <Route path="/invite" element={<InvitePage />} />
           <Route path="/playtime" element={<PlaytimePage />} />
           <Route path="/bucket" element={<BucketPage />} />
           <Route path="/timeline" element={<TimelinePage />} />

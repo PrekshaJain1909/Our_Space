@@ -32,7 +32,6 @@ export const registerPartnerB = async (data) => {
 export const verifyOtp = async (data) => {
   const response = await API.post("/otp/verify", data);
 
-  // Save token automatically after verification
   if (response.data.token) {
     localStorage.setItem("token", response.data.token);
   }

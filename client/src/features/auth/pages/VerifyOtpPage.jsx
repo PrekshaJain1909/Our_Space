@@ -12,8 +12,16 @@ export default function VerifyOtpPage() {
 
   const email = location.state?.email;
 
-  // 🚨 If user refreshes page and email is missing
   useEffect(() => {
+    const token = localStorage.getItem("token");
+
+    // If already logged in → go to dashboard
+    if (token) {
+      navigate("/dashboard", { replace: true });
+      return;
+    }
+
+    // If no email (page refresh case)
     if (!email) {
       Swal.fire({
         icon: "warning",
@@ -21,7 +29,7 @@ export default function VerifyOtpPage() {
         text: "Please register again.",
         confirmButtonColor: "#ff66c4",
       }).then(() => {
-        navigate("/register");
+        navigate("/register", { replace: true });
       });
     }
   }, [email, navigate]);
@@ -42,11 +50,12 @@ export default function VerifyOtpPage() {
     try {
       const res = await verifyOtp({ email, otp });
 
-      // Store token & user (logged in) using response structure
-      if (res.token) {
+      // Save login data
+      if (res?.token) {
         localStorage.setItem("token", res.token);
       }
-      if (res.user) {
+
+      if (res?.user) {
         localStorage.setItem("user", JSON.stringify(res.user));
       }
 
@@ -59,7 +68,7 @@ export default function VerifyOtpPage() {
         color: "#fff",
       });
 
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
 
     } catch (err) {
       Swal.fire({
@@ -93,10 +102,7 @@ export default function VerifyOtpPage() {
           <OTPInput length={6} onChange={setOtp} />
         </div>
 
-        <button
-          onClick={handleVerify}
-          className="primary-btn"
-        >
+        <button onClick={handleVerify} className="primary-btn">
           Verify & Continue 💖
         </button>
       </div>
