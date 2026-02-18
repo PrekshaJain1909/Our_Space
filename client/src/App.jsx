@@ -15,6 +15,7 @@ import BucketPage from "./features/bucket/pages/BucketPage.jsx";
 import TimelinePage from "./features/timeline/pages/TimelinePage.jsx";
 import MemoryBoxPage from "./features/memoryBox/pages/MemoryBoxPage.jsx";
 import MoodPage from "./features/mood/pages/MoodPage.jsx";
+import VerifyOtpPage from "./features/auth/pages/VerifyOtpPage.jsx";
 
 // Simple fallback page
 function NotFoundPage() {
@@ -59,6 +60,7 @@ export default function App() {
           <Route path="/timeline" element={<TimelinePage />} />
           <Route path="/memory-box" element={<MemoryBoxPage />} />
           <Route path="/mood" element={<MoodPage />} />
+          <Route path="/verify-otp" element={<VerifyOtpPage />} />
         </Route>
 
         {/* 404 fallback */}

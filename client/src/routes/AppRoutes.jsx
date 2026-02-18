@@ -9,6 +9,7 @@ import AuthLayout from "../layouts/AuthLayout.jsx";
 // Auth pages
 import LoginPage from "../features/auth/pages/LoginPage.jsx";
 import RegisterPage from "../features/auth/pages/RegisterPage.jsx";
+import VerifyOtpPage from "../features/auth/pages/VerifyOtpPage.jsx";
 
 // Main feature pages
 import DashboardPage from "../features/dashboard/pages/DashboardPage.jsx";
@@ -60,6 +61,7 @@ export default function AppRoutes() {
       <Route element={<MainLayout />}>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/verify-otp" element={<VerifyOtpPage />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/couple" element={<CoupleProfilePage />} />

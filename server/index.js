@@ -1,66 +1,26 @@
 require("dotenv").config();
-
 const express = require("express");
+const mongoose = require("mongoose");
 const cors = require("cors");
 
-const authRoutes = require("./routes/auth");
-const createResourceRouter = require("./routes/resourceRouter");
-const { connectMongo } = require("./db");
-
+const authRoutes = require("./routes/authRoutes");
+const inviteRoutes = require("./routes/inviteRoutes");
+const otpRoutes = require("./routes/otpRoutes");
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-const allowedOrigins = new Set([
-  process.env.CLIENT_ORIGIN || "http://localhost:5174",
-  "http://localhost:5173",
-  "http://localhost:5174",
-]);
-
-app.use(
-  cors({
-    origin(origin, callback) {
-      if (!origin || allowedOrigins.has(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error("CORS not allowed"));
-      }
-    },
-    credentials: true,
-  })
-);
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true
+}));
 
 app.use(express.json());
 
-/* ================= AUTH ================= */
-app.use("/auth", authRoutes);
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log("MongoDB Connected"));
+
 app.use("/api/auth", authRoutes);
-
-/* ================= RESOURCES ================= */
-app.use("/api/couple", createResourceRouter("couples"));
-app.use("/api/love-notes", createResourceRouter("loveNotes"));
-app.use("/api/bucket", createResourceRouter("buckets"));
-app.use("/api/timeline", createResourceRouter("timeline"));
-app.use("/api/memory", createResourceRouter("memoryBox"));
-app.use("/api/mood", createResourceRouter("mood"));
-app.use("/api/analytics", createResourceRouter("analytics"));
-app.use("/api/healing", createResourceRouter("healing"));
-app.use("/api/playtime", createResourceRouter("playtime"));
-
-/* ================= HEALTH ================= */
-app.get("/health", (req, res) =>
-  res.json({ ok: true, uptime: process.uptime() })
-);
-
-connectMongo()
-  .then(() => {
-    console.log("DB ready");
-    app.listen(PORT, () =>
-      console.log(`Server running on port ${PORT}`)
-    );
-  })
-  .catch(() => {
-    console.log("DB failed, using fallback");
-    app.listen(PORT, () =>
-      console.log(`Server running on port ${PORT}`)
-    );
-  });
+app.use("/api/invite", inviteRoutes);
+app.use("/api/otp", otpRoutes);
+app.listen(5000, () => {
+  console.log("Server running on port 5000");
+});

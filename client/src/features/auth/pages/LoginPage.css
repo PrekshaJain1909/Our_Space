@@ -698,3 +698,21 @@ body {
     color: #000000;
   }
 }
+.card-header {
+  position: relative;
+}
+
+.back-button {
+  position: absolute;
+  left: 0;
+  top: 0;
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #555;
+}
+
+.back-button:hover {
+  color: #000;
+}
