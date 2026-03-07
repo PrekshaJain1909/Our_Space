@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
+import { Analytics } from "@vercel/analytics/react";
 import Sidebar from "../components/Sidebar/Sidebar";
 import { getCoupleStatus } from "../features/auth/services/authApi";
 import "./MainLayout.css";
@@ -333,6 +334,7 @@ ${user.name} 🤍`,
           </div>
         </main>
       </div>
+      <Analytics />
     </div>
   );
 }
