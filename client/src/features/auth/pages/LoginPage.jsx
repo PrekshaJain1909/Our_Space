@@ -83,7 +83,7 @@ export default function LoginPage() {
               </svg>
             </button>
             <h1 className="intro-title">
-              Your <span className="highlight">shared moments</span>,
+              Your <span className="highlight">shared moments</span>
               <br />
               beautifully preserved
             </h1>

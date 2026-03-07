@@ -164,8 +164,8 @@ ${user.name} 🤍`,
    * User name formatting
    */
   const getUserName = () => {
-    if (!user?.name) return "Lovely Couple";
-    const firstName = user.name.split(" ")[0];
+    if (!user?.coupleName) return "Lovely Couple";
+    const firstName = user.coupleName.split(" ")[0];
     return firstName.charAt(0).toUpperCase() + firstName.slice(1);
   };
 
