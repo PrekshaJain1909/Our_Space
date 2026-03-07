@@ -49,6 +49,8 @@ export default function VerifyOtpPage() {
 
       if (res?.user) {
         localStorage.setItem("user", JSON.stringify(res.user));
+        // Notify app that user data has been updated
+        window.dispatchEvent(new CustomEvent("user-data-updated"));
       }
 
       await Swal.fire({

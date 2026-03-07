@@ -37,6 +37,8 @@ export const AuthProvider = ({ children }) => {
 
     setUser(userData);
     localStorage.setItem("user", JSON.stringify(userData));
+    // Notify app that user data has been updated
+    window.dispatchEvent(new CustomEvent("user-data-updated"));
   };
 
   /**

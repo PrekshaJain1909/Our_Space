@@ -15,7 +15,7 @@ export default function MainLayout() {
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // ✅ LOAD USER FROM LOCALSTORAGE
-  useEffect(() => {
+  const loadUserFromStorage = () => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
     const token = localStorage.getItem("token") || localStorage.getItem("auth_token");
 
@@ -27,6 +27,18 @@ export default function MainLayout() {
     if (storedUser) {
       setUser(storedUser);
     }
+  };
+
+  useEffect(() => {
+    loadUserFromStorage();
+
+    // Listen for user data changes from other parts of the app
+    const handleUserUpdate = () => loadUserFromStorage();
+    window.addEventListener("user-data-updated", handleUserUpdate);
+
+    return () => {
+      window.removeEventListener("user-data-updated", handleUserUpdate);
+    };
   }, []);
 
   // Keep topbar state in sync when couple becomes complete on another session/device.
@@ -48,6 +60,8 @@ export default function MainLayout() {
 
           const updatedUser = { ...prev, isActive: nextIsActive };
           localStorage.setItem("user", JSON.stringify(updatedUser));
+          // Notify app that user data has been updated
+          window.dispatchEvent(new CustomEvent("user-data-updated"));
           return updatedUser;
         });
       } catch (error) {
@@ -198,6 +212,10 @@ ${user.name} 🤍`,
     localStorage.removeItem("auth_token");
     localStorage.removeItem("user");
     setUser(null);
+    
+    // Notify other components that user data has been cleared
+    window.dispatchEvent(new CustomEvent("user-data-updated"));
+    
     closeDrawer();
     navigate("/login");
   };
