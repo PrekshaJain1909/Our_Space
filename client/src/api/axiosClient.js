@@ -1,12 +1,23 @@
 import axios from "axios";
 
+// Detect production environment and set correct API URL
+const getBaseURL = () => {
+  // Check if environment variable is set (Vercel dashboard config)
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+  
+  // Auto-detect Vercel production deployment
+  if (window.location.hostname === "our-space-pi.vercel.app") {
+    return "https://our-love-space.onrender.com/api";
+  }
+  
+  // Default to localhost for development
+  return "http://localhost:5000/api";
+};
+
 const axiosClient = axios.create({
-  // Point default baseURL to the local server. If you set VITE_API_BASE_URL in
-  // your environment, that will take precedence (useful for production).
-  // Default to the server API root. Include `/api` so client calls like
-  // `/couple` resolve to `http://localhost:5000/api/couple` which matches
-  // the Express routes defined on the server.
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5000/api",
+  baseURL: getBaseURL(),
   withCredentials: false, // allow cookies if backend uses them
   headers: {
     "Content-Type": "application/json",
