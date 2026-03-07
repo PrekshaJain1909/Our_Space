@@ -17,6 +17,7 @@ import MemoryBoxPage from "./features/memoryBox/pages/MemoryBoxPage.jsx";
 import MoodPage from "./features/mood/pages/MoodPage.jsx";
 import VerifyOtpPage from "./features/auth/pages/VerifyOtpPage.jsx";
 import InvitePage from "./features/invite/pages/InvitePage.jsx";
+import JoinPage from "./features/auth/pages/JoinPage.jsx";
 import { AuthProvider } from "./features/context/AuthContext";
 
 <AuthProvider>
@@ -53,6 +54,9 @@ export default function App() {
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/join" element={<JoinPage />} />
+          <Route path="/join/:inviteCode" element={<JoinPage />} />
+          <Route path="/invite/:inviteCode" element={<JoinPage />} />
         </Route>
 
         {/* Main app routes: always show MainLayout, never redirect to login */}

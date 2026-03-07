@@ -23,6 +23,8 @@ export default function useAuth() {
 
 
     localStorage.setItem("auth_token", token);
+    localStorage.setItem("token", token);
+    localStorage.setItem("user", JSON.stringify(user));
     console.log("[useAuth] Token saved to localStorage:", token);
     setUser(user);
 
@@ -33,8 +35,18 @@ export default function useAuth() {
 
     return { success: true, user };
   } catch (err) {
-    setError(err?.message || err?.error || "Login failed");
-    return { success: false };
+    const serverMessage =
+      err?.response?.data?.message ||
+      err?.message ||
+      err?.error ||
+      "Login failed";
+
+    setError(serverMessage);
+    return {
+      success: false,
+      status: err?.response?.status,
+      message: serverMessage,
+    };
   } finally {
     setLoading(false);
   }
@@ -77,6 +89,8 @@ export default function useAuth() {
       /* even if API fails, still log user out */
     } finally {
       localStorage.removeItem("auth_token");
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
       setUser(null);
       setLoading(false);
     }

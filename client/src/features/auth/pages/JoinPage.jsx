@@ -1,41 +1,58 @@
-import React, { useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { registerPartnerB } from "../services/authApi";
+import React from "react";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import "./LoginPage.css";
 
 export default function JoinPage() {
-  const { token } = useParams();
+  const { inviteCode } = useParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-  });
+  const queryInviteToken =
+    searchParams.get("inviteToken") || searchParams.get("token") || "";
+  const queryCoupleId = searchParams.get("coupleId") || "";
 
-  const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
+  // Invite tokens are generated as 64-char hex strings; anything else is treated as coupleId.
+  const looksLikeInviteToken =
+    typeof inviteCode === "string" && /^[a-f0-9]{64}$/i.test(inviteCode);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const inviteToken = queryInviteToken || (looksLikeInviteToken ? inviteCode : "");
+  const coupleId = queryCoupleId || (!looksLikeInviteToken ? inviteCode || "" : "");
 
-    try {
-      await registerPartnerB({ ...form, token });
-      navigate("/verify-otp");
-    } catch (err) {
-      alert("Join failed");
-    }
-  };
+  const authQuery = new URLSearchParams();
+  if (inviteToken) authQuery.set("inviteToken", inviteToken);
+  if (coupleId) authQuery.set("coupleId", coupleId);
+
+  const authUrl = authQuery.toString() ? `/login?${authQuery.toString()}` : "/login";
+
+  const handleJoinNow = () => navigate(authUrl);
 
   return (
-    <div style={{ maxWidth: "400px", margin: "auto" }}>
-      <h2>Join Your Partner</h2>
+    <div className="login-page">
+      <div className="login-container">
+        <div className="login-intro">
+          <div className="intro-content">
+            <h1 className="intro-title">
+              You are invited to <span className="highlight">Ourspace</span>
+            </h1>
+            <p className="intro-description">
+              Join your partner in a shared private space for memories, milestones, and moments.
+            </p>
+          </div>
+        </div>
 
-      <form onSubmit={handleSubmit}>
-        <input name="name" placeholder="Your Name" onChange={handleChange} required />
-        <input name="email" placeholder="Email" onChange={handleChange} required />
+        <div className="login-card-wrapper">
+          <div className="login-card">
+            <header className="card-header">
+              <h2 className="card-title">Join Now</h2>
+              <p className="card-description">Continue to authentication to accept this invite.</p>
+            </header>
 
-        <button type="submit">Join</button>
-      </form>
+            <button type="button" className="submit-button" onClick={handleJoinNow}>
+              Join Now
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

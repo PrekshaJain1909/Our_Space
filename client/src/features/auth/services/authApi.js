@@ -16,6 +16,12 @@ API.interceptors.request.use((req) => {
   return req;
 });
 
+// ✅ Login (by couple name + either partner's password)
+export const login = async (data) => {
+  const response = await API.post("/auth/login", data);
+  return response;
+};
+
 // ✅ Register Partner A
 export const registerPartnerA = async (data) => {
   const response = await API.post("/auth/register", data);
@@ -37,4 +43,17 @@ export const verifyOtp = async (data) => {
   }
 
   return response.data;
+};
+
+export const getCoupleStatus = async (coupleId) => {
+  const response = await API.get(`/invite/couple-status/${coupleId}`);
+  return response.data;
+};
+
+export default {
+  login,
+  registerPartnerA,
+  registerPartnerB,
+  verifyOtp,
+  getCoupleStatus,
 };

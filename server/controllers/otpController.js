@@ -30,6 +30,7 @@ exports.verifyOTP = asyncHandler(async (req, res) => {
   await user.save();
 
   // 4️⃣ Activate couple if both verified
+  let coupleIsActive = false;
   if (user.coupleId) {
   const couple = await Couple.findById(user.coupleId)
   .populate("partnerA", "isVerified")
@@ -46,6 +47,9 @@ exports.verifyOTP = asyncHandler(async (req, res) => {
       couple.isActive = true;
       await couple.save();
     }
+    
+    // Get the final isActive status from the couple
+    coupleIsActive = couple ? couple.isActive : false;
   }
 
   // 5️⃣ Generate JWT
@@ -65,7 +69,7 @@ res.json({
     role: user.role,
     coupleId: user.coupleId,
     isVerified: user.isVerified,
-    isActive: user.isActive,
+    isActive: coupleIsActive,
   }
 });
 

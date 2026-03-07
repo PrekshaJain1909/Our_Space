@@ -9,6 +9,7 @@ const otpService = require("../service/otpService");
 const tokenService = require("../service/tokenService");
 const mailService = require("../service/mailService");
 const passwordService = require("../service/passwordService");
+const jwt = require("jsonwebtoken");
 
 exports.registerPartnerA = asyncHandler(async (req, res) => {
   const { coupleName, name, email, password } = req.body;
@@ -73,4 +74,92 @@ exports.registerPartnerA = asyncHandler(async (req, res) => {
     message: "Partner A registered. Verify OTP.",
     inviteLink,
   });
+});
+
+exports.login = asyncHandler(async (req, res) => {
+  const { name, coupleName, password } = req.body;
+
+  const normalizedCoupleName = (coupleName || name || "").trim();
+  const normalizedPassword = (password || "").trim();
+
+  if (!normalizedCoupleName || !normalizedPassword) {
+    return res.status(400).json({ message: "Couple name and password are required" });
+  }
+
+  const escapedCoupleName = normalizedCoupleName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+  const couple = await Couple.findOne({
+    coupleName: { $regex: `^${escapedCoupleName}$`, $options: "i" },
+  })
+    .populate("partnerA", "name email password role coupleId isVerified")
+    .populate("partnerB", "name email password role coupleId isVerified");
+
+  if (!couple) {
+    return res.status(401).json({ message: "Invalid couple name or password" });
+  }
+
+  const candidates = [couple.partnerA, couple.partnerB].filter(Boolean);
+
+  let matchedUser = null;
+  for (const candidate of candidates) {
+    const isMatch = await passwordService.comparePassword(normalizedPassword, candidate.password);
+    if (isMatch) {
+      matchedUser = candidate;
+      break;
+    }
+  }
+
+  if (!matchedUser) {
+    return res.status(401).json({ message: "Invalid couple name or password" });
+  }
+
+  if (!matchedUser.isVerified) {
+    return res.status(403).json({ message: "Please verify OTP before logging in" });
+  }
+
+  const token = jwt.sign(
+    { userId: matchedUser._id, email: matchedUser.email },
+    process.env.JWT_SECRET,
+    { expiresIn: "7d" }
+  );
+
+  res.json({
+    message: "Login successful",
+    token,
+    user: {
+      _id: matchedUser._id,
+      name: matchedUser.name,
+      email: matchedUser.email,
+      role: matchedUser.role,
+      coupleId: matchedUser.coupleId,
+      isVerified: matchedUser.isVerified,
+      isActive: Boolean(couple.isActive),
+      coupleName: couple.coupleName,
+    },
+  });
+});
+
+exports.refreshToken = asyncHandler(async (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+
+  if (!token) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      return res.status(401).json({ message: "User not found" });
+    }
+
+    const newToken = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
+
+    res.json({ token: newToken });
+  } catch (err) {
+    res.status(401).json({ message: "Invalid or expired token" });
+  }
 });

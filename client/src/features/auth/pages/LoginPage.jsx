@@ -1,14 +1,30 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import useAuth from "../../../hooks/useAuth";
 import useToast from "../../../hooks/useToast";
 import "./LoginPage.css";
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, loading } = useAuth();
   const { success, error: toastError } = useToast();
   const [showPassword, setShowPassword] = useState(false);
+
+  const params = new URLSearchParams(location.search);
+  const inviteToken = params.get("inviteToken") || params.get("token") || "";
+  const coupleId = params.get("coupleId") || "";
+
+  const inviteQuery = new URLSearchParams();
+  if (inviteToken) inviteQuery.set("inviteToken", inviteToken);
+  if (coupleId) inviteQuery.set("coupleId", coupleId);
+  const inviteQuerySuffix = inviteQuery.toString() ? `?${inviteQuery.toString()}` : "";
+  const inviteRegisterQuery = new URLSearchParams(inviteQuery);
+  inviteRegisterQuery.set("fromAuth", "1");
+  const inviteRegisterQuerySuffix = inviteRegisterQuery.toString()
+    ? `?${inviteRegisterQuery.toString()}`
+    : "";
+  const backTarget = inviteQuerySuffix ? `/join${inviteQuerySuffix}` : "/dashboard";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,12 +36,22 @@ export default function LoginPage() {
       return;
     }
 
-    const res = await login({ name, password });
+    const payload = { name, password };
+
+    if (inviteToken) payload.inviteToken = inviteToken;
+    if (coupleId) payload.coupleId = coupleId;
+
+    const res = await login(payload);
     if (res?.success) {
       success("Welcome back 💕");
       navigate("/dashboard");
     } else {
-      toastError("Login failed — check credentials or try again later.");
+      if (res?.status === 403) {
+        toastError(res?.message || "Please verify OTP before logging in.");
+        return;
+      }
+
+      toastError(res?.message || "Login failed — check credentials or try again later.");
     }
   };
 
@@ -42,7 +68,7 @@ export default function LoginPage() {
             <button
               type="button"
               className="back-button"
-              onClick={() => navigate("/dashboard")} // or navigate(-1) to go back
+              onClick={() => navigate(backTarget)}
               aria-label="Back to dashboard"
             >
               <svg
@@ -188,7 +214,7 @@ export default function LoginPage() {
                 <button
                   type="button"
                   className="footer-link"
-                  onClick={() => navigate("/register")}
+                  onClick={() => navigate(`/register${inviteRegisterQuerySuffix}`)}
                   disabled={loading}
                 >
                   Create an account

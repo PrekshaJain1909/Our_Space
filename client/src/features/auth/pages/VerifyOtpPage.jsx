@@ -13,14 +13,6 @@ export default function VerifyOtpPage() {
   const email = location.state?.email;
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-
-    // If already logged in → go to dashboard
-    if (token) {
-      navigate("/dashboard", { replace: true });
-      return;
-    }
-
     // If no email (page refresh case)
     if (!email) {
       Swal.fire({
@@ -29,10 +21,10 @@ export default function VerifyOtpPage() {
         text: "Please register again.",
         confirmButtonColor: "#ff66c4",
       }).then(() => {
-        navigate("/register", { replace: true });
+        navigate(`/register${location.search || ""}`, { replace: true });
       });
     }
-  }, [email, navigate]);
+  }, [email, navigate, location.search]);
 
   const handleVerify = async () => {
     if (otp.length !== 6) {

@@ -1,7 +1,11 @@
 import React from "react";
 
 export default function InvitePage() {
-  const inviteLink = `${window.location.origin}/register?ref=YOUR_USER_ID`;
+  const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
+  const coupleId = storedUser?.coupleId || "";
+  const inviteLink = coupleId
+    ? `${window.location.origin}/join?coupleId=${coupleId}`
+    : `${window.location.origin}/join`;
 
   const copyLink = () => {
     navigator.clipboard.writeText(inviteLink);

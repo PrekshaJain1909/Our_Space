@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Outlet, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import Sidebar from "../components/Sidebar/Sidebar";
+import { getCoupleStatus } from "../features/auth/services/authApi";
 import "./MainLayout.css";
 
 export default function MainLayout() {
@@ -14,7 +16,7 @@ export default function MainLayout() {
   // ✅ LOAD USER FROM LOCALSTORAGE
   useEffect(() => {
     const storedUser = JSON.parse(localStorage.getItem("user"));
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token") || localStorage.getItem("auth_token");
 
     if (!token) {
       setUser(null);
@@ -26,13 +28,48 @@ export default function MainLayout() {
     }
   }, []);
 
+  // Keep topbar state in sync when couple becomes complete on another session/device.
+  useEffect(() => {
+    if (!user?.coupleId) return;
+
+    let isMounted = true;
+
+    const syncCoupleStatus = async () => {
+      try {
+        const data = await getCoupleStatus(user.coupleId);
+        const nextIsActive = Boolean(data?.isActive);
+
+        if (!isMounted) return;
+
+        setUser((prev) => {
+          if (!prev) return prev;
+          if (Boolean(prev.isActive) === nextIsActive) return prev;
+
+          const updatedUser = { ...prev, isActive: nextIsActive };
+          localStorage.setItem("user", JSON.stringify(updatedUser));
+          return updatedUser;
+        });
+      } catch (error) {
+        console.error("Failed to sync couple status:", error);
+      }
+    };
+
+    syncCoupleStatus();
+    const intervalId = setInterval(syncCoupleStatus, 15000);
+
+    return () => {
+      isMounted = false;
+      clearInterval(intervalId);
+    };
+  }, [user?.coupleId]);
+
   /**
    * Update time every minute for dynamic greeting
    */
   const handleInvite = async () => {
-  if (!user?._id) return;
+  if (!user?.coupleId) return;
 
-  const inviteLink = `${window.location.origin}/join/${user._id}`;
+  const inviteLink = `${window.location.origin}/join?coupleId=${user.coupleId}`;
 
   try {
     // Copy to clipboard
@@ -157,6 +194,7 @@ ${user.name} 🤍`,
    */
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("auth_token");
     localStorage.removeItem("user");
     setUser(null);
     closeDrawer();

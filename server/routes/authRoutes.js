@@ -3,5 +3,7 @@ const router = express.Router();
 const authController = require("../controllers/authController");
 
 router.post("/register", authController.registerPartnerA);
+router.post("/login", authController.login);
+router.post("/refresh", authController.refreshToken);
 
 module.exports = router;
