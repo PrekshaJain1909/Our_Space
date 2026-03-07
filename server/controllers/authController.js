@@ -29,7 +29,7 @@ exports.registerPartnerA = asyncHandler(async (req, res) => {
       });
     }
 
-    return res.status(400).json({ message: "User already exists why" });
+    return res.status(400).json({ message: "User already exists" });
   }
 
   // 2️⃣ Hash password
