@@ -1,143 +1,94 @@
-import React, { useState, useEffect } from "react";
-import "./LoveNotes.css";
+import React, { useState } from "react";
 
-export default function LoveNoteForm({
-  onAdd,
-  femaleName,
-  maleName,
-  replaceYouPartner,
-  isAuthenticated,
-}) {
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+export default function LoveNoteForm({ onAdd, femaleName, maleName, isAuthenticated }) {
 
-  useEffect(() => {
-    if (femaleName && maleName) {
-      setFrom(femaleName);
-      setTo(maleName);
-    }
-  }, [femaleName, maleName]);
+  const [form, setForm] = useState({
+    from: "female",
+    to: "male",
+    title: "",
+    content: ""
+  });
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (!isAuthenticated) return;
-    if (!from.trim() || !to.trim() || !content.trim()) return;
+    if (!form.content) return;
 
-    const newNote = {
-      id: Date.now(),
-      from: from.trim(),
-      to: to.trim(),
-      title: title.trim() || "Love note",
-      content: content.trim(),
-      createdAt: new Date().toISOString(),
-    };
+    onAdd({
+      ...form,
+      createdAt: new Date()
+    });
 
-    onAdd && onAdd(newNote);
-
-    setTitle("");
-    setContent("");
+    setForm({ from: "female", to: "male", title: "", content: "" });
   };
 
+  if (!isAuthenticated)
+    return <div className="ln-card">Login to add notes</div>;
+
   return (
-    <div className="ln-card ln-form-card">
+    <div className="ln-card">
+
       <div className="ln-header">
-        <span className="ln-badge">Add Love Note</span>
-        <p className="ln-subtitle">
-          {replaceYouPartner
-            ? replaceYouPartner(
-                "Write a little note of love to re-read on sad days 💖"
-              )
-            : "Write something sweet they can re-read on sad days 💖"}
-        </p>
+        <div className="ln-badge">Add Love Note</div>
+        <div className="ln-subtitle">
+          Write a little note of love to re-read on sad days 💖
+        </div>
       </div>
 
-      {/* ✅ Guest message */}
-      {!isAuthenticated && (
-        <div className="ln-guest-msg">
-          Login to add or edit content
-        </div>
-      )}
-
       <form className="ln-form" onSubmit={handleSubmit}>
+
         <div className="ln-form-row">
+
           <div className="ln-field">
             <label>From</label>
-            <input
-              type="text"
-              value={from}
-              onChange={(e) => setFrom(e.target.value)}
-              placeholder={femaleName || "Your name / pet name"}
-              disabled={!isAuthenticated}
-              required
-            />
+            <select
+              value={form.from}
+              onChange={(e) =>
+                setForm({ ...form, from: e.target.value })
+              }
+            >
+              <option value="female">{femaleName}</option>
+              <option value="male">{maleName}</option>
+            </select>
           </div>
 
           <div className="ln-field">
             <label>To</label>
-            {femaleName && maleName ? (
-              <select
-                value={to}
-                onChange={(e) => setTo(e.target.value)}
-                disabled={!isAuthenticated}
-              >
-                <option value={femaleName}>{femaleName}</option>
-                <option value={maleName}>{maleName}</option>
-              </select>
-            ) : (
-              <input
-                type="text"
-                value={to}
-                onChange={(e) => setTo(e.target.value)}
-                placeholder={maleName || "Their name / pet name"}
-                disabled={!isAuthenticated}
-                required
-              />
-            )}
+            <select
+              value={form.to}
+              onChange={(e) =>
+                setForm({ ...form, to: e.target.value })
+              }
+            >
+              <option value="female">{femaleName}</option>
+              <option value="male">{maleName}</option>
+            </select>
           </div>
+
         </div>
 
         <div className="ln-field">
-          <label>Title (optional)</label>
           <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder={
-              replaceYouPartner
-                ? replaceYouPartner("e.g. Reasons I love you")
-                : "e.g. Reasons I love you"
+            placeholder="e.g. Reasons I love you..."
+            value={form.title}
+            onChange={(e) =>
+              setForm({ ...form, title: e.target.value })
             }
-            disabled={!isAuthenticated}
           />
         </div>
 
         <div className="ln-field">
-          <label>Love note</label>
           <textarea
-            rows={4}
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-            placeholder={
-              replaceYouPartner
-                ? replaceYouPartner("Write your heart out…")
-                : "Write your heart out…"
+            rows="4"
+            placeholder="Write your heart out…"
+            value={form.content}
+            onChange={(e) =>
+              setForm({ ...form, content: e.target.value })
             }
-            disabled={!isAuthenticated}
-            required
           />
         </div>
 
-        <button
-          type="submit"
-          className="ln-primary-btn"
-          disabled={!isAuthenticated}
-        >
-          {replaceYouPartner
-            ? replaceYouPartner("Save love note")
-            : "Save love note"}
-        </button>
+        <button className="ln-primary-btn">Save Love Note</button>
+
       </form>
     </div>
   );

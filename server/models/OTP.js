@@ -21,6 +21,24 @@ const otpSchema = new mongoose.Schema({
     type: String,
     enum: ["registration", "login"],
     default: "registration"
+  },
+
+  // Number of failed verification attempts against this OTP
+  attempts: {
+    type: Number,
+    default: 0
+  },
+
+  // How many times a new OTP has been resent to this email
+  resendCount: {
+    type: Number,
+    default: 0
+  },
+
+  // Timestamp of the most recent resend (for cooldown enforcement)
+  lastResentAt: {
+    type: Date,
+    default: null
   }
 
 }, { timestamps: true });

@@ -19,7 +19,28 @@ export default function useAuth() {
     setError(null);
 
     const res = await authApi.login(credentials);
-    const { token, user } = res.data;
+    const responseData = res?.data || {};
+    const { token, user } = responseData;
+
+    // Support both 403 error responses and legacy 200 OTP-required responses.
+    const otpRequired =
+      responseData?.code === "USER_UNVERIFIED" ||
+      responseData?.redirectTo === "/verify-otp" ||
+      (!token && !user && /verify/i.test(responseData?.message || ""));
+
+    if (otpRequired) {
+      return {
+        success: false,
+        status: responseData?.status || 403,
+        code: "USER_UNVERIFIED",
+        email: responseData?.email,
+        message: responseData?.message || "Please verify your OTP before logging in.",
+      };
+    }
+
+    if (!token || !user) {
+      throw new Error("Login response missing token or user");
+    }
 
 
     localStorage.setItem("auth_token", token);
@@ -35,8 +56,9 @@ export default function useAuth() {
 
     return { success: true, user };
   } catch (err) {
+    const errorData = err?.response?.data || err || {};
     const serverMessage =
-      err?.response?.data?.message ||
+      errorData?.message ||
       err?.message ||
       err?.error ||
       "Login failed";
@@ -44,7 +66,9 @@ export default function useAuth() {
     setError(serverMessage);
     return {
       success: false,
-      status: err?.response?.status,
+      status: err?.response?.status || err?.status,
+      code: errorData?.code,
+      email: errorData?.email,
       message: serverMessage,
     };
   } finally {
@@ -104,6 +128,9 @@ export default function useAuth() {
     register,
     logout,
     loadUser,
-    isAuthenticated: !!user,
+    isAuthenticated:
+      !!user ||
+      !!localStorage.getItem("auth_token") ||
+      !!localStorage.getItem("token"),
   };
 }

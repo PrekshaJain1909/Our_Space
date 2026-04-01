@@ -88,9 +88,18 @@ exports.registerPartnerB = asyncHandler(async (req, res) => {
 
   if (existingUser) {
     if (!existingUser.isVerified) {
-      // resend OTP
+      // Resend OTP — enforce cooldown and resend limits
       const otp = otpService.generateOTP();
-      await otpService.saveOTP(email, otp);
+      const saveResult = await otpService.saveOTP(email, otp, true);
+
+      if (!saveResult.success) {
+        const status = saveResult.waitSeconds ? 429 : 400;
+        return res.status(status).json({
+          message: saveResult.message,
+          ...(saveResult.waitSeconds && { waitSeconds: saveResult.waitSeconds }),
+        });
+      }
+
       await mailService.sendOTPEmail(email, otp);
 
       return res.status(200).json({

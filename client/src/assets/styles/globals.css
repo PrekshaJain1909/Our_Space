@@ -1,14 +1,10 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-/* Import project CSS variables (if any) */
 @import "./variables.css";
 
-/* You can add global custom styles below */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* You can add global custom styles below */
 
 /* -------------------------------------------------------
    Base Reset & Smooth UI

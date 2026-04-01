@@ -3,6 +3,7 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 
 import App from "./App.jsx";
+import "./assets/styles/globals.css";
 import { ToastProvider } from "./components/ui/ToastProvider.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { UiProvider } from "./context/UiContext.jsx";

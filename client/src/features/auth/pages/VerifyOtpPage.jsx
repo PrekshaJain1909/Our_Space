@@ -1,30 +1,47 @@
-import React, { useState, useEffect } from "react";
-import { verifyOtp } from "../services/authApi";
+import React, { useState, useEffect, useCallback } from "react";
+import { verifyOtp, resendOtp } from "../services/authApi";
 import OTPInput from "../components/OTPInput";
 import Swal from "sweetalert2";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./RegisterPage.css";
 
+const RESEND_COOLDOWN = 60;
+
 export default function VerifyOtpPage() {
   const [otp, setOtp] = useState("");
+  const [attemptsLeft, setAttemptsLeft] = useState(null);
+  const [locked, setLocked] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [resendLoading, setResendLoading] = useState(false);
+
   const navigate = useNavigate();
   const location = useLocation();
-
-  const email = location.state?.email;
+  const searchParams = new URLSearchParams(location.search);
+  const email = location.state?.email || searchParams.get("email") || "";
 
   useEffect(() => {
-    // If no email (page refresh case)
     if (!email) {
       Swal.fire({
         icon: "warning",
         title: "Session Expired 💌",
-        text: "Please register again.",
+        text: "Please login or register again.",
         confirmButtonColor: "#ff66c4",
       }).then(() => {
-        navigate(`/register${location.search || ""}`, { replace: true });
+        navigate(`/login${location.search || ""}`, { replace: true });
       });
     }
   }, [email, navigate, location.search]);
+
+  // Cooldown timer
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+
+    const timer = setTimeout(() => {
+      setResendCooldown((prev) => prev - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
 
   const handleVerify = async () => {
     if (otp.length !== 6) {
@@ -42,14 +59,14 @@ export default function VerifyOtpPage() {
     try {
       const res = await verifyOtp({ email, otp });
 
-      // Save login data
       if (res?.token) {
+        localStorage.setItem("auth_token", res.token);
         localStorage.setItem("token", res.token);
+        window.dispatchEvent(new Event("auth-token-updated"));
       }
 
       if (res?.user) {
         localStorage.setItem("user", JSON.stringify(res.user));
-        // Notify app that user data has been updated
         window.dispatchEvent(new CustomEvent("user-data-updated"));
       }
 
@@ -65,16 +82,86 @@ export default function VerifyOtpPage() {
       navigate("/dashboard", { replace: true });
 
     } catch (err) {
+      const data = err.response?.data || {};
+      const isLocked = data.locked || err.response?.status === 423;
+
+      if (isLocked) {
+        setLocked(true);
+        setOtp("");
+
+        Swal.fire({
+          icon: "error",
+          title: "Account Locked 🔒",
+          text: "Too many failed attempts. Please request a new OTP.",
+          confirmButtonColor: "#ff66c4",
+          background: "#1c003a",
+          color: "#fff",
+        });
+
+        return;
+      }
+
+      if (data.attemptsLeft !== undefined) {
+        setAttemptsLeft(data.attemptsLeft);
+      }
+
       Swal.fire({
         icon: "error",
-        title: "Invalid or Expired OTP 💔",
-        text: err.response?.data?.message || "Please try again.",
+        title: "Invalid OTP 💔",
+        text: data.message || "Please try again.",
         confirmButtonColor: "#ff66c4",
         background: "#1c003a",
         color: "#fff",
       });
     }
   };
+
+  const handleResend = useCallback(async () => {
+    if (!email) return;
+
+    if (resendCooldown > 0 || resendLoading) return;
+
+    setResendLoading(true);
+
+    try {
+      await resendOtp(email);
+
+      setLocked(false);
+      setAttemptsLeft(null);
+      setOtp("");
+      setResendCooldown(RESEND_COOLDOWN);
+
+      Swal.fire({
+        icon: "success",
+        title: "OTP Resent 💌",
+        text: "A new OTP has been sent to your email.",
+        confirmButtonColor: "#ff66c4",
+        background: "#1c003a",
+        color: "#fff",
+        timer: 2500,
+        showConfirmButton: false,
+      });
+
+    } catch (err) {
+      const data = err.response?.data || {};
+
+      if (data.waitSeconds) {
+        setResendCooldown(data.waitSeconds);
+      }
+
+      Swal.fire({
+        icon: "error",
+        title: "Could not resend OTP",
+        text: data.message || "Please try again later.",
+        confirmButtonColor: "#ff66c4",
+        background: "#1c003a",
+        color: "#fff",
+      });
+
+    } finally {
+      setResendLoading(false);
+    }
+  }, [email, resendCooldown, resendLoading]);
 
   return (
     <div className="romantic-page">
@@ -93,12 +180,55 @@ export default function VerifyOtpPage() {
         <h2 className="card-title">Verify OTP</h2>
 
         <div className="otp-wrapper">
-          <OTPInput length={6} onChange={setOtp} />
+          <OTPInput
+            length={6}
+            onChange={setOtp}
+            value={otp}
+            disabled={locked}
+          />
         </div>
 
-        <button onClick={handleVerify} className="primary-btn">
+        {attemptsLeft !== null && !locked && (
+          <p style={{ color: "#ff5c6c", fontSize: 13, textAlign: "center", marginTop: 8 }}>
+            {attemptsLeft} attempt{attemptsLeft !== 1 ? "s" : ""} remaining before OTP is invalidated.
+          </p>
+        )}
+
+        {locked && (
+          <p style={{ color: "#ff5c6c", fontSize: 13, textAlign: "center", marginTop: 8 }}>
+            OTP locked due to too many attempts. Request a new one below.
+          </p>
+        )}
+
+        <button
+          onClick={handleVerify}
+          className="primary-btn"
+          disabled={locked}
+        >
           Verify & Continue 💖
         </button>
+
+        <div style={{ textAlign: "center", marginTop: 16 }}>
+          <button
+            type="button"
+            onClick={handleResend}
+            disabled={resendCooldown > 0 || resendLoading}
+            style={{
+              background: "none",
+              border: "none",
+              color: resendCooldown > 0 ? "#888" : "#ff66c4",
+              cursor: resendCooldown > 0 ? "default" : "pointer",
+              fontSize: 14,
+              textDecoration: resendCooldown > 0 ? "none" : "underline",
+            }}
+          >
+            {resendLoading
+              ? "Sending..."
+              : resendCooldown > 0
+              ? `Resend OTP in ${resendCooldown}s`
+              : "Resend OTP"}
+          </button>
+        </div>
       </div>
     </div>
   );

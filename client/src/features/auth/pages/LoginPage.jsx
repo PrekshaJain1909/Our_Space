@@ -42,12 +42,39 @@ export default function LoginPage() {
     if (coupleId) payload.coupleId = coupleId;
 
     const res = await login(payload);
+    if (import.meta.env.DEV) {
+      console.log("[LoginPage] login result", res);
+    }
+
     if (res?.success) {
-      success("Welcome back 💕");
+      if (res.user?.partnerPending) {
+        success("Welcome back 💕 — waiting for your partner to verify their account.");
+      } else {
+        success("Welcome back 💕");
+      }
       navigate("/dashboard");
     } else {
-      if (res?.status === 403) {
-        toastError(res?.message || "Please verify OTP before logging in.");
+      if (import.meta.env.DEV) {
+        console.log("[LoginPage] login failed branch", {
+          status: res?.status,
+          code: res?.code,
+          email: res?.email,
+          message: res?.message,
+        });
+      }
+
+      const needsOtp =
+        (res?.status === 403 && res?.code === "USER_UNVERIFIED") ||
+        res?.redirectTo === "/verify-otp" ||
+        /verify/i.test(res?.message || "");
+
+      if (needsOtp) {
+        const email = (res?.email || "").trim();
+        const otpPath = email ? `/verify-otp?email=${encodeURIComponent(email)}` : "/verify-otp";
+
+        navigate(`${otpPath}${inviteQuerySuffix ? `&${inviteQuerySuffix.slice(1)}` : ""}`, {
+          state: email ? { email } : undefined,
+        });
         return;
       }
 

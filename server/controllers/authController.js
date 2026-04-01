@@ -19,9 +19,18 @@ exports.registerPartnerA = asyncHandler(async (req, res) => {
 
   if (existingUser) {
     if (!existingUser.isVerified) {
-      // resend OTP
+      // Resend OTP — enforce cooldown and resend limits
       const otp = otpService.generateOTP();
-      await otpService.saveOTP(email, otp);
+      const saveResult = await otpService.saveOTP(email, otp, true);
+
+      if (!saveResult.success) {
+        const status = saveResult.waitSeconds ? 429 : 400;
+        return res.status(status).json({
+          message: saveResult.message,
+          ...(saveResult.waitSeconds && { waitSeconds: saveResult.waitSeconds }),
+        });
+      }
+
       await mailService.sendOTPEmail(email, otp);
 
       return res.status(200).json({
@@ -114,7 +123,22 @@ exports.login = asyncHandler(async (req, res) => {
   }
 
   if (!matchedUser.isVerified) {
-    return res.status(403).json({ message: "Please verify OTP before logging in" });
+    return res.status(403).json({
+      message: "Please verify your OTP before logging in.",
+      code: "USER_UNVERIFIED",
+      email: matchedUser.email,
+    });
+  }
+
+  // Detect when this user is verified but their partner hasn't verified yet
+  let partnerPending = false;
+  if (couple.partnerA && couple.partnerB && !couple.isActive) {
+    const otherPartner = couple.partnerA._id.equals(matchedUser._id)
+      ? couple.partnerB
+      : couple.partnerA;
+    if (otherPartner && !otherPartner.isVerified) {
+      partnerPending = true;
+    }
   }
 
   const token = jwt.sign(
@@ -135,6 +159,7 @@ exports.login = asyncHandler(async (req, res) => {
       isVerified: matchedUser.isVerified,
       isActive: Boolean(couple.isActive),
       coupleName: couple.coupleName,
+      partnerPending,
     },
   });
 });

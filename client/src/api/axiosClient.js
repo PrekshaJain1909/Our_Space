@@ -27,7 +27,7 @@ const axiosClient = axios.create({
 // Attach auth token to every request
 axiosClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("auth_token");
+    const token = localStorage.getItem("auth_token") || localStorage.getItem("token");
 
     // 🔍 DEBUG LOG (IMPORTANT)
     console.log(
@@ -96,12 +96,14 @@ axiosClient.interceptors.response.use(
 
         if (newToken) {
           localStorage.setItem("auth_token", newToken);
+          localStorage.setItem("token", newToken);
           originalRequest.headers.Authorization = `Bearer ${newToken}`;
           return axiosClient(originalRequest);
         }
       } catch (refreshError) {
         console.error("Session expired — please log in again");
         localStorage.removeItem("auth_token");
+        localStorage.removeItem("token");
         // Prevent infinite reload loop
         if (window.location.pathname !== "/login") {
           window.location.href = "/login";
@@ -125,8 +127,15 @@ axiosClient.interceptors.response.use(
       // ignore
     }
 
-    // Other errors
-    return Promise.reject(error.response?.data || error);
+    // Other errors: keep status + payload so callers can branch on auth states.
+    if (error.response) {
+      return Promise.reject({
+        ...error.response.data,
+        status: error.response.status,
+      });
+    }
+
+    return Promise.reject(error);
   }
 );
 

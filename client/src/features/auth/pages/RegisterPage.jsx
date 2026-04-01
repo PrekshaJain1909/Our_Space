@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { registerPartnerA, registerPartnerB } from "../services/authApi";
+import { registerPartnerA, registerPartnerB, resendOtp } from "../services/authApi";
 import Swal from "sweetalert2";
 import "./LoginPage.css";
 
@@ -9,6 +9,9 @@ export default function RegisterPage() {
   const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showResendForm, setShowResendForm] = useState(false);
+  const [resendEmail, setResendEmail] = useState("");
+  const [resendLoading, setResendLoading] = useState(false);
 
   const params = new URLSearchParams(location.search);
   const inviteToken = params.get("inviteToken") || params.get("token") || "";
@@ -77,14 +80,52 @@ export default function RegisterPage() {
 
       navigate(`/verify-otp${inviteQuerySuffix}`, { state: { email } });
     } catch (err) {
+      const errMsg = err.response?.data?.message || "Something went wrong.";
+      const status  = err.response?.status;
+
+      // If the account already exists but is unverified the server
+      // resends the OTP automatically (200) — navigate to verify page.
+      // For all other errors show the message normally.
+      if (status === 200) {
+        navigate(`/verify-otp${inviteQuerySuffix}`, { state: { email } });
+      } else {
+        Swal.fire({
+          icon: "error",
+          title: isInviteFlow ? "Join Failed" : "Registration Failed",
+          text: errMsg,
+          confirmButtonColor: "#ff66c4",
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async (e) => {
+    e.preventDefault();
+    if (!resendEmail.trim()) return;
+
+    setResendLoading(true);
+    try {
+      await resendOtp(resendEmail.trim());
+      Swal.fire({
+        icon: "success",
+        title: "OTP Sent 💌",
+        text: "Check your email for the new OTP.",
+        confirmButtonColor: "#ff66c4",
+        timer: 2500,
+        showConfirmButton: false,
+      });
+      navigate(`/verify-otp${inviteQuerySuffix}`, { state: { email: resendEmail.trim() } });
+    } catch (err) {
       Swal.fire({
         icon: "error",
-        title: isInviteFlow ? "Join Failed" : "Registration Failed",
-        text: err.response?.data?.message || "Something went wrong.",
+        title: "Could not resend OTP",
+        text: err.response?.data?.message || "Please try again.",
         confirmButtonColor: "#ff66c4",
       });
     } finally {
-      setLoading(false);
+      setResendLoading(false);
     }
   };
 
@@ -230,6 +271,53 @@ export default function RegisterPage() {
                   Sign in
                 </button>
               </p>
+              {!showResendForm ? (
+                <p className="footer-text" style={{ marginTop: 8 }}>
+                  Already registered?{" "}
+                  <button
+                    type="button"
+                    className="footer-link"
+                    onClick={() => setShowResendForm(true)}
+                    disabled={loading}
+                  >
+                    Resend OTP
+                  </button>
+                </p>
+              ) : (
+                <form
+                  onSubmit={handleResendOtp}
+                  style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}
+                >
+                  <input
+                    type="email"
+                    className="form-input"
+                    placeholder="Enter your registered email"
+                    value={resendEmail}
+                    onChange={(e) => setResendEmail(e.target.value)}
+                    required
+                    disabled={resendLoading}
+                  />
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <button
+                      type="submit"
+                      className="submit-button"
+                      disabled={resendLoading}
+                      style={{ flex: 1 }}
+                    >
+                      {resendLoading ? "Sending..." : "Send OTP"}
+                    </button>
+                    <button
+                      type="button"
+                      className="submit-button"
+                      onClick={() => setShowResendForm(false)}
+                      disabled={resendLoading}
+                      style={{ flex: 1, background: "transparent", border: "1px solid #ff5da2", color: "#ff5da2" }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              )}
             </footer>
           </div>
         </div>

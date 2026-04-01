@@ -13,7 +13,8 @@ exports.requireActiveCouple = async (req, res, next) => {
 
   if (!couple || !couple.isActive) {
     return res.status(403).json({
-      message: "Your partner must verify to continue 💖"
+      message: "Your partner must verify their account to unlock this feature 💖",
+      code: "PARTNER_UNVERIFIED",
     });
   }
 

@@ -45,6 +45,12 @@ export const verifyOtp = async (data) => {
   return response.data;
 };
 
+// ✅ Resend OTP (called from verify page)
+export const resendOtp = async (email) => {
+  const response = await API.post("/otp/resend", { email });
+  return response.data;
+};
+
 export const getCoupleStatus = async (coupleId) => {
   const response = await API.get(`/invite/couple-status/${coupleId}`);
   return response.data;
@@ -55,5 +61,6 @@ export default {
   registerPartnerA,
   registerPartnerB,
   verifyOtp,
+  resendOtp,
   getCoupleStatus,
 };

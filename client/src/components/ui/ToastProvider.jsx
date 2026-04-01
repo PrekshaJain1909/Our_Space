@@ -34,34 +34,22 @@ export function useToastContext() {
 
 function Toast({ message, type, visible, onClose }) {
   if (!visible || !message) return null;
-  const baseStyle = {
-    position: 'fixed',
-    top: 32,
-    left: '50%',
-    transform: 'translateX(-50%)',
-    zIndex: 9999,
-    minWidth: 220,
-    padding: '14px 28px',
-    borderRadius: 10,
-    boxShadow: '0 4px 24px rgba(0,0,0,0.18)',
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: 500,
-    border: '1.5px solid',
-    cursor: 'pointer',
-    transition: 'opacity 0.3s',
-    opacity: visible ? 1 : 0,
-    background: '#222',
+  const typeClasses = {
+    success: "border-pink-500 bg-pink-500 text-white shadow-pink-500/30",
+    error: "border-rose-600 bg-rose-500 text-white shadow-rose-500/30",
+    warning: "border-amber-500 bg-amber-400 text-slate-900 shadow-amber-400/30",
+    info: "border-sky-600 bg-sky-500 text-white shadow-sky-500/30",
   };
-  const typeColors = {
-    success: { background: '#2ecc40', borderColor: '#27ae60' },
-    error: { background: '#e74c3c', borderColor: '#c0392b' },
-    warning: { background: '#f1c40f', borderColor: '#f39c12', color: '#222' },
-    info: { background: '#3498db', borderColor: '#2980b9' },
-  };
-  const style = { ...baseStyle, ...(typeColors[type] || typeColors.info) };
+
   return (
-    <div style={style} role="alert" onClick={onClose}>
+    <div
+      role="alert"
+      onClick={onClose}
+      className={[
+        "fixed left-1/2 top-8 z-[9999] min-w-[220px] -translate-x-1/2 cursor-pointer rounded-xl border px-7 py-3.5 text-center text-[15px] font-medium shadow-xl transition-opacity duration-300",
+        typeClasses[type] || typeClasses.info,
+      ].join(" ")}
+    >
       {message}
     </div>
   );
