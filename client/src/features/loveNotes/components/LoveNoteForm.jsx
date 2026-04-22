@@ -11,6 +11,7 @@ export default function LoveNoteForm({ onAdd, femaleName, maleName, isAuthentica
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (!isAuthenticated) return;
     if (!form.content) return;
 
     onAdd({
@@ -20,9 +21,6 @@ export default function LoveNoteForm({ onAdd, femaleName, maleName, isAuthentica
 
     setForm({ from: "female", to: "male", title: "", content: "" });
   };
-
-  if (!isAuthenticated)
-    return <div className="ln-card">Login to add notes</div>;
 
   return (
     <div className="ln-card">
@@ -35,6 +33,11 @@ export default function LoveNoteForm({ onAdd, femaleName, maleName, isAuthentica
       </div>
 
       <form className="ln-form" onSubmit={handleSubmit}>
+        {!isAuthenticated && (
+          <div className="ln-subtitle" style={{ marginBottom: 12 }}>
+            Guest mode: this form is visible but locked until you login or register.
+          </div>
+        )}
 
         <div className="ln-form-row">
 
@@ -42,6 +45,7 @@ export default function LoveNoteForm({ onAdd, femaleName, maleName, isAuthentica
             <label>From</label>
             <select
               value={form.from}
+              disabled={!isAuthenticated}
               onChange={(e) =>
                 setForm({ ...form, from: e.target.value })
               }
@@ -55,6 +59,7 @@ export default function LoveNoteForm({ onAdd, femaleName, maleName, isAuthentica
             <label>To</label>
             <select
               value={form.to}
+              disabled={!isAuthenticated}
               onChange={(e) =>
                 setForm({ ...form, to: e.target.value })
               }
@@ -70,6 +75,7 @@ export default function LoveNoteForm({ onAdd, femaleName, maleName, isAuthentica
           <input
             placeholder="e.g. Reasons I love you..."
             value={form.title}
+            disabled={!isAuthenticated}
             onChange={(e) =>
               setForm({ ...form, title: e.target.value })
             }
@@ -81,13 +87,16 @@ export default function LoveNoteForm({ onAdd, femaleName, maleName, isAuthentica
             rows="4"
             placeholder="Write your heart out…"
             value={form.content}
+            disabled={!isAuthenticated}
             onChange={(e) =>
               setForm({ ...form, content: e.target.value })
             }
           />
         </div>
 
-        <button className="ln-primary-btn">Save Love Note</button>
+        <button className="ln-primary-btn" disabled={!isAuthenticated}>
+          {isAuthenticated ? "Save Love Note" : "Save Love Note (Login Required)"}
+        </button>
 
       </form>
     </div>

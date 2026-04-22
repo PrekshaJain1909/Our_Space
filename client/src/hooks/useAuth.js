@@ -34,6 +34,7 @@ export default function useAuth() {
         status: responseData?.status || 403,
         code: "USER_UNVERIFIED",
         email: responseData?.email,
+        userId: responseData?.userId,
         message: responseData?.message || "Please verify your OTP before logging in.",
       };
     }
@@ -69,6 +70,7 @@ export default function useAuth() {
       status: err?.response?.status || err?.status,
       code: errorData?.code,
       email: errorData?.email,
+      userId: errorData?.userId,
       message: serverMessage,
     };
   } finally {

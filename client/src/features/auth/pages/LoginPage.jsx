@@ -2,9 +2,15 @@ import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import useAuth from "../../../hooks/useAuth";
 import useToast from "../../../hooks/useToast";
+import {
+  buildVerifyOtpPath,
+  setPendingOtpEmail,
+  setPendingOtpUserId,
+} from "../../../utils/otpFlow";
 import "./LoginPage.css";
 
 export default function LoginPage() {
+
   const navigate = useNavigate();
   const location = useLocation();
   const { login, loading } = useAuth();
@@ -59,6 +65,7 @@ export default function LoginPage() {
           status: res?.status,
           code: res?.code,
           email: res?.email,
+          userId: res?.userId,
           message: res?.message,
         });
       }
@@ -70,10 +77,19 @@ export default function LoginPage() {
 
       if (needsOtp) {
         const email = (res?.email || "").trim();
-        const otpPath = email ? `/verify-otp?email=${encodeURIComponent(email)}` : "/verify-otp";
+        const userId = (res?.userId || "").toString().trim();
+        setPendingOtpEmail(email);
+        setPendingOtpUserId(userId);
+        const otpPath = buildVerifyOtpPath({
+          email,
+          query: inviteQuerySuffix,
+        });
 
-        navigate(`${otpPath}${inviteQuerySuffix ? `&${inviteQuerySuffix.slice(1)}` : ""}`, {
-          state: email ? { email } : undefined,
+        navigate(otpPath, {
+          state: {
+            ...(email ? { email } : {}),
+            ...(userId ? { userId } : {}),
+          },
         });
         return;
       }

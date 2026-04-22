@@ -13,13 +13,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const syncUser = () => {
-      const token = localStorage.getItem("auth_token") || localStorage.getItem("token");
       const stored = localStorage.getItem("user");
-
-      if (!token) {
-        navigate("/login", { replace: true });
-        return;
-      }
 
       try {
         setUser(stored ? JSON.parse(stored) : null);
@@ -35,7 +29,7 @@ export default function DashboardPage() {
       window.removeEventListener("user-data-updated", syncUser);
       window.removeEventListener("auth-token-updated", syncUser);
     };
-  }, [navigate]);
+  }, []);
 
   const quickLinks = useMemo(
     () => [
@@ -71,7 +65,8 @@ export default function DashboardPage() {
     []
   );
 
-  if (!user) return null;
+  const displayName = user?.name || "Guest";
+  const isActiveCouple = Boolean(user?.isActive);
 
   return (
     <div className="dashboard-wrapper">
@@ -80,11 +75,11 @@ export default function DashboardPage() {
       <div className="dashboard-inner">
         <header className="dashboard-header">
           <span className="dashboard-badge">Dashboard</span>
-          <h1 className="dashboard-title">Welcome back, {user?.name || "Love"} ✨</h1>
+          <h1 className="dashboard-title">Welcome back, {displayName} ✨</h1>
           <p className="dashboard-subtitle">
-            {user?.isActive
+            {isActiveCouple
               ? "Your shared space is active. Here is your relationship pulse for today."
-              : "Invite your partner to unlock all shared features in your space."}
+              : "Browse everything in guest mode. Login or register when you are ready to edit."}
           </p>
         </header>
 
@@ -100,8 +95,8 @@ export default function DashboardPage() {
               partner={{
                 name: "Partner",
                 emoji: "🙂",
-                moodLabel: user?.isActive ? "No mood set" : "Not connected yet",
-                note: user?.isActive
+                moodLabel: isActiveCouple ? "No mood set" : "Not connected yet",
+                note: isActiveCouple
                   ? "Waiting for partner mood update."
                   : "Invite your partner to start sharing mood check-ins.",
               }}

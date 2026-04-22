@@ -84,9 +84,11 @@ axiosClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const hasSessionToken =
+      !!localStorage.getItem("auth_token") || !!localStorage.getItem("token");
 
     // If token expired — optional refresh flow
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    if (hasSessionToken && error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {
@@ -104,10 +106,6 @@ axiosClient.interceptors.response.use(
         console.error("Session expired — please log in again");
         localStorage.removeItem("auth_token");
         localStorage.removeItem("token");
-        // Prevent infinite reload loop
-        if (window.location.pathname !== "/login") {
-          window.location.href = "/login";
-        }
       }
     }
     // If server responds with 403, dispatch readonly event so UI can show banner

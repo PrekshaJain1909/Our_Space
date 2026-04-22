@@ -735,6 +735,58 @@ body {
   margin: 0 auto;
 }
 
+.readonly-banner {
+  max-width: 1400px;
+  margin: 0 auto 1rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(var(--accent-rgb), 0.35);
+  background: rgba(var(--accent-rgb), 0.1);
+  color: #ffd7e9;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+}
+
+.content-inner.guest-readonly {
+  position: relative;
+}
+
+.content-inner.guest-readonly::after {
+  content: "Read-only preview";
+  position: sticky;
+  top: 0.75rem;
+  float: right;
+  margin-right: 0.5rem;
+  z-index: 5;
+  font-size: 0.75rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.92);
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  padding: 0.25rem 0.6rem;
+}
+
+.content-inner.guest-readonly :is(input, textarea, select, [contenteditable="true"]) {
+  pointer-events: none !important;
+}
+
+.content-inner.guest-readonly form {
+  pointer-events: none;
+}
+
+.content-inner.guest-readonly :is(input, textarea, select, button) {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.content-inner.guest-readonly a,
+.content-inner.guest-readonly button,
+.content-inner.guest-readonly [role="button"] {
+  pointer-events: auto;
+}
+
 /* ============================================
    MOBILE DRAWER
    ============================================ */

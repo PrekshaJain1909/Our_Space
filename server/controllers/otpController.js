@@ -11,16 +11,26 @@ const mailService = require("../service/mailService");
 const jwt = require("jsonwebtoken");
 
 exports.verifyOTP = asyncHandler(async (req, res) => {
-  const { email, otp } = req.body;
+  const { email, otp, userId } = req.body;
+
+  const normalizedEmail = (email || "").trim().toLowerCase();
+
+  if (!normalizedEmail && !userId) {
+    return res.status(400).json({ message: "Email or userId is required" });
+  }
 
   // 1️⃣ Find user
-  const user = await User.findOne({ email });
+  const user = userId
+    ? await User.findById(userId)
+    : await User.findOne({ email: normalizedEmail });
   if (!user) {
     return res.status(404).json({ message: "User not found" });
   }
 
+  const otpTargetEmail = (user.email || "").trim().toLowerCase();
+
   // 2️⃣ Verify OTP (tracks attempts, expiry, lock)
-  const result = await otpService.verifyOTP(email, otp);
+  const result = await otpService.verifyOTP(otpTargetEmail, otp);
 
   if (!result.success) {
     const status = result.locked ? 423 : 400;
@@ -80,13 +90,17 @@ exports.verifyOTP = asyncHandler(async (req, res) => {
 
 // POST /api/otp/resend  –  request a new OTP without re-registering
 exports.resendOTP = asyncHandler(async (req, res) => {
-  const { email } = req.body;
+  const { email, userId } = req.body;
 
-  if (!email) {
-    return res.status(400).json({ message: "Email is required" });
+  const normalizedEmail = (email || "").trim().toLowerCase();
+
+  if (!normalizedEmail && !userId) {
+    return res.status(400).json({ message: "Email or userId is required" });
   }
 
-  const user = await User.findOne({ email });
+  const user = userId
+    ? await User.findById(userId)
+    : await User.findOne({ email: normalizedEmail });
   if (!user) {
     return res.status(404).json({ message: "User not found" });
   }
@@ -96,7 +110,8 @@ exports.resendOTP = asyncHandler(async (req, res) => {
   }
 
   const otp = otpService.generateOTP();
-  const result = await otpService.saveOTP(email, otp, true);
+  const targetEmail = (user.email || "").trim().toLowerCase();
+  const result = await otpService.saveOTP(targetEmail, otp, true);
 
   if (!result.success) {
     const status = result.waitSeconds ? 429 : 400;
@@ -106,7 +121,7 @@ exports.resendOTP = asyncHandler(async (req, res) => {
     });
   }
 
-  await mailService.sendOTPEmail(email, otp);
+  await mailService.sendOTPEmail(targetEmail, otp);
 
   res.json({ message: "A new OTP has been sent to your email." });
 });

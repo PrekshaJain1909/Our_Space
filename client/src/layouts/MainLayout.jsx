@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Analytics } from "@vercel/analytics/react";
 import Sidebar from "../components/Sidebar/Sidebar";
@@ -8,6 +8,7 @@ import "./MainLayout.css";
 
 export default function MainLayout() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [user, setUser] = useState(null);
   const [collapsed, setCollapsed] = useState(false);
@@ -186,6 +187,11 @@ ${user.name} 🤍`,
 
   const closeDrawer = () => setIsDrawerOpen(false);
 
+  const isAuthFlowPath = ["/login", "/register", "/verify-otp", "/join"].some(
+    (path) => location.pathname === path || location.pathname.startsWith(`${path}/`)
+  );
+  const isGuestReadonly = !user && !isAuthFlowPath;
+
   const handleBrandClick = () => {
     if (window.matchMedia("(max-width: 767px)").matches) {
       setIsDrawerOpen((prev) => !prev);
@@ -347,7 +353,13 @@ ${user.name} 🤍`,
         </header>
 
         <main className="content">
-          <div className="content-inner">
+          {isGuestReadonly && (
+            <div className="readonly-banner" role="status" aria-live="polite">
+              Guest mode: editing is disabled until you login or register.
+            </div>
+          )}
+
+          <div className={`content-inner ${isGuestReadonly ? "guest-readonly" : ""}`}>
             <Outlet />
           </div>
         </main>

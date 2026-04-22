@@ -47,7 +47,12 @@ export const verifyOtp = async (data) => {
 
 // ✅ Resend OTP (called from verify page)
 export const resendOtp = async (email) => {
-  const response = await API.post("/otp/resend", { email });
+  const payload =
+    typeof email === "string"
+      ? { email }
+      : (email || {});
+
+  const response = await API.post("/otp/resend", payload);
   return response.data;
 };
 

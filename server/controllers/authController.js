@@ -127,6 +127,7 @@ exports.login = asyncHandler(async (req, res) => {
       message: "Please verify your OTP before logging in.",
       code: "USER_UNVERIFIED",
       email: matchedUser.email,
+      userId: matchedUser._id,
     });
   }
 

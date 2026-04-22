@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { registerPartnerA, registerPartnerB, resendOtp } from "../services/authApi";
 import Swal from "sweetalert2";
+import { buildVerifyOtpPath, setPendingOtpEmail } from "../../../utils/otpFlow";
 import "./LoginPage.css";
 
 export default function RegisterPage() {
@@ -78,7 +79,10 @@ export default function RegisterPage() {
         });
       }
 
-      navigate(`/verify-otp${inviteQuerySuffix}`, { state: { email } });
+      setPendingOtpEmail(email);
+      navigate(buildVerifyOtpPath({ email, query: inviteQuerySuffix }), {
+        state: { email },
+      });
     } catch (err) {
       const errMsg = err.response?.data?.message || "Something went wrong.";
       const status  = err.response?.status;
@@ -87,7 +91,10 @@ export default function RegisterPage() {
       // resends the OTP automatically (200) — navigate to verify page.
       // For all other errors show the message normally.
       if (status === 200) {
-        navigate(`/verify-otp${inviteQuerySuffix}`, { state: { email } });
+        setPendingOtpEmail(email);
+        navigate(buildVerifyOtpPath({ email, query: inviteQuerySuffix }), {
+          state: { email },
+        });
       } else {
         Swal.fire({
           icon: "error",
@@ -116,7 +123,11 @@ export default function RegisterPage() {
         timer: 2500,
         showConfirmButton: false,
       });
-      navigate(`/verify-otp${inviteQuerySuffix}`, { state: { email: resendEmail.trim() } });
+      const email = resendEmail.trim();
+      setPendingOtpEmail(email);
+      navigate(buildVerifyOtpPath({ email, query: inviteQuerySuffix }), {
+        state: { email },
+      });
     } catch (err) {
       Swal.fire({
         icon: "error",

@@ -3,12 +3,21 @@ import { verifyOtp, resendOtp } from "../services/authApi";
 import OTPInput from "../components/OTPInput";
 import Swal from "sweetalert2";
 import { useNavigate, useLocation } from "react-router-dom";
+import {
+  clearPendingOtpContext,
+  getPendingOtpEmail,
+  getPendingOtpUserId,
+  setPendingOtpEmail,
+  setPendingOtpUserId,
+} from "../../../utils/otpFlow";
 import "./RegisterPage.css";
 
 const RESEND_COOLDOWN = 60;
 
 export default function VerifyOtpPage() {
   const [otp, setOtp] = useState("");
+  const [emailInput, setEmailInput] = useState("");
+  const [emailError, setEmailError] = useState("");
   const [attemptsLeft, setAttemptsLeft] = useState(null);
   const [locked, setLocked] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(0);
@@ -17,20 +26,48 @@ export default function VerifyOtpPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
-  const email = location.state?.email || searchParams.get("email") || "";
+  const persistedEmail = getPendingOtpEmail();
+  const persistedUserId = getPendingOtpUserId();
+  const routeEmail = location.state?.email || searchParams.get("email") || "";
+  const routeUserId = (location.state?.userId || "").toString().trim();
+  const email = (emailInput || routeEmail || persistedEmail).trim();
+  const userId = (routeUserId || persistedUserId).trim();
 
   useEffect(() => {
-    if (!email) {
-      Swal.fire({
-        icon: "warning",
-        title: "Session Expired 💌",
-        text: "Please login or register again.",
-        confirmButtonColor: "#ff66c4",
-      }).then(() => {
-        navigate(`/login${location.search || ""}`, { replace: true });
-      });
+    if (routeEmail) {
+      setPendingOtpEmail(routeEmail);
     }
-  }, [email, navigate, location.search]);
+  }, [routeEmail]);
+
+  useEffect(() => {
+    if (routeUserId) {
+      setPendingOtpUserId(routeUserId);
+    }
+  }, [routeUserId]);
+
+  const validateEmail = (emailValue) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailValue.trim()) {
+      setEmailError("Email is required");
+      return false;
+    }
+    if (!emailRegex.test(emailValue)) {
+      setEmailError("Please enter a valid email address");
+      return false;
+    }
+    setEmailError("");
+    return true;
+  };
+
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setEmailInput(value);
+    if (value.trim()) {
+      validateEmail(value);
+    } else {
+      setEmailError("");
+    }
+  };
 
   // Cooldown timer
   useEffect(() => {
@@ -44,6 +81,31 @@ export default function VerifyOtpPage() {
   }, [resendCooldown]);
 
   const handleVerify = async () => {
+    // Validate email if it's required
+    if (!email && !userId) {
+      if (!validateEmail(emailInput)) {
+        Swal.fire({
+          icon: "warning",
+          title: "Invalid Email",
+          text: emailError || "Please enter a valid email address.",
+          confirmButtonColor: "#ff66c4",
+          background: "#1c003a",
+          color: "#fff",
+        });
+        return;
+      }
+    }
+
+    if (!email && !userId) {
+      Swal.fire({
+        icon: "warning",
+        title: "Email required",
+        text: "Enter your registered email to verify OTP.",
+        confirmButtonColor: "#ff66c4",
+      });
+      return;
+    }
+
     if (otp.length !== 6) {
       Swal.fire({
         icon: "warning",
@@ -57,7 +119,11 @@ export default function VerifyOtpPage() {
     }
 
     try {
-      const res = await verifyOtp({ email, otp });
+      const res = await verifyOtp({
+        otp,
+        ...(email ? { email } : {}),
+        ...(userId ? { userId } : {}),
+      });
 
       if (res?.token) {
         localStorage.setItem("auth_token", res.token);
@@ -79,11 +145,14 @@ export default function VerifyOtpPage() {
         color: "#fff",
       });
 
+      clearPendingOtpContext();
+
       navigate("/dashboard", { replace: true });
 
     } catch (err) {
-      const data = err.response?.data || {};
-      const isLocked = data.locked || err.response?.status === 423;
+      const data = err?.response?.data || err || {};
+      const status = err?.response?.status || err?.status;
+      const isLocked = data.locked || status === 423;
 
       if (isLocked) {
         setLocked(true);
@@ -117,14 +186,17 @@ export default function VerifyOtpPage() {
   };
 
   const handleResend = useCallback(async () => {
-    if (!email) return;
+    if (!email && !userId) return;
 
     if (resendCooldown > 0 || resendLoading) return;
 
     setResendLoading(true);
 
     try {
-      await resendOtp(email);
+      await resendOtp({
+        ...(email ? { email } : {}),
+        ...(userId ? { userId } : {}),
+      });
 
       setLocked(false);
       setAttemptsLeft(null);
@@ -143,7 +215,7 @@ export default function VerifyOtpPage() {
       });
 
     } catch (err) {
-      const data = err.response?.data || {};
+      const data = err?.response?.data || err || {};
 
       if (data.waitSeconds) {
         setResendCooldown(data.waitSeconds);
@@ -161,7 +233,7 @@ export default function VerifyOtpPage() {
     } finally {
       setResendLoading(false);
     }
-  }, [email, resendCooldown, resendLoading]);
+  }, [email, userId, resendCooldown, resendLoading]);
 
   return (
     <div className="romantic-page">
@@ -172,12 +244,64 @@ export default function VerifyOtpPage() {
         </h1>
 
         <p className="hero-subtitle">
-          Enter the 6-digit code sent to <strong>{email}</strong>
+          {email
+            ? <>
+                Enter the 6-digit code sent to <strong>{email}</strong>
+              </>
+            : userId
+            ? "Enter the 6-digit OTP sent to your registered email"
+            : "Enter your registered email and OTP to continue"}
         </p>
       </div>
 
       <div className="glass-card otp-card">
         <h2 className="card-title">Verify OTP</h2>
+
+        {!email && !userId && (
+          <div style={{ marginBottom: 16 }}>
+            <label
+              htmlFor="email-input"
+              style={{
+                display: "block",
+                marginBottom: 8,
+                fontSize: 14,
+                fontWeight: 500,
+                color: "#fff",
+              }}
+            >
+              Email Address <span style={{ color: "#ff66c4" }}>*</span>
+            </label>
+            <input
+              id="email-input"
+              ref={(el) => el?.focus()}
+              type="email"
+              value={emailInput}
+              onChange={handleEmailChange}
+              placeholder="Enter your registered email"
+              className="form-input"
+              aria-label="Email address"
+              aria-required="true"
+              aria-describedby={emailError ? "email-error" : undefined}
+              style={{
+                borderColor: emailError ? "#ff5c6c" : undefined,
+                borderWidth: emailError ? "2px" : "1px",
+              }}
+            />
+            {emailError && (
+              <p
+                id="email-error"
+                style={{
+                  color: "#ff5c6c",
+                  fontSize: 12,
+                  marginTop: 6,
+                  marginBottom: 0,
+                }}
+              >
+                {emailError}
+              </p>
+            )}
+          </div>
+        )}
 
         <div className="otp-wrapper">
           <OTPInput
