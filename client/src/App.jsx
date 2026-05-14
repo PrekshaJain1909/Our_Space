@@ -1,5 +1,6 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import MainLayout from "./layouts/MainLayout.jsx";
 import AuthLayout from "./layouts/AuthLayout.jsx";
@@ -33,12 +34,12 @@ function NotFoundPage() {
       <div className="text-center space-y-3">
         <h1 className="text-4xl font-bold">404</h1>
         <p className="text-slate-300">Page not found</p>
-        <a
-          href="/dashboard"
+        <Link
+          to="/dashboard"
           className="inline-flex items-center rounded-full bg-pink-500 px-5 py-2 text-sm font-medium text-white hover:bg-pink-600 transition"
         >
           Go to Dashboard
-        </a>
+        </Link>
       </div>
     </div>
   );

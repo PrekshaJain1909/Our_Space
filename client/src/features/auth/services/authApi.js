@@ -1,42 +1,26 @@
-import axios from "axios";
-
-const API = axios.create({
-  baseURL: "http://localhost:5000/api",
-  withCredentials: true
-});
-
-// 🔐 Automatically attach JWT token to every request
-API.interceptors.request.use((req) => {
-  const token = localStorage.getItem("token");
-
-  if (token) {
-    req.headers.Authorization = `Bearer ${token}`;
-  }
-
-  return req;
-});
+import axiosClient from "../../../api/axiosClient";
 
 // ✅ Login (by couple name + either partner's password)
 export const login = async (data) => {
-  const response = await API.post("/auth/login", data);
+  const response = await axiosClient.post("/auth/login", data);
   return response;
 };
 
 // ✅ Register Partner A
 export const registerPartnerA = async (data) => {
-  const response = await API.post("/auth/register", data);
+  const response = await axiosClient.post("/auth/register", data);
   return response.data;
 };
 
 // ✅ Register Partner B
 export const registerPartnerB = async (data) => {
-  const response = await API.post("/invite/register-partnerB", data);
+  const response = await axiosClient.post("/invite/register-partnerB", data);
   return response.data;
 };
 
 // ✅ Verify OTP
 export const verifyOtp = async (data) => {
-  const response = await API.post("/otp/verify", data);
+  const response = await axiosClient.post("/otp/verify", data);
 
   if (response.data.token) {
     localStorage.setItem("token", response.data.token);
@@ -52,12 +36,12 @@ export const resendOtp = async (email) => {
       ? { email }
       : (email || {});
 
-  const response = await API.post("/otp/resend", payload);
+  const response = await axiosClient.post("/otp/resend", payload);
   return response.data;
 };
 
 export const getCoupleStatus = async (coupleId) => {
-  const response = await API.get(`/invite/couple-status/${coupleId}`);
+  const response = await axiosClient.get(`/invite/couple-status/${coupleId}`);
   return response.data;
 };
 

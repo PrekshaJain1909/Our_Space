@@ -6,14 +6,14 @@ const getBaseURL = () => {
   if (import.meta.env.VITE_API_BASE_URL) {
     return import.meta.env.VITE_API_BASE_URL;
   }
-  
-  // Auto-detect Vercel production deployment
-  if (window.location.hostname === "our-space-pi.vercel.app") {
-    return "https://our-love-space.onrender.com/api";
+
+  // Use localhost only for local development
+  if (import.meta.env.DEV) {
+    return "http://localhost:5000/api";
   }
-  
-  // Default to localhost for development
-  return "http://localhost:5000/api";
+
+  // Default production API endpoint when env var is not provided
+  return "https://our-love-space.onrender.com/api";
 };
 
 const axiosClient = axios.create({
