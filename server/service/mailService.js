@@ -1,12 +1,12 @@
-const nodemailer = require("nodemailer");
-const dns = require("node:dns");
+const axios = require("axios");
 const { otpTemplate } = require("../templates/otpTemplate");
 const { inviteTemplate } = require("../templates/inviteTemplate");
 
-// Render can prefer IPv6 paths that time out for SMTP, so force IPv4-first.
-if (typeof dns.setDefaultResultOrder === "function") {
-  dns.setDefaultResultOrder("ipv4first");
-}
+const BREVO_EMAIL_API_URL = "https://api.brevo.com/v3/smtp/email";
+const SENDER = {
+  name: "OurSpace",
+  email: "prekjainsha190994@gmail.com",
+};
 
 class EmailDeliveryError extends Error {
   constructor(message, cause) {
@@ -17,152 +17,67 @@ class EmailDeliveryError extends Error {
   }
 }
 
-let transporter = null;
-let transporterReady = false;
-
-const toBool = (value, fallback = false) => {
-  if (value === undefined || value === null) return fallback;
-  return String(value).toLowerCase() === "true";
-};
-
-const toNumber = (value, fallback) => {
-  const parsed = Number(value);
-  return Number.isFinite(parsed) ? parsed : fallback;
-};
-
-const maskEmail = (value = "") => {
-  if (!value || !value.includes("@")) return "***";
-  const [name, domain] = value.split("@");
-  return `${name.slice(0, 2)}***@${domain}`;
-};
-
-const createTransportConfig = () => {
-  const emailUser = process.env.EMAIL_USER;
-  const emailPass = process.env.EMAIL_PASS;
-
-  if (!emailUser || !emailPass) {
-    throw new EmailDeliveryError("Brevo email is not configured. Set EMAIL_USER and EMAIL_PASS.");
-  }
-
-  return {
-    host: "smtp-relay.brevo.com",
-    port: 587,
-    secure: false,
-    auth: {
-      user: emailUser,
-      pass: emailPass,
-    },
-    family: 4,
-    connectionTimeout: toNumber(process.env.SMTP_CONNECTION_TIMEOUT, 15000),
-    greetingTimeout: toNumber(process.env.SMTP_GREETING_TIMEOUT, 15000),
-    socketTimeout: toNumber(process.env.SMTP_SOCKET_TIMEOUT, 20000),
-  };
-};
-
-const initializeTransporter = () => {
-  const debugEnabled = toBool(process.env.SMTP_DEBUG, true);
-  const config = createTransportConfig();
-
-  console.log("[Email] Initializing Brevo SMTP transporter...");
-  console.log(
-    `[Email] Host=${config.host} Port=${config.port} Secure=${config.secure} Family=${config.family}`
-  );
-  console.log(
-    `[Email] Timeouts: connection=${config.connectionTimeout}ms greeting=${config.greetingTimeout}ms socket=${config.socketTimeout}ms`
-  );
-  console.log(`[Email] Auth user=${maskEmail(config.auth.user)}`);
-
-  transporter = nodemailer.createTransport({
-    ...config,
-    pool: true,
-    maxConnections: toNumber(process.env.SMTP_MAX_CONNECTIONS, 3),
-    maxMessages: toNumber(process.env.SMTP_MAX_MESSAGES, 100),
-    logger: debugEnabled,
-    debug: debugEnabled,
-  });
-
-  transporterReady = false;
-  return transporter;
-};
-
-const parseSmtpError = (error) => {
-  const message = error?.message || "Unknown SMTP error";
-  const code = error?.code || "UNKNOWN";
-
-  if (code === "EAUTH" || message.includes("Invalid login")) {
-    return "Brevo authentication failed. Check your SMTP login and password.";
-  }
-
-  if (message.includes("Connection timeout") || message.includes("ETIMEDOUT") || message.includes("ESOCKET")) {
-    return "SMTP connection timeout. This usually means a network path, firewall, or provider reachability issue.";
-  }
-
-  if (message.includes("ECONNREFUSED")) {
-    return "SMTP connection refused by the remote server.";
-  }
-
-  return message;
-};
-
-const getTransporter = () => {
-  if (!transporter) {
-    return initializeTransporter();
-  }
-  return transporter;
-};
-
-const resetTransporter = () => {
-  transporter = null;
-  transporterReady = false;
+const normalizeErrorMessage = (error) => {
+  const apiMessage = error?.response?.data?.message;
+  if (apiMessage) return apiMessage;
+  return error?.message || "Unknown Brevo email error";
 };
 
 const verifyTransporter = async () => {
-  try {
-    const smtp = getTransporter();
-    console.log("[Email] Verifying Brevo SMTP connection...");
-    await smtp.verify();
-    transporterReady = true;
-    console.log("[Email] Brevo SMTP verification succeeded.");
-    return true;
-  } catch (error) {
-    transporterReady = false;
-    console.error("[Email] Brevo SMTP verification failed:", error.message);
-    console.error("[Email] Brevo SMTP detail:", parseSmtpError(error));
+  if (!process.env.BREVO_API_KEY) {
+    console.error("[Email API] BREVO_API_KEY is missing.");
     return false;
   }
+
+  console.log("[Email API] Brevo API key detected. Email API client is ready.");
+  return true;
 };
 
 const sendMail = async (to, payload) => {
+  if (!process.env.BREVO_API_KEY) {
+    throw new EmailDeliveryError("BREVO_API_KEY is missing");
+  }
+
+  const requestBody = {
+    sender: SENDER,
+    to: [{ email: to }],
+    subject: payload.subject,
+    htmlContent: payload.html,
+    textContent: payload.text,
+  };
+
   try {
-    const smtp = getTransporter();
+    console.log("[Email API] Sending email via Brevo REST API...");
+    console.log(`[Email API] To: ${to}`);
+    console.log(`[Email API] Subject: ${payload.subject}`);
 
-    await smtp.verify();
-    console.log("SMTP server ready");
+    const response = await axios.post(
+      BREVO_EMAIL_API_URL,
+      requestBody,
+      {
+        headers: {
+          accept: "application/json",
+          "content-type": "application/json",
+          "api-key": process.env.BREVO_API_KEY,
+        },
+        timeout: Number(process.env.BREVO_API_TIMEOUT_MS || 15000),
+      }
+    );
 
-    const info = await smtp.sendMail({
-      from: process.env.EMAIL_FROM || `"${process.env.EMAIL_FROM_NAME || "Ourspace"}" <${process.env.EMAIL_USER}>`,
-      to,
-      subject: payload.subject,
-      text: payload.text,
-      html: payload.html,
-    });
+    console.log("[Email API] Brevo response status:", response.status);
+    console.log("[Email API] Brevo response data:", response.data);
+    console.log("[Email API] Email sent. Message ID:", response.data?.messageId);
 
-    console.log("Email sent:", info.messageId);
-    transporterReady = true;
     return true;
   } catch (error) {
     console.error("FULL EMAIL ERROR:");
     console.error(error);
     console.error("MESSAGE:", error.message);
     console.error("CODE:", error.code);
-    console.error("RESPONSE:", error.response);
-    console.error("[Email] SMTP detail:", parseSmtpError(error));
+    console.error("RESPONSE STATUS:", error.response?.status);
+    console.error("RESPONSE DATA:", error.response?.data);
 
-    if (error?.message?.includes("Connection timeout") || error?.message?.includes("ETIMEDOUT") || error?.message?.includes("ECONNREFUSED")) {
-      resetTransporter();
-    }
-
-    throw new Error(error.message);
+    throw new EmailDeliveryError(normalizeErrorMessage(error), error);
   }
 };
 
@@ -178,12 +93,8 @@ const sendInviteEmail = async (email, link) => {
   return true;
 };
 
-const isTransporterReady = () => transporterReady;
-
 module.exports = {
-  initializeTransporter,
   verifyTransporter,
-  isTransporterReady,
   sendOTPEmail,
   sendInviteEmail,
   EmailDeliveryError,

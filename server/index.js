@@ -41,7 +41,7 @@ app.use(errorHandler);
 
 // Validate required environment variables
 function validateEnv() {
-  const required = ['MONGO_URI', 'MONGODB_URI', 'JWT_SECRET', 'EMAIL_USER', 'EMAIL_PASS'];
+  const required = ['MONGO_URI', 'MONGODB_URI', 'JWT_SECRET', 'BREVO_API_KEY'];
   const missing = required.filter(v => !process.env[v]);
   
   if (missing.includes('MONGO_URI') && missing.includes('MONGODB_URI')) {
@@ -54,16 +54,16 @@ function validateEnv() {
     console.warn('⚠️  WARNING: JWT_SECRET not set. Set it in your Render environment variables');
   }
   
-  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-    console.warn('⚠️  WARNING: EMAIL_USER or EMAIL_PASS not set. Email OTP will fail');
-    console.warn('   Set EMAIL_USER and EMAIL_PASS in your Render environment variables');
+  if (!process.env.BREVO_API_KEY) {
+    console.warn('⚠️  WARNING: BREVO_API_KEY not set. Email OTP will fail');
+    console.warn('   Set BREVO_API_KEY in your Render environment variables');
   }
   
   console.log('✓ Starting server with:');
   console.log(`  PORT: ${PORT}`);
   console.log(`  MongoDB: ${MONGO_URI ? MONGO_URI.split('@')[0] + '***' : 'NOT SET'}`);
   console.log(`  JWT_SECRET: ${process.env.JWT_SECRET ? '***' : 'NOT SET'}`);
-  console.log(`  Email: ${process.env.EMAIL_USER ? process.env.EMAIL_USER : 'NOT SET'}`);
+  console.log(`  Brevo API Key: ${process.env.BREVO_API_KEY ? '***' : 'NOT SET'}`);
 }
 
 async function startServer() {
@@ -86,7 +86,7 @@ async function startServer() {
     const emailReady = await verifyTransporter();
     if (!emailReady) {
       console.warn("⚠️  Email service verification failed. OTP emails will not work.");
-      console.warn("    Check EMAIL_USER, EMAIL_PASS, and EMAIL_PROVIDER environment variables.\n");
+      console.warn("    Check BREVO_API_KEY environment variable.\n");
     } else {
       console.log("✓ Email service ready\n");
     }
