@@ -13,15 +13,16 @@ const jwt = require("jsonwebtoken");
 
 exports.registerPartnerA = asyncHandler(async (req, res) => {
   const { coupleName, name, email, password } = req.body;
+  const normalizedEmail = otpService.normalizeOtpEmail(email);
 
   // 1️⃣ Check if user already exists
-  const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ email: normalizedEmail });
 
   if (existingUser) {
     if (!existingUser.isVerified) {
       // Resend OTP — enforce cooldown and resend limits
       const otp = otpService.generateOTP();
-      const saveResult = await otpService.saveOTP(email, otp, true);
+      const saveResult = await otpService.saveOTP(normalizedEmail, otp, true);
 
       if (!saveResult.success) {
         const status = saveResult.waitSeconds ? 429 : 400;
@@ -31,7 +32,7 @@ exports.registerPartnerA = asyncHandler(async (req, res) => {
         });
       }
 
-      await mailService.sendOTPEmail(email, otp);
+      await mailService.sendOTPEmail(normalizedEmail, otp);
 
       return res.status(200).json({
         message: "User already registered but not verified. OTP resent.",
@@ -47,7 +48,7 @@ exports.registerPartnerA = asyncHandler(async (req, res) => {
   // 3️⃣ Create Partner A
   const userA = await User.create({
     name,
-    email,
+    email: normalizedEmail,
     password: hashedPassword,
     role: "partnerA",
     isVerified: false,
@@ -72,12 +73,12 @@ exports.registerPartnerA = asyncHandler(async (req, res) => {
 
   // 7️⃣ Generate & Save OTP
   const otp = otpService.generateOTP();
-  await otpService.saveOTP(email, otp);
+  await otpService.saveOTP(normalizedEmail, otp);
 
   // 8️⃣ Send Emails
   const inviteLink = tokenService.buildInviteLink(inviteToken);
 
-  await mailService.sendOTPEmail(email, otp);
+  await mailService.sendOTPEmail(normalizedEmail, otp);
 
   res.status(201).json({
     message: "Partner A registered. Verify OTP.",

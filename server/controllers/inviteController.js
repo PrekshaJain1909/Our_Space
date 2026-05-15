@@ -57,6 +57,7 @@ exports.verifyInviteToken = asyncHandler(async (req, res) => {
 
 exports.registerPartnerB = asyncHandler(async (req, res) => {
   const { token, coupleId, name, email, password } = req.body;
+  const normalizedEmail = otpService.normalizeOtpEmail(email);
 
   if (!token && !coupleId) {
     return res
@@ -84,13 +85,13 @@ exports.registerPartnerB = asyncHandler(async (req, res) => {
     });
   }
 
-  const existingUser = await User.findOne({ email });
+  const existingUser = await User.findOne({ email: normalizedEmail });
 
   if (existingUser) {
     if (!existingUser.isVerified) {
       // Resend OTP — enforce cooldown and resend limits
       const otp = otpService.generateOTP();
-      const saveResult = await otpService.saveOTP(email, otp, true);
+      const saveResult = await otpService.saveOTP(normalizedEmail, otp, true);
 
       if (!saveResult.success) {
         const status = saveResult.waitSeconds ? 429 : 400;
@@ -100,7 +101,7 @@ exports.registerPartnerB = asyncHandler(async (req, res) => {
         });
       }
 
-      await mailService.sendOTPEmail(email, otp);
+      await mailService.sendOTPEmail(normalizedEmail, otp);
 
       return res.status(200).json({
         message: "User already registered but not verified. OTP resent.",
@@ -116,7 +117,7 @@ exports.registerPartnerB = asyncHandler(async (req, res) => {
   // Create Partner B
   const userB = await User.create({
     name,
-    email,
+    email: normalizedEmail,
     password: hashedPassword,
     role: "partnerB",
     coupleId: couple._id,
@@ -129,10 +130,10 @@ exports.registerPartnerB = asyncHandler(async (req, res) => {
 
   // Generate & Save OTP
   const otp = otpService.generateOTP();
-  await otpService.saveOTP(email, otp);
+  await otpService.saveOTP(normalizedEmail, otp);
 
   // Send OTP Email
-  await mailService.sendOTPEmail(email, otp);
+  await mailService.sendOTPEmail(normalizedEmail, otp);
 
   res.status(201).json({
     message: "Partner B registered. Verify OTP.",

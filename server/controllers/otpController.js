@@ -13,10 +13,22 @@ const jwt = require("jsonwebtoken");
 exports.verifyOTP = asyncHandler(async (req, res) => {
   const { email, otp, userId } = req.body;
 
-  const normalizedEmail = (email || "").trim().toLowerCase();
+  const normalizedEmail = otpService.normalizeOtpEmail(email);
+  const normalizedOtp = otpService.normalizeOtpInput(otp);
+
+  console.log("[OTP][Controller] verify request", {
+    hasEmail: Boolean(normalizedEmail),
+    hasUserId: Boolean(userId),
+    otpType: typeof otp,
+    otpLength: normalizedOtp.length,
+  });
 
   if (!normalizedEmail && !userId) {
     return res.status(400).json({ message: "Email or userId is required" });
+  }
+
+  if (!normalizedOtp) {
+    return res.status(400).json({ message: "OTP is required" });
   }
 
   // 1️⃣ Find user
@@ -29,10 +41,23 @@ exports.verifyOTP = asyncHandler(async (req, res) => {
 
   const otpTargetEmail = (user.email || "").trim().toLowerCase();
 
+  console.log("[OTP][Controller] verify target resolved", {
+    userId: String(user._id),
+    email: otpTargetEmail,
+  });
+
   // 2️⃣ Verify OTP (tracks attempts, expiry, lock)
-  const result = await otpService.verifyOTP(otpTargetEmail, otp);
+  const result = await otpService.verifyOTP(otpTargetEmail, normalizedOtp);
 
   if (!result.success) {
+    console.warn("[OTP][Controller] verify failed", {
+      userId: String(user._id),
+      email: otpTargetEmail,
+      message: result.message,
+      attemptsLeft: result.attemptsLeft,
+      locked: result.locked,
+    });
+
     const status = result.locked ? 423 : 400;
     return res.status(status).json({
       message: result.message,
@@ -92,7 +117,12 @@ exports.verifyOTP = asyncHandler(async (req, res) => {
 exports.resendOTP = asyncHandler(async (req, res) => {
   const { email, userId } = req.body;
 
-  const normalizedEmail = (email || "").trim().toLowerCase();
+  const normalizedEmail = otpService.normalizeOtpEmail(email);
+
+  console.log("[OTP][Controller] resend request", {
+    hasEmail: Boolean(normalizedEmail),
+    hasUserId: Boolean(userId),
+  });
 
   if (!normalizedEmail && !userId) {
     return res.status(400).json({ message: "Email or userId is required" });

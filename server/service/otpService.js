@@ -1,15 +1,67 @@
 // service/otpService.js
 const OTP = require("../models/OTP");
+const crypto = require("crypto");
 
 const OTP_EXPIRY_MINUTES = 5;
 const MAX_VERIFY_ATTEMPTS = 5;   // failed attempts before OTP is invalidated
 const MAX_RESEND_COUNT    = 5;   // how many times a new OTP can be requested per session
 const RESEND_COOLDOWN_SEC = 60;  // seconds to wait between resend requests
 
+const OTP_DEBUG_PREFIX = "[OTP]";
+
+const normalizeEmail = (email) => String(email || "").trim().toLowerCase();
+const normalizeOtp = (otp) => String(otp ?? "").trim();
+
+const OTP_HASH_SECRET = process.env.OTP_HASH_SECRET || process.env.JWT_SECRET || "otp-default-secret";
+
+const hashOtp = (email, otp) => {
+  return crypto
+    .createHmac("sha256", OTP_HASH_SECRET)
+    .update(`${normalizeEmail(email)}:${normalizeOtp(otp)}`)
+    .digest("hex");
+};
+
+const timingSafeEqualString = (a, b) => {
+  const aBuf = Buffer.from(String(a || ""));
+  const bBuf = Buffer.from(String(b || ""));
+
+  if (aBuf.length !== bBuf.length) return false;
+
+  return crypto.timingSafeEqual(aBuf, bBuf);
+};
+
+const maskEmail = (email) => {
+  const normalized = normalizeEmail(email);
+  const [local, domain] = normalized.split("@");
+
+  if (!local || !domain) return normalized;
+  if (local.length <= 2) return `${local[0] || "*"}*@${domain}`;
+
+  return `${local.slice(0, 2)}***@${domain}`;
+};
+
+const safeOtpMeta = (otp) => {
+  const value = normalizeOtp(otp);
+  if (!value) return { length: 0 };
+  return { length: value.length, last2: value.slice(-2) };
+};
+
 exports.generateOTP = () => {
-  const i = Math.floor(100000 + Math.random() * 900000).toString();
-  console.log("Generating OTP...", i);
-  return i;
+  const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+  if (process.env.NODE_ENV !== "production") {
+    console.log(`${OTP_DEBUG_PREFIX} generateOTP`, {
+      otp,
+      createdAt: new Date().toISOString(),
+    });
+  } else {
+    console.log(`${OTP_DEBUG_PREFIX} generateOTP`, {
+      otpLength: otp.length,
+      createdAt: new Date().toISOString(),
+    });
+  }
+
+  return otp;
 };
 
 /**
@@ -20,7 +72,30 @@ exports.generateOTP = () => {
  * @returns {{ success: boolean, message?: string, waitSeconds?: number }}
  */
 exports.saveOTP = async (email, otp, isResend = false) => {
-  const existing = await OTP.findOne({ email });
+  const normalizedEmail = normalizeEmail(email);
+  const normalizedOtp = normalizeOtp(otp);
+
+  if (!normalizedEmail) {
+    return { success: false, message: "Email is required to send OTP." };
+  }
+
+  if (!normalizedOtp || normalizedOtp.length !== 6) {
+    return { success: false, message: "Generated OTP is invalid." };
+  }
+
+  const records = await OTP.find({ email: normalizedEmail }).sort({ createdAt: -1 });
+  const existing = records[0] || null;
+
+  if (records.length > 1) {
+    const staleIds = records.slice(1).map((r) => r._id);
+    await OTP.deleteMany({ _id: { $in: staleIds } });
+
+    console.warn(`${OTP_DEBUG_PREFIX} saveOTP duplicate records cleaned`, {
+      email: maskEmail(normalizedEmail),
+      duplicateCount: records.length,
+      removedCount: staleIds.length,
+    });
+  }
 
   let resendCount  = 0;
   let lastResentAt = null;
@@ -55,10 +130,35 @@ exports.saveOTP = async (email, otp, isResend = false) => {
   }
 
   const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
+  const otpHash = hashOtp(normalizedEmail, normalizedOtp);
 
-  await OTP.deleteMany({ email });
+  const updated = await OTP.findOneAndUpdate(
+    { email: normalizedEmail },
+    {
+      $set: {
+        email: normalizedEmail,
+        otp: otpHash,
+        expiresAt,
+        attempts: 0,
+        purpose: "registration",
+        resendCount,
+        lastResentAt,
+      },
+    },
+    { new: true, upsert: true }
+  );
 
-  await OTP.create({ email, otp, expiresAt, resendCount, lastResentAt });
+  // Keep one latest OTP document per email to reduce resend races.
+  await OTP.deleteMany({ email: normalizedEmail, _id: { $ne: updated._id } });
+
+  console.log(`${OTP_DEBUG_PREFIX} saveOTP stored`, {
+    email: maskEmail(normalizedEmail),
+    isResend,
+    resendCount,
+    expiresAt: expiresAt.toISOString(),
+    otpMeta: safeOtpMeta(normalizedOtp),
+    recordId: String(updated._id),
+  });
 
   return { success: true };
 };
@@ -69,23 +169,79 @@ exports.saveOTP = async (email, otp, isResend = false) => {
  * @returns {{ success: boolean, message?: string, attemptsLeft?: number, locked?: boolean }}
  */
 exports.verifyOTP = async (email, otp) => {
-  const record = await OTP.findOne({ email });
+  const normalizedEmail = normalizeEmail(email);
+  const normalizedOtp = normalizeOtp(otp);
+
+  if (!normalizedEmail) {
+    return { success: false, message: "Email is required for OTP verification." };
+  }
+
+  if (!normalizedOtp) {
+    return { success: false, message: "OTP is required." };
+  }
+
+  console.log(`${OTP_DEBUG_PREFIX} verifyOTP received`, {
+    email: maskEmail(normalizedEmail),
+    otpMeta: safeOtpMeta(normalizedOtp),
+    otpType: typeof otp,
+  });
+
+  const records = await OTP.find({ email: normalizedEmail }).sort({ createdAt: -1 });
+
+  if (records.length > 1) {
+    const staleIds = records.slice(1).map((r) => r._id);
+    await OTP.deleteMany({ _id: { $in: staleIds } });
+    console.warn(`${OTP_DEBUG_PREFIX} verifyOTP duplicate records cleaned`, {
+      email: maskEmail(normalizedEmail),
+      duplicateCount: records.length,
+      removedCount: staleIds.length,
+    });
+  }
+
+  const record = records[0];
 
   if (!record) {
     return { success: false, message: "No active OTP found. Please request a new one." };
   }
 
-  if (record.expiresAt < Date.now()) {
-    await OTP.deleteMany({ email });
+  if (record.expiresAt.getTime() < Date.now()) {
+    await OTP.deleteMany({ email: normalizedEmail });
+
+    console.warn(`${OTP_DEBUG_PREFIX} verifyOTP expired`, {
+      email: maskEmail(normalizedEmail),
+      expiresAt: record.expiresAt.toISOString(),
+      now: new Date().toISOString(),
+    });
+
     return { success: false, message: "OTP has expired. Please request a new one." };
   }
 
-  // Wrong OTP
-  if (record.otp !== otp) {
-    record.attempts += 1;
+  const incomingHash = hashOtp(normalizedEmail, normalizedOtp);
+  const storedValue = String(record.otp || "");
 
-    if (record.attempts >= MAX_VERIFY_ATTEMPTS) {
-      await OTP.deleteMany({ email });
+  // Backward compatibility: accept legacy plain OTP values created before hashing.
+  const isMatch =
+    timingSafeEqualString(storedValue, incomingHash) ||
+    timingSafeEqualString(storedValue, normalizedOtp);
+
+  // Wrong OTP
+  if (!isMatch) {
+    const updated = await OTP.findByIdAndUpdate(
+      record._id,
+      { $inc: { attempts: 1 } },
+      { new: true }
+    );
+
+    const attempts = updated ? updated.attempts : record.attempts + 1;
+
+    if (attempts >= MAX_VERIFY_ATTEMPTS) {
+      await OTP.deleteMany({ email: normalizedEmail });
+
+      console.warn(`${OTP_DEBUG_PREFIX} verifyOTP locked`, {
+        email: maskEmail(normalizedEmail),
+        attempts,
+      });
+
       return {
         success: false,
         message: "Too many failed attempts. Please request a new OTP.",
@@ -93,8 +249,15 @@ exports.verifyOTP = async (email, otp) => {
       };
     }
 
-    await record.save();
-    const attemptsLeft = MAX_VERIFY_ATTEMPTS - record.attempts;
+    const attemptsLeft = MAX_VERIFY_ATTEMPTS - attempts;
+
+    console.warn(`${OTP_DEBUG_PREFIX} verifyOTP invalid`, {
+      email: maskEmail(normalizedEmail),
+      attempts,
+      attemptsLeft,
+      incomingOtpMeta: safeOtpMeta(normalizedOtp),
+    });
+
     return {
       success: false,
       message: `Invalid OTP. ${attemptsLeft} attempt${attemptsLeft !== 1 ? "s" : ""} remaining.`,
@@ -103,6 +266,15 @@ exports.verifyOTP = async (email, otp) => {
   }
 
   // Correct — clean up
-  await OTP.deleteMany({ email });
+  await OTP.deleteMany({ email: normalizedEmail });
+
+  console.log(`${OTP_DEBUG_PREFIX} verifyOTP success`, {
+    email: maskEmail(normalizedEmail),
+    recordId: String(record._id),
+  });
+
   return { success: true };
 };
+
+exports.normalizeOtpInput = normalizeOtp;
+exports.normalizeOtpEmail = normalizeEmail;

@@ -24,6 +24,21 @@ const axiosClient = axios.create({
   },
 });
 
+const isPublicRoute = (url) => {
+  const path = (url || "").toString().trim();
+
+  return (
+    path.startsWith("/auth") ||
+    path.startsWith("auth") ||
+    path === "/otp/verify" ||
+    path === "otp/verify" ||
+    path === "/otp/resend" ||
+    path === "otp/resend" ||
+    path === "/invite/register-partnerB" ||
+    path === "invite/register-partnerB"
+  );
+};
+
 // Attach auth token to every request
 axiosClient.interceptors.request.use(
   (config) => {
@@ -38,9 +53,9 @@ axiosClient.interceptors.request.use(
       token ? "FOUND" : "NOT FOUND"
     );
 
-    // Allow auth routes without token
+    // Allow public onboarding/auth routes without token
     const url = (config.url || "").toString();
-    if (!token && (url.startsWith("/auth") || url.startsWith("auth"))) {
+    if (!token && isPublicRoute(url)) {
       return config;
     }
 

@@ -154,6 +154,18 @@ export default function VerifyOtpPage() {
       const status = err?.response?.status || err?.status;
       const isLocked = data.locked || status === 423;
 
+      if (status === 403 && /read-only mode|login required/i.test(data.message || "")) {
+        Swal.fire({
+          icon: "error",
+          title: "Session required",
+          text: "Please log in again and request a fresh OTP.",
+          confirmButtonColor: "#ff66c4",
+          background: "#1c003a",
+          color: "#fff",
+        });
+        return;
+      }
+
       if (isLocked) {
         setLocked(true);
         setOtp("");
