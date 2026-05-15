@@ -136,52 +136,46 @@ const sendMail = async (to, payload) => {
   try {
     const smtp = getTransporter();
 
-    if (!transporterReady) {
-      await verifyTransporter();
-    }
+    await smtp.verify();
+    console.log("SMTP server ready");
 
-    const result = await smtp.sendMail({
-      from: `"${process.env.EMAIL_FROM_NAME || "Ourspace"}" <${process.env.EMAIL_FROM || process.env.EMAIL_USER}>`,
+    const info = await smtp.sendMail({
+      from: process.env.EMAIL_FROM || `"${process.env.EMAIL_FROM_NAME || "Ourspace"}" <${process.env.EMAIL_USER}>`,
       to,
       subject: payload.subject,
       text: payload.text,
       html: payload.html,
     });
 
-    console.log(`[Email] Sent email to ${to}. Message ID: ${result.messageId}`);
-    return { ok: true, result };
+    console.log("Email sent:", info.messageId);
+    transporterReady = true;
+    return true;
   } catch (error) {
-    console.error(`[Email] Failed to send email to ${to}:`, error.message);
+    console.error("FULL EMAIL ERROR:");
+    console.error(error);
+    console.error("MESSAGE:", error.message);
+    console.error("CODE:", error.code);
+    console.error("RESPONSE:", error.response);
     console.error("[Email] SMTP detail:", parseSmtpError(error));
 
     if (error?.message?.includes("Connection timeout") || error?.message?.includes("ETIMEDOUT") || error?.message?.includes("ECONNREFUSED")) {
       resetTransporter();
     }
 
-    return { ok: false, error };
+    throw new Error(error.message);
   }
 };
 
 const sendOTPEmail = async (email, otp) => {
   const payload = otpTemplate(otp);
-  const response = await sendMail(email, payload);
-
-  if (!response.ok) {
-    throw new EmailDeliveryError(`Email delivery failed: ${response.error?.message || "SMTP error"}`, response.error);
-  }
-
-  return response.result;
+  await sendMail(email, payload);
+  return true;
 };
 
 const sendInviteEmail = async (email, link) => {
   const payload = inviteTemplate(link);
-  const response = await sendMail(email, payload);
-
-  if (!response.ok) {
-    throw new EmailDeliveryError(`Invite email delivery failed: ${response.error?.message || "SMTP error"}`, response.error);
-  }
-
-  return response.result;
+  await sendMail(email, payload);
+  return true;
 };
 
 const isTransporterReady = () => transporterReady;
