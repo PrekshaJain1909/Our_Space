@@ -4,9 +4,15 @@ exports.errorHandler = (err, req, res, next) => {
   // Determine status code based on error type
   let status = 500;
   let message = err.message || 'Internal Server Error';
+
+  // Email delivery failures should not crash app; return service unavailable.
+  if (err.isEmailError) {
+    status = 503;
+    message = isDev ? err.message : 'Email service temporarily unavailable. Please try again.';
+  }
   
   // MongoDB connection errors → 503 (service unavailable, retry later)
-  if (err.name === 'MongooseError' || err.message?.includes('MongoDB') || err.message?.includes('ECONNREFUSED')) {
+  else if (err.name === 'MongooseError' || err.message?.includes('MongoDB') || err.message?.includes('ECONNREFUSED')) {
     status = 503;
     message = isDev ? err.message : 'Database connection failed. Please try again later.';
   }

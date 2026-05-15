@@ -6,6 +6,7 @@ const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const inviteRoutes = require("./routes/inviteRoutes");
 const otpRoutes = require("./routes/otpRoutes");
+const { verifyTransporter } = require("./service/mailService");
 const app = express();
 const PORT = Number(process.env.PORT) || 5000;
 const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI;
@@ -79,6 +80,16 @@ async function startServer() {
       connectTimeoutMS: 10000
     });
     console.log("✓ MongoDB Connected\n");
+
+    // Verify email service after MongoDB
+    console.log('🔄 Verifying email service...');
+    const emailReady = await verifyTransporter();
+    if (!emailReady) {
+      console.warn("⚠️  Email service verification failed. OTP emails will not work.");
+      console.warn("    Check EMAIL_USER, EMAIL_PASS, and EMAIL_PROVIDER environment variables.\n");
+    } else {
+      console.log("✓ Email service ready\n");
+    }
   } catch (error) {
     console.error("❌ MongoDB connection failed:", error.message);
     console.error("\n📋 Next steps:");
