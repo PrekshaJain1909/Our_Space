@@ -1,138 +1,170 @@
+/**
+ * ═══════════════════════════════════════════════════════════════════════════
+ * BREVO REST API EMAIL SERVICE
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * PRODUCTION-READY EMAIL DELIVERY VIA HTTPS (NO SMTP - NO TIMEOUTS)
+ *
+ * - ✅ Uses axios to make REST API calls (HTTPS/Port 443)
+ * - ✅ Zero Nodemailer code - completely removed
+ * - ✅ Zero SMTP connections - no socket timeouts on Render
+ * - ✅ Detailed error logging with API responses
+ * - ✅ Async/await for clean error handling
+ * - ✅ Compatible with Render, Heroku, Railway, any platform
+ *
+ * API ENDPOINT: https://api.brevo.com/v3/smtp/email
+ * DOCUMENTATION: https://developers.brevo.com/reference/sendtransacemail
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
 const axios = require("axios");
 const { otpTemplate } = require("../templates/otpTemplate");
 const { inviteTemplate } = require("../templates/inviteTemplate");
 
-// ═══════════════════════════════════════════════════════════════════
-// BREVO REST API CONFIGURATION (HTTPS-based, no SMTP timeout issues)
-// ═══════════════════════════════════════════════════════════════════
-const BREVO_EMAIL_API_URL = "https://api.brevo.com/v3/smtp/email";
+// ──────────────────────────────────────────────────────────────────────────
+// CONFIGURATION - NO SMTP ANYWHERE
+// ──────────────────────────────────────────────────────────────────────────
+
+// REST API endpoint (HTTPS only, no SMTP)
+const BREVO_API_ENDPOINT = "https://api.brevo.com/v3/smtp/email";
+
+// Sender identity
 const SENDER = {
   name: "OurSpace",
   email: "prekjainsha190994@gmail.com",
 };
 
-// Default timeout: 15 seconds (can be overridden via BREVO_API_TIMEOUT_MS env var)
-const API_TIMEOUT = Number(process.env.BREVO_API_TIMEOUT_MS || 15000);
+// Request timeout (milliseconds)
+const REQUEST_TIMEOUT_MS = Number(process.env.BREVO_API_TIMEOUT_MS || 15000);
 
-// ═══════════════════════════════════════════════════════════════════
-// CUSTOM ERROR CLASS FOR EMAIL DELIVERY ISSUES
-// ═══════════════════════════════════════════════════════════════════
+// ──────────────────────────────────────────────────────────────────────────
+// CUSTOM ERROR HANDLING
+// ──────────────────────────────────────────────────────────────────────────
+
 class EmailDeliveryError extends Error {
-  constructor(message, cause) {
+  constructor(message, originalError = null) {
     super(message);
     this.name = "EmailDeliveryError";
-    this.isEmailError = true;
-    if (cause) this.cause = cause;
+    this.originalError = originalError;
   }
 }
 
-// ═══════════════════════════════════════════════════════════════════
-// ERROR NORMALIZATION & LOGGING UTILITIES
-// ═══════════════════════════════════════════════════════════════════
-const normalizeErrorMessage = (error) => {
-  const apiMessage = error?.response?.data?.message;
-  if (apiMessage) return apiMessage;
-  return error?.message || "Unknown Brevo email error";
-};
+// ──────────────────────────────────────────────────────────────────────────
+// EMAIL VERIFICATION (API HEALTH CHECK - NOT SMTP)
+// ──────────────────────────────────────────────────────────────────────────
 
-const logEmailError = (error, context = {}) => {
-  console.error("\n━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
-  console.error("[Email API] ERROR CONTEXT:", context);
-  console.error("[Email API] Error Name:", error.name);
-  console.error("[Email API] Error Message:", error.message);
-  console.error("[Email API] Error Code:", error.code);
-  
-  if (error.response) {
-    console.error("[Email API] HTTP Status:", error.response.status);
-    console.error("[Email API] Response Data:", JSON.stringify(error.response.data, null, 2));
-    console.error("[Email API] Response Headers:", error.response.headers);
-  } else if (error.request) {
-    console.error("[Email API] No response received. Request details:", {
-      url: error.request.url,
-      method: error.request.method,
-    });
-  }
-  
-  console.error("[Email API] Stack Trace:", error.stack);
-  console.error("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
-};
-
-// ═══════════════════════════════════════════════════════════════════
-// TRANSPORTER VERIFICATION (Check if Brevo API is configured)
-// ═══════════════════════════════════════════════════════════════════
-const verifyTransporter = async () => {
-  try {
-    if (!process.env.BREVO_API_KEY) {
-      console.error("[Email API] ❌ BREVO_API_KEY environment variable is missing");
-      console.error("[Email API] Email delivery is DISABLED. OTP & invite emails will fail.");
-      return false;
-    }
-
-    // Perform a lightweight connectivity test
-    const testResponse = await axios.post(
-      BREVO_EMAIL_API_URL,
-      {
-        sender: SENDER,
-        to: [{ email: "test@example.com" }],
-        subject: "Test",
-        htmlContent: "<p>Test</p>",
-      },
-      {
-        headers: {
-          accept: "application/json",
-          "content-type": "application/json",
-          "api-key": process.env.BREVO_API_KEY,
-        },
-        timeout: 5000,
-      }
+/**
+ * Verify Brevo REST API is configured and reachable
+ * This is a connectivity check, NOT an SMTP transporter verification
+ * @returns {Promise<boolean>} true if API is ready, false otherwise
+ */
+const verifyBrevoAPI = async () => {
+  if (!process.env.BREVO_API_KEY) {
+    console.error(
+      "[📧 Email API] ❌ BREVO_API_KEY not found in environment variables"
     );
-
-    // Brevo returns 201 or 400+ for invalid recipient (but API key is valid)
-    if (testResponse.status === 201 || testResponse.status === 400) {
-      console.log("[Email API] ✅ Brevo API is reachable and authenticated");
-      console.log("[Email API] 📧 Email service is READY for production");
-      return true;
-    }
-
+    console.error(
+      "[📧 Email API]    Email delivery is DISABLED - OTP emails will fail"
+    );
     return false;
+  }
+
+  try {
+    console.log(
+      "[📧 Email API] 🔍 Verifying Brevo REST API connection (via HTTPS)..."
+    );
+    console.log(
+      `[📧 Email API]    Endpoint: ${BREVO_API_ENDPOINT.split("/v3")[0]}`
+    );
+    console.log(`[📧 Email API]    Protocol: HTTPS (Port 443)`);
+    console.log(`[📧 Email API]    Timeout: ${REQUEST_TIMEOUT_MS}ms`);
+
+    // Test API connectivity with a dummy email
+    // This validates the API key and endpoint, not actual SMTP
+    const testPayload = {
+      sender: SENDER,
+      to: [{ email: "noreply@brevo.test" }],
+      subject: "API Verification",
+      htmlContent: "<p>This is a connectivity test.</p>",
+    };
+
+    const testResponse = await axios.post(BREVO_API_ENDPOINT, testPayload, {
+      headers: {
+        accept: "application/json",
+        "content-type": "application/json",
+        "api-key": process.env.BREVO_API_KEY,
+      },
+      timeout: 8000,
+    });
+
+    // 201 = email accepted, 400 = invalid recipient (but API is working)
+    if (testResponse.status === 201 || testResponse.status === 400) {
+      console.log("[📧 Email API] ✅ Brevo REST API is READY (HTTPS)");
+      console.log("[📧 Email API] ✅ Email service is OPERATIONAL");
+      console.log("[📧 Email API] ✅ No SMTP connections - no timeout issues\n");
+      return true;
+    }
   } catch (error) {
-    // Expected to fail with invalid test email, but validates API connectivity
+    // 400 on invalid email is expected - shows API is working
     if (error.response?.status === 400 || error.response?.status === 403) {
-      console.log("[Email API] ✅ Brevo API authentication verified (test email was invalid - expected)");
+      console.log(
+        "[📧 Email API] ✅ Brevo REST API responded (invalid test email expected)"
+      );
       return true;
     }
 
-    console.error("[Email API] ❌ Brevo API connectivity test failed");
-    logEmailError(error, { operation: "verifyTransporter" });
+    console.error("[📧 Email API] ❌ Brevo REST API verification FAILED");
+    console.error(`[📧 Email API]    Error: ${error.message}`);
+
+    if (error.response) {
+      console.error(`[📧 Email API]    Status: ${error.response.status}`);
+      console.error(
+        `[📧 Email API]    Response: ${JSON.stringify(error.response.data)}`
+      );
+    }
+
     return false;
   }
 };
 
-// ═══════════════════════════════════════════════════════════════════
-// CORE EMAIL SENDING FUNCTION (Uses Brevo REST API over HTTPS)
-// ═══════════════════════════════════════════════════════════════════
-const sendMail = async (to, payload) => {
+// ──────────────────────────────────────────────────────────────────────────
+// CORE SEND FUNCTION (HTTPS REST API ONLY)
+// ──────────────────────────────────────────────────────────────────────────
+
+/**
+ * Send email via Brevo REST API (HTTPS, no SMTP)
+ * @param {string} recipientEmail - Recipient email address
+ * @param {object} emailPayload - { subject, html, text }
+ * @returns {Promise<object>} { success, messageId, timestamp }
+ * @throws {EmailDeliveryError}
+ */
+const sendEmail = async (recipientEmail, emailPayload) => {
   // Input validation
-  if (!to || typeof to !== "string") {
-    throw new EmailDeliveryError("Invalid recipient email address");
+  if (!recipientEmail || typeof recipientEmail !== "string") {
+    throw new EmailDeliveryError(
+      "Invalid recipient email - must be a non-empty string"
+    );
   }
 
-  if (!payload || !payload.subject || !payload.html) {
-    throw new EmailDeliveryError("Invalid email payload: missing subject or html content");
+  if (!emailPayload?.subject || !emailPayload?.html) {
+    throw new EmailDeliveryError(
+      "Invalid email payload - missing subject or html content"
+    );
   }
 
   if (!process.env.BREVO_API_KEY) {
     throw new EmailDeliveryError(
-      "BREVO_API_KEY is not configured. Email delivery is disabled."
+      "BREVO_API_KEY not configured - email delivery disabled"
     );
   }
 
+  // Build REST API request
   const requestBody = {
     sender: SENDER,
-    to: [{ email: to }],
-    subject: payload.subject,
-    htmlContent: payload.html,
-    textContent: payload.text || "",
+    to: [{ email: recipientEmail }],
+    subject: emailPayload.subject,
+    htmlContent: emailPayload.html,
+    textContent: emailPayload.text || "",
     replyTo: {
       email: SENDER.email,
       name: SENDER.name,
@@ -140,114 +172,134 @@ const sendMail = async (to, payload) => {
   };
 
   try {
-    console.log("[Email API] ⏳ Sending email via Brevo REST API...");
-    console.log(`[Email API] Recipient: ${to}`);
-    console.log(`[Email API] Subject: ${payload.subject}`);
-    console.log(`[Email API] Timeout: ${API_TIMEOUT}ms`);
-
     const startTime = Date.now();
 
-    const response = await axios.post(BREVO_EMAIL_API_URL, requestBody, {
+    console.log("\n[📧 Email API] ────────────────────────────────────────");
+    console.log(
+      "[📧 Email API] 📤 SENDING EMAIL (Brevo REST API via HTTPS)"
+    );
+    console.log(`[📧 Email API]    To: ${recipientEmail}`);
+    console.log(`[📧 Email API]    Subject: ${emailPayload.subject}`);
+    console.log(
+      `[📧 Email API]    Method: POST ${BREVO_API_ENDPOINT.split("/v3")[0]}/v3/smtp/email`
+    );
+    console.log(`[📧 Email API]    Protocol: HTTPS (no SMTP)`);
+
+    // Make HTTPS REST API call (not SMTP)
+    const response = await axios.post(BREVO_API_ENDPOINT, requestBody, {
       headers: {
         accept: "application/json",
         "content-type": "application/json",
         "api-key": process.env.BREVO_API_KEY,
       },
-      timeout: API_TIMEOUT,
+      timeout: REQUEST_TIMEOUT_MS,
     });
 
-    const elapsedTime = Date.now() - startTime;
+    const elapsed = Date.now() - startTime;
 
-    console.log(`[Email API] ✅ Email sent successfully (${elapsedTime}ms)`);
-    console.log(`[Email API] HTTP Status: ${response.status}`);
-    console.log(`[Email API] Message ID: ${response.data?.messageId}`);
+    console.log(`[📧 Email API] ✅ SUCCESS (${elapsed}ms)`);
+    console.log(`[📧 Email API]    Message ID: ${response.data?.messageId}`);
+    console.log("[📧 Email API] ────────────────────────────────────────\n");
 
     return {
       success: true,
       messageId: response.data?.messageId,
       timestamp: new Date().toISOString(),
+      protocol: "HTTPS/REST", // NOT SMTP
     };
   } catch (error) {
-    const context = {
-      operation: "sendMail",
-      recipient: to,
-      subject: payload.subject,
-    };
+    console.error("[📧 Email API] ────────────────────────────────────────");
+    console.error("[📧 Email API] ❌ EMAIL DELIVERY FAILED");
+    console.error(`[📧 Email API]    To: ${recipientEmail}`);
+    console.error(`[📧 Email API]    Error: ${error.message}`);
 
-    logEmailError(error, context);
+    // Detailed error logging
+    if (error.response) {
+      console.error(
+        `[📧 Email API]    HTTP Status: ${error.response.status}`
+      );
+      console.error(
+        `[📧 Email API]    Response: ${JSON.stringify(error.response.data)}`
+      );
 
-    // Provide specific error guidance for common issues
-    if (error.code === "ETIMEDOUT" || error.code === "ECONNABORTED") {
-      throw new EmailDeliveryError(
-        "Email delivery timeout. Brevo API took too long to respond.",
-        error
+      // Specific error messages
+      if (error.response.status === 401) {
+        console.error(
+          "[📧 Email API]    → ISSUE: Invalid BREVO_API_KEY. Check env vars."
+        );
+      } else if (error.response.status === 403) {
+        console.error(
+          "[📧 Email API]    → ISSUE: API key lacks permissions. Regenerate."
+        );
+      } else if (error.response.status === 429) {
+        console.error(
+          "[📧 Email API]    → ISSUE: Rate limited. Too many emails sent."
+        );
+      } else if (error.response.status === 400) {
+        console.error(
+          "[📧 Email API]    → ISSUE: Invalid request format or email."
+        );
+      }
+    } else if (error.code === "ETIMEDOUT" || error.code === "ECONNABORTED") {
+      console.error("[📧 Email API]    → ISSUE: Request timeout");
+      console.error(
+        `[📧 Email API]       Timeout after ${REQUEST_TIMEOUT_MS}ms`
       );
-    } else if (error.response?.status === 401 || error.response?.status === 403) {
-      throw new EmailDeliveryError(
-        "Brevo API authentication failed. Check BREVO_API_KEY.",
-        error
-      );
-    } else if (error.response?.status === 400) {
-      throw new EmailDeliveryError(
-        `Brevo API rejected request: ${error.response.data?.message || "Invalid request"}`,
-        error
-      );
-    } else if (error.response?.status === 429) {
-      throw new EmailDeliveryError(
-        "Rate limited by Brevo API. Too many emails sent too quickly.",
-        error
-      );
+    } else {
+      console.error(`[📧 Email API]    Code: ${error.code}`);
+      console.error(`[📧 Email API]    Stack: ${error.stack}`);
     }
 
-    throw new EmailDeliveryError(normalizeErrorMessage(error), error);
+    console.error("[📧 Email API] ────────────────────────────────────────\n");
+
+    throw new EmailDeliveryError(error.message, error);
   }
 };
 
-// ═══════════════════════════════════════════════════════════════════
-// PUBLIC API FUNCTIONS FOR EMAIL DELIVERY
-// ═══════════════════════════════════════════════════════════════════
+// ──────────────────────────────────────────────────────────────────────────
+// PUBLIC CONVENIENCE FUNCTIONS
+// ──────────────────────────────────────────────────────────────────────────
 
 /**
  * Send OTP verification email
- * @param {string} email - Recipient email address
+ * @param {string} email - Recipient email
  * @param {string} otp - 6-digit OTP code
- * @returns {Promise<boolean>} True if email sent successfully
+ * @returns {Promise<boolean>}
  */
 const sendOTPEmail = async (email, otp) => {
-  try {
-    const payload = otpTemplate(otp);
-    await sendMail(email, payload);
-    return true;
-  } catch (error) {
-    console.error("[Email API] OTP email delivery failed:", error.message);
-    throw error;
-  }
+  const payload = otpTemplate(otp);
+  await sendEmail(email, payload);
+  return true;
 };
 
 /**
  * Send partner invite email
- * @param {string} email - Recipient email address
- * @param {string} link - Invite link URL
- * @returns {Promise<boolean>} True if email sent successfully
+ * @param {string} email - Recipient email
+ * @param {string} link - Invite URL
+ * @returns {Promise<boolean>}
  */
 const sendInviteEmail = async (email, link) => {
-  try {
-    const payload = inviteTemplate(link);
-    await sendMail(email, payload);
-    return true;
-  } catch (error) {
-    console.error("[Email API] Invite email delivery failed:", error.message);
-    throw error;
-  }
+  const payload = inviteTemplate(link);
+  await sendEmail(email, payload);
+  return true;
 };
 
-// ═══════════════════════════════════════════════════════════════════
+// ──────────────────────────────────────────────────────────────────────────
 // MODULE EXPORTS
-// ═══════════════════════════════════════════════════════════════════
+// ──────────────────────────────────────────────────────────────────────────
+
 module.exports = {
-  verifyTransporter,
+  // Verification function (kept for backward compatibility)
+  verifyTransporter: verifyBrevoAPI,
+
+  // New explicit name (preferred)
+  verifyBrevoAPI,
+
+  // Email sending functions
   sendOTPEmail,
   sendInviteEmail,
+  sendEmail,
+
+  // Error class
   EmailDeliveryError,
-  logEmailError, // Export for debugging
 };
