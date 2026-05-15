@@ -3,6 +3,7 @@ const dns = require("node:dns");
 const { otpTemplate } = require("../templates/otpTemplate");
 const { inviteTemplate } = require("../templates/inviteTemplate");
 
+// Render can prefer IPv6 paths that time out for SMTP, so force IPv4-first.
 if (typeof dns.setDefaultResultOrder === "function") {
   dns.setDefaultResultOrder("ipv4first");
 }
@@ -29,116 +30,47 @@ const toNumber = (value, fallback) => {
   return Number.isFinite(parsed) ? parsed : fallback;
 };
 
-const mask = (input = "") => {
-  if (!input || input.length < 4) return "***";
-  return `${input.slice(0, 2)}***${input.slice(-2)}`;
+const maskEmail = (value = "") => {
+  if (!value || !value.includes("@")) return "***";
+  const [name, domain] = value.split("@");
+  return `${name.slice(0, 2)}***@${domain}`;
 };
 
-const getCommonTimeoutConfig = () => ({
-  connectionTimeout: toNumber(process.env.SMTP_CONNECTION_TIMEOUT, 15000),
-  greetingTimeout: toNumber(process.env.SMTP_GREETING_TIMEOUT, 15000),
-  socketTimeout: toNumber(process.env.SMTP_SOCKET_TIMEOUT, 20000),
-  family: 4,
-});
-
-const createProviderConfig = () => {
-  const provider = (process.env.EMAIL_PROVIDER || "gmail").toLowerCase();
+const createTransportConfig = () => {
   const emailUser = process.env.EMAIL_USER;
   const emailPass = process.env.EMAIL_PASS;
 
   if (!emailUser || !emailPass) {
-    throw new EmailDeliveryError(
-      "Email service not configured. Missing EMAIL_USER or EMAIL_PASS."
-    );
+    throw new EmailDeliveryError("Brevo email is not configured. Set EMAIL_USER and EMAIL_PASS.");
   }
 
-  if (provider === "gmail") {
-    return {
-      provider,
-      config: {
-        host: "smtp.gmail.com",
-        port: 465,
-        secure: true,
-        auth: {
-          user: emailUser,
-          pass: emailPass,
-        },
-        family: 4,
-        connectionTimeout: toNumber(process.env.SMTP_CONNECTION_TIMEOUT, 15000),
-        greetingTimeout: toNumber(process.env.SMTP_GREETING_TIMEOUT, 15000),
-        socketTimeout: toNumber(process.env.SMTP_SOCKET_TIMEOUT, 20000),
-        tls: {
-          servername: "smtp.gmail.com",
-          minVersion: "TLSv1.2",
-        },
-      },
-    };
-  }
-
-  if (provider === "brevo") {
-    return {
-      provider,
-      config: {
-        host: "smtp-relay.brevo.com",
-        port: 587,
-        secure: false,
-        auth: {
-          user: emailUser,
-          pass: emailPass,
-        },
-        ...getCommonTimeoutConfig(),
-      },
-    };
-  }
-
-  if (provider === "resend") {
-    return {
-      provider,
-      config: {
-        host: "smtp.resend.com",
-        port: 465,
-        secure: true,
-        auth: {
-          user: "resend",
-          pass: emailPass,
-        },
-        ...getCommonTimeoutConfig(),
-      },
-    };
-  }
-
-  if (provider === "custom") {
-    return {
-      provider,
-      config: {
-        host: process.env.SMTP_HOST,
-        port: toNumber(process.env.SMTP_PORT, 587),
-        secure: toBool(process.env.SMTP_SECURE, false),
-        auth: {
-          user: emailUser,
-          pass: emailPass,
-        },
-        ...getCommonTimeoutConfig(),
-      },
-    };
-  }
-
-  throw new EmailDeliveryError(`Unknown EMAIL_PROVIDER: ${provider}`);
+  return {
+    host: "smtp-relay.brevo.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: emailUser,
+      pass: emailPass,
+    },
+    family: 4,
+    connectionTimeout: toNumber(process.env.SMTP_CONNECTION_TIMEOUT, 15000),
+    greetingTimeout: toNumber(process.env.SMTP_GREETING_TIMEOUT, 15000),
+    socketTimeout: toNumber(process.env.SMTP_SOCKET_TIMEOUT, 20000),
+  };
 };
 
 const initializeTransporter = () => {
-  const { provider, config } = createProviderConfig();
   const debugEnabled = toBool(process.env.SMTP_DEBUG, true);
+  const config = createTransportConfig();
 
-  console.log("[Email] Initializing SMTP transporter...");
-  console.log(`[Email] Provider: ${provider}`);
+  console.log("[Email] Initializing Brevo SMTP transporter...");
   console.log(
-    `[Email] SMTP config: host=${config.host} port=${config.port} secure=${config.secure} family=${config.family}`
+    `[Email] Host=${config.host} Port=${config.port} Secure=${config.secure} Family=${config.family}`
   );
   console.log(
     `[Email] Timeouts: connection=${config.connectionTimeout}ms greeting=${config.greetingTimeout}ms socket=${config.socketTimeout}ms`
   );
-  console.log(`[Email] Auth user: ${mask(config.auth.user)}`);
+  console.log(`[Email] Auth user=${maskEmail(config.auth.user)}`);
 
   transporter = nodemailer.createTransport({
     ...config,
@@ -157,32 +89,19 @@ const parseSmtpError = (error) => {
   const message = error?.message || "Unknown SMTP error";
   const code = error?.code || "UNKNOWN";
 
-  if (
-    message.includes("Invalid login")
-    || message.includes("Username and Password not accepted")
-    || code === "EAUTH"
-  ) {
-    return "SMTP authentication failed. Use Gmail app password, not your normal Gmail password.";
+  if (code === "EAUTH" || message.includes("Invalid login")) {
+    return "Brevo authentication failed. Check your SMTP login and password.";
   }
 
-  if (
-    message.includes("Connection timeout")
-    || message.includes("ETIMEDOUT")
-    || message.includes("ESOCKET")
-  ) {
-    return "SMTP connection timeout. This is commonly a cloud networking or provider connectivity issue.";
+  if (message.includes("Connection timeout") || message.includes("ETIMEDOUT") || message.includes("ESOCKET")) {
+    return "SMTP connection timeout. This usually means a network path, firewall, or provider reachability issue.";
   }
 
   if (message.includes("ECONNREFUSED")) {
-    return "SMTP connection refused by server or blocked network egress.";
+    return "SMTP connection refused by the remote server.";
   }
 
   return message;
-};
-
-const resetTransporter = () => {
-  transporter = null;
-  transporterReady = false;
 };
 
 const getTransporter = () => {
@@ -192,18 +111,23 @@ const getTransporter = () => {
   return transporter;
 };
 
+const resetTransporter = () => {
+  transporter = null;
+  transporterReady = false;
+};
+
 const verifyTransporter = async () => {
   try {
     const smtp = getTransporter();
-    console.log("[Email] Verifying SMTP connection...");
+    console.log("[Email] Verifying Brevo SMTP connection...");
     await smtp.verify();
     transporterReady = true;
-    console.log("[Email] SMTP verify successful.");
+    console.log("[Email] Brevo SMTP verification succeeded.");
     return true;
   } catch (error) {
     transporterReady = false;
-    console.error("[Email] SMTP verify failed:", error.message);
-    console.error("[Email] SMTP verify detail:", parseSmtpError(error));
+    console.error("[Email] Brevo SMTP verification failed:", error.message);
+    console.error("[Email] Brevo SMTP detail:", parseSmtpError(error));
     return false;
   }
 };
@@ -224,19 +148,13 @@ const sendMail = async (to, payload) => {
       html: payload.html,
     });
 
-    console.log(`[Email] Sent successfully to ${to}. Message ID: ${result.messageId}`);
+    console.log(`[Email] Sent email to ${to}. Message ID: ${result.messageId}`);
     return { ok: true, result };
   } catch (error) {
-    console.error(`[Email] Failed to send to ${to}:`, error.message);
-    console.error("[Email] SMTP error detail:", parseSmtpError(error));
+    console.error(`[Email] Failed to send email to ${to}:`, error.message);
+    console.error("[Email] SMTP detail:", parseSmtpError(error));
 
-    if (
-      error?.message?.includes("ETIMEDOUT")
-      || error?.message?.includes("Connection timeout")
-      || error?.message?.includes("ESOCKET")
-      || error?.message?.includes("ECONNREFUSED")
-    ) {
-      console.warn("[Email] Resetting transporter after connection failure.");
+    if (error?.message?.includes("Connection timeout") || error?.message?.includes("ETIMEDOUT") || error?.message?.includes("ECONNREFUSED")) {
       resetTransporter();
     }
 
@@ -249,10 +167,7 @@ const sendOTPEmail = async (email, otp) => {
   const response = await sendMail(email, payload);
 
   if (!response.ok) {
-    throw new EmailDeliveryError(
-      `Email delivery failed: ${response.error?.message || "SMTP error"}`,
-      response.error
-    );
+    throw new EmailDeliveryError(`Email delivery failed: ${response.error?.message || "SMTP error"}`, response.error);
   }
 
   return response.result;
@@ -263,10 +178,7 @@ const sendInviteEmail = async (email, link) => {
   const response = await sendMail(email, payload);
 
   if (!response.ok) {
-    throw new EmailDeliveryError(
-      `Invite email delivery failed: ${response.error?.message || "SMTP error"}`,
-      response.error
-    );
+    throw new EmailDeliveryError(`Invite email delivery failed: ${response.error?.message || "SMTP error"}`, response.error);
   }
 
   return response.result;
