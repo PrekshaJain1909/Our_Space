@@ -15,14 +15,10 @@ export default function Button({
   const isDisabled = disabled || loading;
 
   const variants = {
-    primary:
-      "bg-pink-500 text-white hover:bg-pink-600 shadow shadow-pink-500/40",
-    secondary:
-      "bg-slate-700 text-slate-100 hover:bg-slate-600",
-    danger:
-      "bg-red-500 text-white hover:bg-red-600",
-    ghost:
-      "bg-transparent text-slate-300 hover:bg-slate-800 border border-slate-700",
+    primary: "btn btn-primary",
+    secondary: "btn btn-secondary",
+    danger: "btn btn-danger",
+    ghost: "btn btn-ghost",
   };
 
   return (
@@ -31,7 +27,7 @@ export default function Button({
       onClick={onClick}
       disabled={isDisabled}
       className={[
-        "flex items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition select-none",
+        "flex items-center justify-center gap-2 text-sm font-medium transition select-none",
         full ? "w-full" : "w-auto",
         variants[variant],
         isDisabled &&

@@ -1,7 +1,68 @@
+/* ============================================
+   ARCADE VALENTINE THEME SYSTEM
+   Light & Dark Modes with Gaming Aesthetic
+   ============================================ */
+
 :root {
-  /* --------------------------------------
-      Brand Colors
-  -------------------------------------- */
+  /* ---- Core Theme Variables ---- */
+  --theme-mode: dark;
+
+  /* ---- LIGHT THEME: Dreamy Pastel Mode ---- */
+  --light-bg-primary: #faf8ff;
+  --light-bg-secondary: #f5f0ff;
+  --light-bg-accent: #fff5f8;
+  --light-surface: #ffffff;
+  --light-surface-hover: #f9f7ff;
+  --light-card-bg: rgba(255, 240, 255, 0.6);
+  --light-card-border: rgba(200, 150, 255, 0.3);
+  
+  --light-text-primary: #2a1a3a;
+  --light-text-secondary: #6b5b7a;
+  --light-text-tertiary: #a89bbb;
+  
+  --light-accent-primary: #ff5da2;
+  --light-accent-secondary: #9945ff;
+  --light-accent-tertiary: #6dd5ed;
+  --light-accent-glow: #ffc0d9;
+  --light-accent-title: #c9457a;
+  --light-text-rose: #9f4f78;
+  --light-text-rose-soft: #b66a90;
+  
+  --light-shadow-sm: 0 2px 8px rgba(157, 100, 200, 0.12);
+  --light-shadow-md: 0 6px 20px rgba(157, 100, 200, 0.18);
+  --light-shadow-lg: 0 12px 40px rgba(157, 100, 200, 0.24);
+  
+  /* ---- DARK THEME: Arcade Valentine Mode ---- */
+  --dark-bg-primary: #0a0015;
+  --dark-bg-secondary: #150030;
+  --dark-bg-accent: #1a0045;
+  --dark-surface: #1c0050;
+  --dark-surface-hover: #241060;
+  --dark-card-bg: rgba(26, 0, 80, 0.5);
+  --dark-card-border: rgba(255, 0, 127, 0.2);
+  
+  --dark-text-primary: #ffeefc;
+  --dark-text-secondary: #d4b5ff;
+  --dark-text-tertiary: #a89bbb;
+  
+  --dark-accent-primary: #ff00ff;
+  --dark-accent-secondary: #00ffff;
+  --dark-accent-tertiary: #ff1493;
+  --dark-accent-glow: #ff00ff;
+  --dark-accent-title: #ffeefc;
+  --dark-text-rose: #f3c4e1;
+  
+  --dark-neon-pink: #ff00ff;
+  --dark-neon-cyan: #00ffff;
+  --dark-neon-red: #ff1493;
+  --dark-neon-purple: #c700ff;
+  
+  --dark-shadow-sm: 0 2px 12px rgba(255, 0, 255, 0.15);
+  --dark-shadow-md: 0 8px 24px rgba(255, 0, 255, 0.25);
+  --dark-shadow-lg: 0 16px 48px rgba(255, 0, 255, 0.35);
+  --dark-shadow-glow: 0 0 40px rgba(255, 0, 255, 0.4), inset 0 0 20px rgba(0, 255, 255, 0.1);
+  
+  /* ---- Brand Colors (Legacy Compatibility) ---- */
   --color-primary: #ff5da2;
   --color-primary-light: #ff9acb;
   --color-primary-soft: #ffc4e3;
@@ -12,9 +73,7 @@
   --color-border: rgba(0, 0, 0, 0.08);
   --color-text: #363636;
 
-  /* --------------------------------------
-      Utility Accent Colors
-  -------------------------------------- */
+  /* ---- Utility Accent Colors ---- */
   --color-success: #38c793;
   --color-success-dark: #2e9e75;
   --color-warning: #ffc55c;
@@ -23,55 +82,103 @@
   --color-danger-dark: #e44153;
   --color-info: #3b82f6;
 
-  /* --------------------------------------
-      Shadows
-  -------------------------------------- */
+  /* ---- Shadows ---- */
   --shadow-xs: 0px 1px 2px rgba(0,0,0,0.06);
   --shadow-sm: 0px 2px 6px rgba(0,0,0,0.08);
   --shadow-md: 0px 4px 12px rgba(0,0,0,0.1);
   --shadow-lg: 0px 10px 20px rgba(0,0,0,0.15);
   --shadow-xl: 0px 25px 40px rgba(0,0,0,0.18);
 
-  /* --------------------------------------
-      Border Radius Scale
-  -------------------------------------- */
+  /* ---- Border Radius Scale ---- */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 15px;
   --radius-xl: 22px;
   --radius-2xl: 30px;
 
-  /* --------------------------------------
-      Animation Durations
-  -------------------------------------- */
+  /* ---- Animation Durations ---- */
   --anim-fast: 150ms;
   --anim-normal: 300ms;
   --anim-slow: 500ms;
+  --anim-slower: 800ms;
 
-  /* --------------------------------------
-      Layout Spacing (optional)
-  -------------------------------------- */
+  /* ---- Layout Spacing ---- */
   --space-xs: 6px;
   --space-sm: 10px;
   --space-md: 16px;
   --space-lg: 24px;
   --space-xl: 32px;
 
-  /* --------------------------------------
-      Gradients
-  -------------------------------------- */
+  /* ---- Gradients ---- */
   --gradient-primary: linear-gradient(90deg, #ff5da2, #ff9acb, #ffc4e3);
   --gradient-card: linear-gradient(135deg, rgba(255,93,162,0.14), rgba(255,156,203,0.06));
-    --bg-couple-moon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'%3E%3Cdefs%3E%3ClinearGradient id='sky' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%230f1a35'/%3E%3Cstop offset='100%25' stop-color='%232b4a78'/%3E%3C/linearGradient%3E%3CradialGradient id='moonGlow' cx='0.78' cy='0.24' r='0.18'%3E%3Cstop offset='0%25' stop-color='%23fff6cf' stop-opacity='1'/%3E%3Cstop offset='100%25' stop-color='%23fff6cf' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='1600' height='900' fill='url(%23sky)'/%3E%3Ccircle cx='1250' cy='205' r='175' fill='url(%23moonGlow)'/%3E%3Ccircle cx='1225' cy='195' r='78' fill='%23f8f1d6'/%3E%3Cpath d='M1216 165c18 22 17 65-1 86-12 14-31 22-50 22 18 8 40 7 58-5 29-19 36-60 16-88-5-7-11-13-18-18 2 2 3 4-5 5z' fill='%23111d37' opacity='.55'/%3E%3Cg fill='%23ffffff' opacity='.78'%3E%3Ccircle cx='250' cy='165' r='2.5'/%3E%3Ccircle cx='410' cy='245' r='1.8'/%3E%3Ccircle cx='540' cy='128' r='2.2'/%3E%3Ccircle cx='720' cy='210' r='1.9'/%3E%3Ccircle cx='940' cy='155' r='2.3'/%3E%3Ccircle cx='1040' cy='300' r='1.7'/%3E%3Ccircle cx='145' cy='310' r='1.7'/%3E%3C/g%3E%3Cpath d='M0 690c180-60 340-60 520-15s350 65 520 18 330-62 560-4v211H0z' fill='%23203861' opacity='.8'/%3E%3Cpath d='M0 735c220-66 390-34 540 10s280 78 420 34 300-66 640-18v139H0z' fill='%23162b4c' opacity='.95'/%3E%3C/svg%3E");
+  
+  /* ---- Background Patterns ---- */
+  --bg-couple-moon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'%3E%3Cdefs%3E%3ClinearGradient id='sky' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%230f1a35'/%3E%3Cstop offset='100%25' stop-color='%232b4a78'/%3E%3C/linearGradient%3E%3CradialGradient id='moonGlow' cx='0.78' cy='0.24' r='0.18'%3E%3Cstop offset='0%25' stop-color='%23fff6cf' stop-opacity='1'/%3E%3Cstop offset='100%25' stop-color='%23fff6cf' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='1600' height='900' fill='url(%23sky)'/%3E%3Ccircle cx='1250' cy='205' r='175' fill='url(%23moonGlow)'/%3E%3Ccircle cx='1225' cy='195' r='78' fill='%23f8f1d6'/%3E%3Cpath d='M1216 165c18 22 17 65-1 86-12 14-31 22-50 22 18 8 40 7 58-5 29-19 36-60 16-88-5-7-11-13-18-18 2 2 3 4-5 5z' fill='%23111d37' opacity='.55'/%3E%3Cg fill='%23ffffff' opacity='.78'%3E%3Ccircle cx='250' cy='165' r='2.5'/%3E%3Ccircle cx='410' cy='245' r='1.8'/%3E%3Ccircle cx='540' cy='128' r='2.2'/%3E%3Ccircle cx='720' cy='210' r='1.9'/%3E%3Ccircle cx='940' cy='155' r='2.3'/%3E%3Ccircle cx='1040' cy='300' r='1.7'/%3E%3Ccircle cx='145' cy='310' r='1.7'/%3E%3C/g%3E%3Cpath d='M0 690c180-60 340-60 520-15s350 65 520 18 330-62 560-4v211H0z' fill='%23203861' opacity='.8'/%3E%3Cpath d='M0 735c220-66 390-34 540 10s280 78 420 34 300-66 640-18v139H0z' fill='%23162b4c' opacity='.95'/%3E%3C/svg%3E");
 }
 
-/* --------------------- Dark Mode --------------------- */
-.dark {
-  --color-bg: #0f0f11;
-  --color-surface: #1a1b1f;
-  --color-border: rgba(255, 255, 255, 0.09);
-  --color-text: #e6e6e6;
+/* ============================================
+   LIGHT THEME: Dreamy Pastel Mode
+   ============================================ */
+:root {
+  --bg-primary: var(--light-bg-primary);
+  --bg-secondary: var(--light-bg-secondary);
+  --bg-accent: var(--light-bg-accent);
+  --surface: var(--light-surface);
+  --surface-hover: var(--light-surface-hover);
+  --card-bg: var(--light-card-bg);
+  --card-border: var(--light-card-border);
+  
+  --text-primary: var(--light-text-primary);
+  --text-secondary: var(--light-text-secondary);
+  --text-tertiary: var(--light-text-tertiary);
+  
+  --accent-primary: var(--light-accent-primary);
+  --accent-secondary: var(--light-accent-secondary);
+  --accent-tertiary: var(--light-accent-tertiary);
+  --accent-glow: var(--light-accent-glow);
+  
+  --shadow-sm: var(--light-shadow-sm);
+  --shadow-md: var(--light-shadow-md);
+  --shadow-lg: var(--light-shadow-lg);
+  
+  --color-bg: var(--light-bg-primary);
+  --color-surface: var(--light-surface);
+  --color-border: var(--light-card-border);
+  --color-text: var(--light-text-primary);
+}
 
-  --shadow-md: 0px 6px 16px rgba(0,0,0,0.45);
-  --shadow-lg: 0px 14px 28px rgba(0,0,0,0.55);
+/* ============================================
+   DARK THEME: Arcade Valentine Mode
+   ============================================ */
+.dark {
+  --bg-primary: var(--dark-bg-primary);
+  --bg-secondary: var(--dark-bg-secondary);
+  --bg-accent: var(--dark-bg-accent);
+  --surface: var(--dark-surface);
+  --surface-hover: var(--dark-surface-hover);
+  --card-bg: var(--dark-card-bg);
+  --card-border: var(--dark-card-border);
+  
+  --text-primary: var(--dark-text-primary);
+  --text-secondary: var(--dark-text-secondary);
+  --text-tertiary: var(--dark-text-tertiary);
+  
+  --accent-primary: var(--dark-accent-primary);
+  --accent-secondary: var(--dark-accent-secondary);
+  --accent-tertiary: var(--dark-accent-tertiary);
+  --accent-glow: var(--dark-accent-glow);
+  
+  --shadow-sm: var(--dark-shadow-sm);
+  --shadow-md: var(--dark-shadow-md);
+  --shadow-lg: var(--dark-shadow-lg);
+  --shadow-glow: var(--dark-shadow-glow);
+  
+  --color-bg: var(--dark-bg-primary);
+  --color-surface: var(--dark-surface);
+  --color-border: var(--dark-card-border);
+  --color-text: var(--dark-text-primary);
+  
+  --shadow-md: var(--dark-shadow-md);
+  --shadow-lg: var(--dark-shadow-lg);
 }

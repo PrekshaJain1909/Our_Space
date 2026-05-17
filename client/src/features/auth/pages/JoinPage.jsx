@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import "./LoginPage.css";
+import AuthPageShell from "../components/AuthPageShell";
 
 export default function JoinPage() {
   const { inviteCode } = useParams();
@@ -11,7 +11,6 @@ export default function JoinPage() {
     searchParams.get("inviteToken") || searchParams.get("token") || "";
   const queryCoupleId = searchParams.get("coupleId") || "";
 
-  // Invite tokens are generated as 64-char hex strings; anything else is treated as coupleId.
   const looksLikeInviteToken =
     typeof inviteCode === "string" && /^[a-f0-9]{64}$/i.test(inviteCode);
 
@@ -22,37 +21,45 @@ export default function JoinPage() {
   if (inviteToken) authQuery.set("inviteToken", inviteToken);
   if (coupleId) authQuery.set("coupleId", coupleId);
 
-  const authUrl = authQuery.toString() ? `/login?${authQuery.toString()}` : "/login";
-
-  const handleJoinNow = () => navigate(authUrl);
+  const loginUrl = authQuery.toString() ? `/login?${authQuery.toString()}` : "/login";
+  const registerQuery = new URLSearchParams(authQuery);
+  registerQuery.set("fromAuth", "1");
+  const registerUrl = registerQuery.toString()
+    ? `/register?${registerQuery.toString()}`
+    : "/register";
 
   return (
-    <div className="login-page">
-      <div className="login-container">
-        <div className="login-intro">
-          <div className="intro-content">
-            <h1 className="intro-title">
-              You are invited to <span className="highlight">Ourspace</span>
-            </h1>
-            <p className="intro-description">
-              Join your partner in a shared private space for memories, milestones, and moments.
-            </p>
-          </div>
-        </div>
+    <AuthPageShell
+      heroTitle={
+        <>
+          You&apos;re invited to <span className="auth-page__highlight">Ourspace</span>
+        </>
+      }
+      heroDescription="Join your partner in a private space for memories, milestones, and everyday love."
+    >
+      <header className="auth-page__panel-head">
+        <h2 className="auth-page__panel-title">Accept invite</h2>
+        <p className="auth-page__panel-subtitle">
+          Sign in or create an account to join your partner&apos;s space.
+        </p>
+      </header>
 
-        <div className="login-card-wrapper">
-          <div className="login-card">
-            <header className="card-header">
-              <h2 className="card-title">Join Now</h2>
-              <p className="card-description">Continue to authentication to accept this invite.</p>
-            </header>
-
-            <button type="button" className="submit-button" onClick={handleJoinNow}>
-              Join Now
-            </button>
-          </div>
-        </div>
+      <div className="auth-page__form">
+        <button
+          type="button"
+          className="auth-btn auth-btn--primary"
+          onClick={() => navigate(loginUrl)}
+        >
+          Sign in
+        </button>
+        <button
+          type="button"
+          className="auth-btn auth-btn--ghost"
+          onClick={() => navigate(registerUrl)}
+        >
+          Create account
+        </button>
       </div>
-    </div>
+    </AuthPageShell>
   );
 }

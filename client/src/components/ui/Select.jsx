@@ -22,32 +22,23 @@ export default function Select({
     <div className="w-full space-y-1.5">
       {/* Label */}
       {label && (
-        <label className="block text-sm font-medium text-slate-200">
+        <label className="block text-sm font-medium text-secondary">
           {label}
         </label>
       )}
 
       {/* Wrapper */}
-      <div
-        className={[
-          "flex items-center gap-2 rounded-xl border px-3 py-2 transition",
-          "bg-slate-900/60 backdrop-blur-xl shadow-inner",
-          error
-            ? "border-red-500/70 shadow-[0_0_12px_rgba(239,68,68,0.35)]"
-            : "border-slate-700 focus-within:border-pink-500/60 focus-within:shadow-[0_0_14px_rgba(236,72,153,0.25)]",
-          className,
-        ].join(" ")}
-      >
+      <div className={["input-wrapper", error ? "error" : "", className].join(" ") }>
         {/* Left icon */}
         {icon && (
-          <span className="text-lg text-slate-300 select-none">{icon}</span>
+          <span className="text-lg text-secondary select-none">{icon}</span>
         )}
 
         {/* Select */}
         <select
           value={value ?? ""} // ensure controlled
           onChange={onChange}
-          className="flex-1 bg-transparent outline-none text-slate-100 text-sm placeholder-slate-500 appearance-none pr-6"
+          className="input-field appearance-none pr-6"
           {...rest}
         >
           {showPlaceholder && (
@@ -57,18 +48,14 @@ export default function Select({
           )}
 
           {normalizedOptions.map((opt) => (
-            <option
-              key={opt.value}
-              value={opt.value}
-              className="bg-slate-900 text-slate-100"
-            >
+            <option key={opt.value} value={opt.value}>
               {opt.label}
             </option>
           ))}
         </select>
 
         {/* Right chevron */}
-        <span className="pointer-events-none text-xs text-slate-400 -ml-4">
+        <span className="pointer-events-none text-xs text-secondary -ml-4">
           ▼
         </span>
       </div>

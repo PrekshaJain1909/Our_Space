@@ -19,9 +19,7 @@ export default function TabNavigation({
             className={[
               "flex items-center gap-2 text-xs sm:text-sm font-medium px-3 py-2 rounded-xl border transition select-none",
               full ? "flex-1 justify-center" : "px-4",
-              isActive
-                ? "bg-pink-600/20 text-pink-200 border-pink-500/40 shadow-[0_0_15px_rgba(236,72,153,0.25)]"
-                : "bg-slate-800/40 text-slate-300 border-slate-700 hover:border-pink-500/40 hover:text-pink-200",
+              isActive ? "tab active" : "tab",
             ].join(" ")}
           >
             {tab.icon && <span className="text-base">{tab.icon}</span>}

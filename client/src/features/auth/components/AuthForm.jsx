@@ -22,12 +22,12 @@ export default function AuthForm({
       {(title || subtitle) && (
         <div className="mb-2">
           {title && (
-            <h2 className="text-lg font-semibold text-slate-100">
+            <h2 className="text-lg font-semibold text-primary">
               {title}
             </h2>
           )}
           {subtitle && (
-            <p className="text-xs text-slate-400 mt-1">
+            <p className="text-xs text-secondary mt-1">
               {subtitle}
             </p>
           )}
@@ -55,7 +55,7 @@ export default function AuthForm({
 
       {/* Footer (links: login/register switch, etc.) */}
       {footer && (
-        <div className="mt-3 text-[11px] text-slate-400">
+        <div className="mt-3 text-[11px] text-secondary">
           {footer}
         </div>
       )}

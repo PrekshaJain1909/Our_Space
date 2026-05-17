@@ -28,8 +28,8 @@ import MoodPage from "../features/mood/pages/MoodPage.jsx";
 
 // Loading screen
 const LoadingScreen = () => (
-  <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
-    <div className="animate-pulse rounded-xl bg-slate-800 px-6 py-4 text-sm">
+  <div className="flex min-h-screen items-center justify-center bg-primary text-primary">
+    <div className="card animate-pulse text-secondary">
       Loading your love world...
     </div>
   </div>
@@ -37,14 +37,11 @@ const LoadingScreen = () => (
 
 // 404 Page
 const NotFoundPage = () => (
-  <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
+  <div className="flex min-h-screen items-center justify-center bg-primary text-primary">
     <div className="text-center space-y-3">
       <h1 className="text-4xl font-bold">404</h1>
-      <p className="text-slate-300">Page not found</p>
-      <Link
-        to="/dashboard"
-        className="inline-flex items-center rounded-full bg-pink-500 px-5 py-2 text-sm font-medium text-white hover:bg-pink-600 transition"
-      >
+      <p className="text-secondary">Page not found</p>
+      <Link to="/dashboard" className="btn btn-primary">
         Go to Dashboard
       </Link>
     </div>

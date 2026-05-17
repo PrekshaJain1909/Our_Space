@@ -12,18 +12,20 @@ import {
 
 function CustomTooltip({ active, payload, label }) {
   if (!active || !payload || payload.length === 0) return null;
+  const styles = getComputedStyle(document.documentElement);
+  const labelColor = styles.getPropertyValue('--text-secondary') || '#94a3b8';
 
   return (
-    <div className="rounded-xl border border-slate-700 bg-slate-900/95 px-3 py-2 text-xs text-slate-100 shadow-lg">
-      <div className="mb-1 text-[11px] text-slate-400">{label}</div>
+    <div className="card" style={{ padding: '0.5rem', minWidth: 140 }}>
+      <div className="mb-1 text-[11px]" style={{ color: labelColor }}>{label}</div>
       {payload.map((item) => (
         <div key={item.dataKey} className="flex items-center gap-2">
           <span
             className="h-2 w-2 rounded-full"
             style={{ backgroundColor: item.color }}
           />
-          <span className="text-slate-200">{item.name || item.dataKey}:</span>
-          <span className="font-semibold text-slate-100">
+          <span className="" style={{ color: 'var(--text-secondary)' }}>{item.name || item.dataKey}:</span>
+          <span className="font-semibold" style={{ color: 'var(--text-primary)' }}>
             {item.value}
           </span>
         </div>
@@ -66,12 +68,12 @@ export default function BarChart({
           <XAxis
             dataKey={xKey}
             tickMargin={8}
-            tick={{ fill: "#cbd5f5", fontSize: 11 }}
-            axisLine={{ stroke: "#475569" }}
+            tick={{ fill: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary') || '#cbd5f5', fontSize: 11 }}
+            axisLine={{ stroke: getComputedStyle(document.documentElement).getPropertyValue('--card-border') || '#475569' }}
           />
           <YAxis
-            tick={{ fill: "#cbd5f5", fontSize: 11 }}
-            axisLine={{ stroke: "#475569" }}
+            tick={{ fill: getComputedStyle(document.documentElement).getPropertyValue('--text-secondary') || '#cbd5f5', fontSize: 11 }}
+            axisLine={{ stroke: getComputedStyle(document.documentElement).getPropertyValue('--card-border') || '#475569' }}
             tickMargin={4}
           />
           <Tooltip content={<CustomTooltip />} />

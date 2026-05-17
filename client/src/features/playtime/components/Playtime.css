@@ -177,8 +177,8 @@
   display: inline-flex;
   padding: 2px;
   border-radius: 999px;
-  background: rgba(8, 0, 30, 0.85);
-  border: 1px solid rgba(255, 196, 255, 0.4);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
 }
 
 .pt-toggle-btn {
@@ -187,13 +187,14 @@
   padding: 4px 12px;
   font-size: 11px;
   cursor: pointer;
-  color: #ffdfff;
+  color: var(--text-secondary);
   border-radius: 999px;
+  transition: all 0.2s ease;
 }
 
 .pt-toggle-btn-active {
-  background: linear-gradient(90deg, #ff5bb6, #ff7b7c);
-  box-shadow: 0 0 10px rgba(255, 152, 230, 0.9);
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent-primary) 40%, transparent);
   color: #fff;
 }
 

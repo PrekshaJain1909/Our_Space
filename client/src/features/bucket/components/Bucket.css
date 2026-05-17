@@ -255,7 +255,7 @@
 .bk-progress-center {
   position: absolute;
   inset: 12px;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.1);
   border-radius: 50%;
   display: flex;
   flex-direction: column;
@@ -266,11 +266,12 @@
 .bk-progress-percent {
   font-size: 22px;
   font-weight: 700;
+  color: var(--text-primary);
 }
 
 .bk-progress-label {
   font-size: 12px;
-  color: var(--text-muted);
+  color: var(--text-secondary);
 }
 
 /* ---------- Category Progress ---------- */

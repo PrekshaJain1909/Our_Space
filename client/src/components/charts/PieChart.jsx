@@ -14,21 +14,24 @@ function CustomTooltip({ active, payload }) {
   const item = payload[0];
   const { name, value, payload: extra } = item;
 
+  const styles = getComputedStyle(document.documentElement);
+  const nameColor = styles.getPropertyValue('--text-primary') || '#e5e7eb';
+
   return (
-    <div className="rounded-xl border border-slate-700 bg-slate-900/95 px-3 py-2 text-xs text-slate-100 shadow-lg">
+    <div className="card" style={{ padding: '0.5rem', minWidth: 160 }}>
       <div className="flex items-center gap-2">
         <span
           className="h-2 w-2 rounded-full"
           style={{ backgroundColor: item.color }}
         />
-        <span className="font-medium text-slate-100">
+        <span className="font-medium" style={{ color: nameColor }}>
           {name}
         </span>
       </div>
-      <div className="mt-1 text-slate-300">
+      <div className="mt-1" style={{ color: 'var(--text-secondary)' }}>
         <span className="font-semibold">{value}</span>
         {extra && typeof extra.percentage === "number" && (
-          <span className="text-slate-400"> ({extra.percentage}%)</span>
+          <span style={{ color: 'var(--text-tertiary)' }}> ({extra.percentage}%)</span>
         )}
       </div>
     </div>
@@ -82,11 +85,7 @@ export default function PieChart({
             verticalAlign="bottom"
             align="center"
             iconType="circle"
-            wrapperStyle={{
-              paddingTop: 12,
-              fontSize: 11,
-              color: "#e5e7eb",
-            }}
+            wrapperStyle={{ paddingTop: 12, fontSize: 11, color: getComputedStyle(document.documentElement).getPropertyValue('--text-primary') || '#e5e7eb' }}
           />
           <Pie
             data={enrichedData}

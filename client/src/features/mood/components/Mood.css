@@ -224,8 +224,8 @@
   display: inline-flex;
   padding: 2px;
   border-radius: 999px;
-  background: rgba(8, 0, 30, 0.85);
-  border: 1px solid rgba(255, 196, 255, 0.4);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
   gap: 2px;
 }
 
@@ -236,20 +236,22 @@
   border-radius: 999px;
   font-size: 11px;
   cursor: pointer;
-  color: #ffdfff;
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   gap: 4px;
+  transition: all 0.2s ease;
 }
 
 .md-pov-btn-active {
-  background: linear-gradient(90deg, #ff5bb6, #ff7b7c);
-  box-shadow: 0 0 10px rgba(255, 152, 230, 0.9);
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent-primary) 40%, transparent);
   color: #fff;
 }
 
 .md-pov-emoji {
   font-size: 14px;
+  color: inherit;
 }
 
 /* ===== UPSET FORM ===== */
@@ -309,13 +311,19 @@
 
 .md-cal-nav-btn {
   border-radius: 999px;
-  border: 1px solid rgba(255, 196, 255, 0.6);
-  background: rgba(8, 0, 30, 0.9);
-  color: #ffe6ff;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--text-primary);
   width: 28px;
   height: 28px;
   font-size: 16px;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.md-cal-nav-btn:hover {
+  background: var(--surface);
+  border-color: var(--accent-primary);
 }
 
 .md-calendar-title {
@@ -392,25 +400,27 @@
   min-width: 100px;
   padding: 8px 10px;
   border-radius: 14px;
-  background: rgba(19, 5, 60, 0.96);
-  border: 1px solid rgba(255, 184, 255, 0.6);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-primary);
 }
 
 .md-analytics-label {
   font-size: 11px;
-  opacity: 0.8;
+  color: var(--text-secondary);
 }
 
 .md-analytics-value {
   font-size: 16px;
   font-weight: 600;
   margin-top: 2px;
+  color: var(--accent-primary);
 }
 
 .md-analytics-note {
   margin-top: 6px;
   font-size: 12px;
-  opacity: 0.9;
+  color: var(--text-secondary);
 }
 
 /* mood bar chart */
@@ -491,25 +501,27 @@
   margin-top: 10px;
   border-radius: 14px;
   padding: 8px 10px;
-  background: rgba(19, 5, 60, 0.96);
-  border: 1px solid rgba(255, 184, 255, 0.6);
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-primary);
 }
 
 .md-upset-stat-row {
   display: flex;
   justify-content: space-between;
   font-size: 12px;
+  color: var(--text-secondary);
 }
 
 .md-upset-stat-value {
   font-weight: 600;
-  color: #ffeadf;
+  color: var(--accent-primary);
 }
 
 .md-upset-hint {
   margin-top: 4px;
   font-size: 11px;
-  opacity: 0.9;
+  color: var(--text-secondary);
 }
 
 /* ===== RESPONSIVE ===== */

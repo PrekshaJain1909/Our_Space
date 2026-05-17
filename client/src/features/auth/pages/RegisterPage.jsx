@@ -1,16 +1,32 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { registerPartnerA, registerPartnerB, resendOtp } from "../services/authApi";
 import Swal from "sweetalert2";
+import { registerPartnerA, registerPartnerB, resendOtp } from "../services/authApi";
+import AuthPageShell from "../components/AuthPageShell";
+import AuthField from "../components/AuthField";
+import PasswordField from "../components/PasswordField";
 import { buildVerifyOtpPath, setPendingOtpEmail } from "../../../utils/otpFlow";
-import "./LoginPage.css";
+
+function getSwalThemeOptions() {
+  const styles = getComputedStyle(document.documentElement);
+  const isDark = document.documentElement.classList.contains("dark");
+  return {
+    confirmButtonColor: styles.getPropertyValue("--accent-primary").trim() || "#ff5da2",
+    background: isDark
+      ? styles.getPropertyValue("--dark-surface").trim() || "#1c0050"
+      : "#ffffff",
+    color: isDark
+      ? styles.getPropertyValue("--dark-text-primary").trim() || "#ffeefc"
+      : styles.getPropertyValue("--light-text-primary").trim() || "#2a1a3a",
+  };
+}
 
 export default function RegisterPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [showResendForm, setShowResendForm] = useState(false);
+  const [showResend, setShowResend] = useState(false);
   const [resendEmail, setResendEmail] = useState("");
   const [resendLoading, setResendLoading] = useState(false);
 
@@ -39,22 +55,21 @@ export default function RegisterPage() {
     const email = e.target.email.value.trim();
     const password = e.target.password.value.trim();
 
-    // Clear any existing tokens to prevent OTP bypass
     if (isInviteFlow) {
       localStorage.removeItem("token");
       localStorage.removeItem("auth_token");
       localStorage.removeItem("user");
     }
 
-    const missingRequired = isInviteFlow
+    const missing = isInviteFlow
       ? !name || !email || !password
       : !coupleName || !name || !email || !password;
 
-    if (missingRequired) {
+    if (missing) {
       Swal.fire({
         icon: "warning",
         title: "All fields required 💌",
-        confirmButtonColor: "#ff66c4",
+        ...getSwalThemeOptions(),
       });
       return;
     }
@@ -71,12 +86,7 @@ export default function RegisterPage() {
           coupleId: coupleId || undefined,
         });
       } else {
-        await registerPartnerA({
-          coupleName,
-          name,
-          email,
-          password,
-        });
+        await registerPartnerA({ coupleName, name, email, password });
       }
 
       setPendingOtpEmail(email);
@@ -85,11 +95,8 @@ export default function RegisterPage() {
       });
     } catch (err) {
       const errMsg = err.response?.data?.message || "Something went wrong.";
-      const status  = err.response?.status;
+      const status = err.response?.status;
 
-      // If the account already exists but is unverified the server
-      // resends the OTP automatically (200) — navigate to verify page.
-      // For all other errors show the message normally.
       if (status === 200) {
         setPendingOtpEmail(email);
         navigate(buildVerifyOtpPath({ email, query: inviteQuerySuffix }), {
@@ -98,9 +105,9 @@ export default function RegisterPage() {
       } else {
         Swal.fire({
           icon: "error",
-          title: isInviteFlow ? "Join Failed" : "Registration Failed",
+          title: isInviteFlow ? "Join failed" : "Registration failed",
           text: errMsg,
-          confirmButtonColor: "#ff66c4",
+          ...getSwalThemeOptions(),
         });
       }
     } finally {
@@ -117,9 +124,9 @@ export default function RegisterPage() {
       await resendOtp(resendEmail.trim());
       Swal.fire({
         icon: "success",
-        title: "OTP Sent 💌",
-        text: "Check your email for the new OTP.",
-        confirmButtonColor: "#ff66c4",
+        title: "OTP sent 💌",
+        text: "Check your email for the new code.",
+        ...getSwalThemeOptions(),
         timer: 2500,
         showConfirmButton: false,
       });
@@ -133,7 +140,7 @@ export default function RegisterPage() {
         icon: "error",
         title: "Could not resend OTP",
         text: err.response?.data?.message || "Please try again.",
-        confirmButtonColor: "#ff66c4",
+        ...getSwalThemeOptions(),
       });
     } finally {
       setResendLoading(false);
@@ -142,200 +149,144 @@ export default function RegisterPage() {
 
   const heroTitle = isInviteFlow ? (
     <>
-      Join your <span className="highlight">shared space</span>,
+      Join your <span className="auth-page__highlight">shared space</span>
       <br />
-      start making memories
+      and start making memories
     </>
   ) : (
     <>
-      Begin your <span className="highlight">love story</span>,
+      Begin your <span className="auth-page__highlight">love story</span>
       <br />
-      together forever
+      together, forever
     </>
   );
 
   return (
-    <div className="login-page">
-      <div className="login-container">
-        <div className="mobile-intro-title">
-          <h1 className="intro-title">{heroTitle}</h1>
-        </div>
+    <AuthPageShell
+     
+      heroTitle={heroTitle}
+      heroDescription={
+        isInviteFlow
+          ? "Complete signup to join your partner in one shared love space."
+          : "Create your private couple space for memories, milestones, and everyday moments."
+      }
+    >
+      <header className="auth-page__panel-head">
+        <h2 className="auth-page__panel-title">
+          {isInviteFlow ? "Join your partner" : "Create account"}
+        </h2>
+        <p className="auth-page__panel-subtitle">
+          {isInviteFlow
+            ? "Verify your email to activate your invite"
+            : "We'll send a code to confirm your email"}
+        </p>
+      </header>
 
-        <div className="login-intro">
-          <div className="intro-content">
+      <form className="auth-page__form" onSubmit={handleSubmit} noValidate>
+        {!isInviteFlow && (
+          <AuthField
+            id="coupleName"
+            name="coupleName"
+            label="Couple name"
+            placeholder="Moon & Stars"
+            disabled={loading}
+          />
+        )}
+
+        <AuthField
+          id="name"
+          name="name"
+          label="Your name"
+          placeholder="Your name"
+          autoComplete="name"
+          disabled={loading}
+        />
+
+        <AuthField
+          id="email"
+          name="email"
+          label="Email"
+          type="email"
+          placeholder="you@example.com"
+          autoComplete="email"
+          disabled={loading}
+        />
+
+        <PasswordField
+          id="password"
+          label="Password"
+          placeholder="Create a password"
+          autoComplete="new-password"
+          disabled={loading}
+          showPassword={showPassword}
+          onToggle={() => setShowPassword((v) => !v)}
+        />
+
+        <button type="submit" className="auth-btn auth-btn--primary" disabled={loading}>
+          {loading
+            ? "Submitting..."
+            : isInviteFlow
+              ? "Join now"
+              : "Create account"}
+        </button>
+      </form>
+
+      <footer className="auth-footer">
+        <p className="auth-footer__text">
+          Already have an account?{" "}
+          <button
+            type="button"
+            className="auth-btn auth-btn--link"
+            onClick={() => navigate(`/login${inviteQuerySuffix}`)}
+            disabled={loading}
+          >
+            Sign in
+          </button>
+        </p>
+
+        {!showResend ? (
+          <p className="auth-footer__text">
+            Already registered?{" "}
             <button
               type="button"
-              className="back-button"
-              onClick={() => navigate(`/login${inviteQuerySuffix}`)}
-              aria-label="Go back"
+              className="auth-btn auth-btn--link"
+              onClick={() => setShowResend(true)}
+              disabled={loading}
             >
-              <svg
-                width="22"
-                height="22"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-              >
-                <path d="M15 18l-6-6 6-6" />
-              </svg>
+              Resend OTP
             </button>
-
-            <h1 className="intro-title">{heroTitle}</h1>
-
-            <p className="intro-description">
-              {isInviteFlow
-                ? "Complete signup to join your partner in one shared love space."
-                : "Create your private couple space. Save memories, track milestones, and grow your journey beautifully."}
-            </p>
-          </div>
-        </div>
-
-        <div className="login-card-wrapper">
-          <div className="login-card">
-            <header className="card-header">
-              <h2 className="card-title">
-                {isInviteFlow ? "Join Your Partner 💖" : "Create Account 💖"}
-              </h2>
-              <p className="card-description">
-                {isInviteFlow
-                  ? "Continue to verify and activate your invite"
-                  : "Start your shared journey today"}
-              </p>
-            </header>
-
-            <form className="login-form" onSubmit={handleSubmit} noValidate>
-              {!isInviteFlow && (
-                <div className="form-group">
-                  <label className="form-label">Couple Name</label>
-                  <input
-                    type="text"
-                    name="coupleName"
-                    className="form-input"
-                    placeholder="Moon & Stars"
-                    disabled={loading}
-                    required
-                  />
-                </div>
-              )}
-
-              <div className="form-group">
-                <label className="form-label">Your Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  className="form-input"
-                  placeholder="Your name"
-                  disabled={loading}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Email</label>
-                <input
-                  type="email"
-                  name="email"
-                  className="form-input"
-                  placeholder="Enter your email"
-                  disabled={loading}
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Password</label>
-                <div className="password-wrapper">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    name="password"
-                    className="form-input"
-                    placeholder="Create a password"
-                    disabled={loading}
-                    required
-                  />
-                  <button
-                    type="button"
-                    className="password-toggle"
-                    onClick={() => setShowPassword(!showPassword)}
-                    disabled={loading}
-                  >
-                    {showPassword ? "🙈" : "👁️"}
-                  </button>
-                </div>
-              </div>
-
-              <button type="submit" className="submit-button" disabled={loading}>
-                {loading ? "Submitting..." : isInviteFlow ? "Join Now ✨" : "Create Account ✨"}
+          </p>
+        ) : (
+          <form className="auth-resend" onSubmit={handleResendOtp}>
+            <input
+              type="email"
+              className="auth-field__input"
+              placeholder="Registered email"
+              value={resendEmail}
+              onChange={(e) => setResendEmail(e.target.value)}
+              required
+              disabled={resendLoading}
+            />
+            <div className="auth-resend__actions">
+              <button
+                type="submit"
+                className="auth-btn auth-btn--primary"
+                disabled={resendLoading}
+              >
+                {resendLoading ? "Sending..." : "Send OTP"}
               </button>
-            </form>
-
-            <footer className="card-footer">
-              <p className="footer-text">
-                Already have an account?{" "}
-                <button
-                  type="button"
-                  className="footer-link"
-                  onClick={() => navigate(`/login${inviteQuerySuffix}`)}
-                  disabled={loading}
-                >
-                  Sign in
-                </button>
-              </p>
-              {!showResendForm ? (
-                <p className="footer-text" style={{ marginTop: 8 }}>
-                  Already registered?{" "}
-                  <button
-                    type="button"
-                    className="footer-link"
-                    onClick={() => setShowResendForm(true)}
-                    disabled={loading}
-                  >
-                    Resend OTP
-                  </button>
-                </p>
-              ) : (
-                <form
-                  onSubmit={handleResendOtp}
-                  style={{ marginTop: 12, display: "flex", flexDirection: "column", gap: 8 }}
-                >
-                  <input
-                    type="email"
-                    className="form-input"
-                    placeholder="Enter your registered email"
-                    value={resendEmail}
-                    onChange={(e) => setResendEmail(e.target.value)}
-                    required
-                    disabled={resendLoading}
-                  />
-                  <div style={{ display: "flex", gap: 8 }}>
-                    <button
-                      type="submit"
-                      className="submit-button"
-                      disabled={resendLoading}
-                      style={{ flex: 1 }}
-                    >
-                      {resendLoading ? "Sending..." : "Send OTP"}
-                    </button>
-                    <button
-                      type="button"
-                      className="submit-button"
-                      onClick={() => setShowResendForm(false)}
-                      disabled={resendLoading}
-                      style={{ flex: 1, background: "transparent", border: "1px solid #ff5da2", color: "#ff5da2" }}
-                    >
-                      Cancel
-                    </button>
-                  </div>
-                </form>
-              )}
-            </footer>
-          </div>
-        </div>
-      </div>
-
-      <div className="decorative-blur decorative-blur-1"></div>
-      <div className="decorative-blur decorative-blur-2"></div>
-    </div>
+              <button
+                type="button"
+                className="auth-btn auth-btn--ghost"
+                onClick={() => setShowResend(false)}
+                disabled={resendLoading}
+              >
+                Cancel
+              </button>
+            </div>
+          </form>
+        )}
+      </footer>
+    </AuthPageShell>
   );
 }

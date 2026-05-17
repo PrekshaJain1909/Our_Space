@@ -262,13 +262,13 @@
 }
 
 .tl-reminder-chip input {
-  accent-color: #ff8adf;
+  accent-color: var(--accent-primary);
 }
 
 .tl-reminder-note {
   margin-top: 4px;
   font-size: 10px;
-  opacity: 0.75;
+  color: var(--text-secondary);
 }
 
 /* ===== TIMELINE LIST ===== */

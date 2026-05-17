@@ -19,25 +19,15 @@ import MoodPage from "./features/mood/pages/MoodPage.jsx";
 import VerifyOtpPage from "./features/auth/pages/VerifyOtpPage.jsx";
 import InvitePage from "./features/invite/pages/InvitePage.jsx";
 import JoinPage from "./features/auth/pages/JoinPage.jsx";
-import { AuthProvider } from "./features/context/AuthContext";
-
-<AuthProvider>
-  <App />
-</AuthProvider>
-
-
 
 // Simple fallback page
 function NotFoundPage() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-950 text-slate-100">
+    <div className="flex min-h-screen items-center justify-center bg-primary text-primary">
       <div className="text-center space-y-3">
         <h1 className="text-4xl font-bold">404</h1>
-        <p className="text-slate-300">Page not found</p>
-        <Link
-          to="/dashboard"
-          className="inline-flex items-center rounded-full bg-pink-500 px-5 py-2 text-sm font-medium text-white hover:bg-pink-600 transition"
-        >
+        <p className="text-secondary">Page not found</p>
+        <Link to="/dashboard" className="btn btn-primary">
           Go to Dashboard
         </Link>
       </div>
@@ -49,7 +39,7 @@ function NotFoundPage() {
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="min-h-screen bg-primary text-primary">
       <Routes>
         {/* Auth routes only at /login and /register, with minimal layout */}
         <Route element={<AuthLayout />}>

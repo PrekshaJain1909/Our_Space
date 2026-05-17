@@ -14,6 +14,15 @@ import "./RegisterPage.css";
 
 const RESEND_COOLDOWN = 60;
 
+function getSwalThemeOptions() {
+  const styles = getComputedStyle(document.documentElement);
+  return {
+    confirmButtonColor: styles.getPropertyValue("--accent-primary").trim() || "#ff66c4",
+    background: styles.getPropertyValue("--surface").trim() || "#1c003a",
+    color: styles.getPropertyValue("--text-primary").trim() || "#fff",
+  };
+}
+
 export default function VerifyOtpPage() {
   const [otp, setOtp] = useState("");
   const [emailInput, setEmailInput] = useState("");
@@ -88,9 +97,7 @@ export default function VerifyOtpPage() {
           icon: "warning",
           title: "Invalid Email",
           text: emailError || "Please enter a valid email address.",
-          confirmButtonColor: "#ff66c4",
-          background: "#1c003a",
-          color: "#fff",
+          ...getSwalThemeOptions(),
         });
         return;
       }
@@ -101,7 +108,7 @@ export default function VerifyOtpPage() {
         icon: "warning",
         title: "Email required",
         text: "Enter your registered email to verify OTP.",
-        confirmButtonColor: "#ff66c4",
+        ...getSwalThemeOptions(),
       });
       return;
     }
@@ -111,9 +118,7 @@ export default function VerifyOtpPage() {
         icon: "warning",
         title: "Oops 💌",
         text: "Please enter a 6-digit OTP",
-        confirmButtonColor: "#ff66c4",
-        background: "#1c003a",
-        color: "#fff",
+        ...getSwalThemeOptions(),
       });
       return;
     }
@@ -140,9 +145,7 @@ export default function VerifyOtpPage() {
         icon: "success",
         title: "Verified Successfully 💖",
         text: "Welcome to your dashboard!",
-        confirmButtonColor: "#ff66c4",
-        background: "#1c003a",
-        color: "#fff",
+        ...getSwalThemeOptions(),
       });
 
       clearPendingOtpContext();
@@ -159,9 +162,7 @@ export default function VerifyOtpPage() {
           icon: "error",
           title: "Session required",
           text: "Please log in again and request a fresh OTP.",
-          confirmButtonColor: "#ff66c4",
-          background: "#1c003a",
-          color: "#fff",
+          ...getSwalThemeOptions(),
         });
         return;
       }
@@ -174,9 +175,7 @@ export default function VerifyOtpPage() {
           icon: "error",
           title: "Account Locked 🔒",
           text: "Too many failed attempts. Please request a new OTP.",
-          confirmButtonColor: "#ff66c4",
-          background: "#1c003a",
-          color: "#fff",
+          ...getSwalThemeOptions(),
         });
 
         return;
@@ -190,9 +189,7 @@ export default function VerifyOtpPage() {
         icon: "error",
         title: "Invalid OTP 💔",
         text: data.message || "Please try again.",
-        confirmButtonColor: "#ff66c4",
-        background: "#1c003a",
-        color: "#fff",
+        ...getSwalThemeOptions(),
       });
     }
   };
@@ -219,9 +216,7 @@ export default function VerifyOtpPage() {
         icon: "success",
         title: "OTP Resent 💌",
         text: "A new OTP has been sent to your email.",
-        confirmButtonColor: "#ff66c4",
-        background: "#1c003a",
-        color: "#fff",
+        ...getSwalThemeOptions(),
         timer: 2500,
         showConfirmButton: false,
       });
@@ -237,9 +232,7 @@ export default function VerifyOtpPage() {
         icon: "error",
         title: "Could not resend OTP",
         text: data.message || "Please try again later.",
-        confirmButtonColor: "#ff66c4",
-        background: "#1c003a",
-        color: "#fff",
+        ...getSwalThemeOptions(),
       });
 
     } finally {
@@ -270,18 +263,12 @@ export default function VerifyOtpPage() {
         <h2 className="card-title">Verify OTP</h2>
 
         {!email && !userId && (
-          <div style={{ marginBottom: 16 }}>
+          <div className="verify-email-block">
             <label
               htmlFor="email-input"
-              style={{
-                display: "block",
-                marginBottom: 8,
-                fontSize: 14,
-                fontWeight: 500,
-                color: "#fff",
-              }}
+              className="verify-email-label"
             >
-              Email Address <span style={{ color: "#ff66c4" }}>*</span>
+              Email Address <span className="verify-required">*</span>
             </label>
             <input
               id="email-input"
@@ -290,25 +277,13 @@ export default function VerifyOtpPage() {
               value={emailInput}
               onChange={handleEmailChange}
               placeholder="Enter your registered email"
-              className="form-input"
+              className={["form-input", emailError ? "form-input-error" : ""].join(" ")}
               aria-label="Email address"
               aria-required="true"
               aria-describedby={emailError ? "email-error" : undefined}
-              style={{
-                borderColor: emailError ? "#ff5c6c" : undefined,
-                borderWidth: emailError ? "2px" : "1px",
-              }}
             />
             {emailError && (
-              <p
-                id="email-error"
-                style={{
-                  color: "#ff5c6c",
-                  fontSize: 12,
-                  marginTop: 6,
-                  marginBottom: 0,
-                }}
-              >
+              <p id="email-error" className="verify-error-text">
                 {emailError}
               </p>
             )}
@@ -325,13 +300,13 @@ export default function VerifyOtpPage() {
         </div>
 
         {attemptsLeft !== null && !locked && (
-          <p style={{ color: "#ff5c6c", fontSize: 13, textAlign: "center", marginTop: 8 }}>
+          <p className="verify-warning-text">
             {attemptsLeft} attempt{attemptsLeft !== 1 ? "s" : ""} remaining before OTP is invalidated.
           </p>
         )}
 
         {locked && (
-          <p style={{ color: "#ff5c6c", fontSize: 13, textAlign: "center", marginTop: 8 }}>
+          <p className="verify-warning-text">
             OTP locked due to too many attempts. Request a new one below.
           </p>
         )}
@@ -344,19 +319,15 @@ export default function VerifyOtpPage() {
           Verify & Continue 💖
         </button>
 
-        <div style={{ textAlign: "center", marginTop: 16 }}>
+        <div className="verify-resend-wrap">
           <button
             type="button"
             onClick={handleResend}
             disabled={resendCooldown > 0 || resendLoading}
-            style={{
-              background: "none",
-              border: "none",
-              color: resendCooldown > 0 ? "#888" : "#ff66c4",
-              cursor: resendCooldown > 0 ? "default" : "pointer",
-              fontSize: 14,
-              textDecoration: resendCooldown > 0 ? "none" : "underline",
-            }}
+            className={[
+              "verify-resend-btn",
+              resendCooldown > 0 ? "verify-resend-btn-disabled" : "",
+            ].join(" ")}
           >
             {resendLoading
               ? "Sending..."

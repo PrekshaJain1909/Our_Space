@@ -1,14 +1,18 @@
 import React from "react";
-import { Outlet, Link } from "react-router-dom";
+import { Outlet } from "react-router-dom";
+import AuthNavbar from "../features/auth/components/AuthNavbar";
+import "../features/auth/styles/AuthNavbar.css";
 
 /**
- * AuthLayout - A layout component that wraps the authentication pages with a consistent design.
- * It includes a top brand bar, a main auth container and a footer.
- * The main auth container contains a left section with marketing text and a right section that renders the Login/Register page.
- * The footer contains a small note about the data being private.
+ * Wraps login, register, and join routes with a fixed top navbar.
  */
 export default function AuthLayout() {
   return (
-    <Outlet />
+    <div className="auth-layout">
+      <AuthNavbar />
+      <main className="auth-layout__main">
+        <Outlet />
+      </main>
+    </div>
   );
 }

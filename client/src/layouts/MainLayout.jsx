@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import { Analytics } from "@vercel/analytics/react";
 import Sidebar from "../components/Sidebar/Sidebar";
+import ThemeToggle from "../components/ui/ThemeToggle";
 import { getCoupleStatus } from "../features/auth/services/authApi";
 import "./MainLayout.css";
 
@@ -317,6 +318,8 @@ ${user.name} 🤍`,
           </div>
 
           <div className="topbar-right">
+            
+            
             {!user ? (
               <div className="auth-buttons">
                 <button className="auth-btn auth-btn-login" onClick={goToLogin}>
@@ -349,6 +352,7 @@ ${user.name} 🤍`,
                 </button>
               </div>
             )}
+            <ThemeToggle />
           </div>
         </header>
 

@@ -15,11 +15,11 @@ export default function PageHeader({
     >
       {/* Left side: title + subtitle */}
       <div>
-        <h1 className="text-xl md:text-2xl font-semibold text-slate-100 tracking-tight">
+        <h1 className="text-xl md:text-2xl font-semibold text-primary tracking-tight">
           {title}
         </h1>
         {subtitle && (
-          <p className="text-sm md:text-[15px] text-slate-400 mt-1 max-w-2xl">
+          <p className="text-sm md:text-[15px] text-secondary mt-1 max-w-2xl">
             {subtitle}
           </p>
         )}

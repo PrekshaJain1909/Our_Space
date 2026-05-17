@@ -1,4 +1,5 @@
 import React from "react";
+import "./InvitePage.css";
 
 export default function InvitePage() {
   const storedUser = JSON.parse(localStorage.getItem("user") || "{}");
@@ -13,20 +14,24 @@ export default function InvitePage() {
   };
 
   return (
-    <div style={{ padding: "20px" }}>
-      <h1>💌 Invite Your Partner</h1>
-      <p>Share this link with your partner:</p>
+    <div className="invite-page section">
+      <div className="invite-card card">
+      <h1 className="invite-title">💌 Invite Your Partner</h1>
+      <p className="invite-subtitle">Share this link with your partner:</p>
 
-      <div style={{ marginTop: "15px" }}>
+      <div className="invite-actions">
+        <div className="input-wrapper">
         <input
           type="text"
           value={inviteLink}
           readOnly
-          style={{ width: "100%", padding: "8px" }}
+          className="input-field"
         />
-        <button onClick={copyLink} style={{ marginTop: "10px" }}>
+        </div>
+        <button onClick={copyLink} className="btn btn-primary invite-btn">
           Copy Invite Link
         </button>
+      </div>
       </div>
     </div>
   );

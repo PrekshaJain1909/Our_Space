@@ -13,17 +13,17 @@ export default function StatsCard({
 
   const trendColor =
     trend > 0
-      ? "text-green-400"
+      ? "text-success"
       : trend < 0
-      ? "text-red-400"
-      : "text-slate-400";
+      ? "text-danger"
+      : "text-secondary";
 
   return (
     <div
       onClick={onClick}
       className={[
-        "rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur-xl shadow-[0_0_25px_rgba(15,23,42,0.45)] p-4 md:p-5 transition",
-        clickable && "cursor-pointer hover:border-pink-500/50 hover:shadow-[0_0_35px_rgba(236,72,153,0.25)]",
+        "card transition",
+        clickable && "cursor-pointer hover-accent",
         className,
       ].join(" ")}
     >
@@ -37,10 +37,10 @@ export default function StatsCard({
 
         {/* Text */}
         <div className="flex-1">
-          <h3 className="text-xs md:text-sm font-medium text-slate-400">
+          <h3 className="text-xs md:text-sm font-medium text-secondary">
             {title}
           </h3>
-          <div className="text-xl md:text-2xl font-semibold text-slate-100 mt-1">
+          <div className="text-xl md:text-2xl font-semibold text-primary mt-1">
             {value}
           </div>
         </div>
@@ -55,7 +55,7 @@ export default function StatsCard({
             {Math.abs(trend)}%
           </span>
           {trendLabel && (
-            <span className="text-slate-500">{trendLabel}</span>
+            <span className="text-secondary">{trendLabel}</span>
           )}
         </div>
       )}

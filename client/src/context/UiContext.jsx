@@ -84,7 +84,7 @@ export function UiProvider({ children }) {
         <div className="fixed inset-0 z-[1500] flex items-center justify-center bg-black/60 backdrop-blur-md">
           <div className="flex flex-col items-center gap-3">
             <Spinner size="xl" />
-            <p className="text-sm text-slate-200">
+            <p className="text-sm text-secondary">
               Updating your love space...
             </p>
           </div>

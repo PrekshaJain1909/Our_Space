@@ -11,7 +11,7 @@ export default function Spinner({ size = "md", className = "" }) {
   return (
     <svg
       className={[
-        "animate-spin text-pink-400",
+        "spinner",
         sizes[size],
         className,
       ].join(" ")}

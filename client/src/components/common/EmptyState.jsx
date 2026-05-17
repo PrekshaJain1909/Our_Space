@@ -11,7 +11,7 @@ export default function EmptyState({
     <div
       className={[
         "w-full flex flex-col items-center text-center gap-3 py-10 px-4",
-        "rounded-2xl border border-slate-800 bg-slate-900/40 backdrop-blur-xl",
+        "card",
         className,
       ].join(" ")}
     >
@@ -19,13 +19,13 @@ export default function EmptyState({
       <div className="text-4xl md:text-5xl select-none">{icon}</div>
 
       {/* Title */}
-      <h3 className="text-lg md:text-xl font-semibold text-slate-200">
+      <h3 className="text-lg md:text-xl font-semibold text-primary">
         {title}
       </h3>
 
       {/* Subtitle */}
       {subtitle && (
-        <p className="text-sm md:text-[15px] text-slate-400 max-w-md leading-relaxed">
+        <p className="text-sm md:text-[15px] text-secondary max-w-md leading-relaxed">
           {subtitle}
         </p>
       )}
