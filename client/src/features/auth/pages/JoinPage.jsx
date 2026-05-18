@@ -98,7 +98,7 @@ export default function JoinPage() {
         minHeight: "100vh",
         width: "100%",
         padding: "2rem 1rem",
-        background: "var(--light-bg-primary)"
+        background: "var(--bg-primary)"
       }}
       className="auth-page"
     >

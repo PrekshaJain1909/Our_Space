@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import useAuth from "../../../hooks/useAuth";
 import useToast from "../../../hooks/useToast";
 import OTPInput from "../components/OTPInput";
 import { verifyOtp, resendOtp } from "../services/authApi";
@@ -9,7 +8,6 @@ import { getPendingOtpEmail, clearPendingOtpContext } from "../../../utils/otpFl
 export default function VerifyOtpPage() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { loadUser } = useAuth();
   const { error, success } = useToast();
 
   const [otp, setOtp] = useState("");
@@ -34,15 +32,25 @@ export default function VerifyOtpPage() {
     setLoading(true);
     try {
       const res = await verifyOtp({ email, otp: otp.trim() });
+
+      // Store both token keys + user so AuthContext hydrates immediately
       if (res.token) {
         localStorage.setItem("token", res.token);
+        localStorage.setItem("auth_token", res.token);
       }
+      if (res.user) {
+        localStorage.setItem("user", JSON.stringify(res.user));
+      }
+
+      // Notify AuthContext to sync state from localStorage
+      window.dispatchEvent(new Event("auth-token-updated"));
+
       success("Email verified successfully! 💕");
       clearPendingOtpContext();
-      await loadUser();
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     } catch (err) {
-      error(err.response?.data?.message || "Invalid or expired OTP");
+      const errMsg = err.message || err.response?.data?.message || "Invalid or expired OTP";
+      error(errMsg);
     } finally {
       setLoading(false);
     }

@@ -34,12 +34,14 @@ export default function MainLayout() {
   useEffect(() => {
     loadUserFromStorage();
 
-    // Listen for user data changes from other parts of the app
+    // Listen for user data changes from login, OTP verify, and other auth flows
     const handleUserUpdate = () => loadUserFromStorage();
     window.addEventListener("user-data-updated", handleUserUpdate);
+    window.addEventListener("auth-token-updated", handleUserUpdate);
 
     return () => {
       window.removeEventListener("user-data-updated", handleUserUpdate);
+      window.removeEventListener("auth-token-updated", handleUserUpdate);
     };
   }, []);
 
