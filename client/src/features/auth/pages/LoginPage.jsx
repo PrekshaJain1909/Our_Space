@@ -85,7 +85,7 @@ export default function LoginPage() {
 
   return (
     <AuthPageShell
-      
+
       heroTitle={
         <>
           Your <span className="auth-page__highlight">shared moments</span>

@@ -94,13 +94,29 @@ export default function RegisterPage() {
         state: { email },
       });
     } catch (err) {
-      const errMsg = err.response?.data?.message || "Something went wrong.";
-      const status = err.response?.status;
+      // axiosClient interceptor spreads response.data onto the error, so
+      // the message lives at err.message, not err.response?.data?.message
+      const errMsg = err.message || err.response?.data?.message || "Something went wrong.";
+      const status = err.status || err.response?.status;
 
       if (status === 200) {
         setPendingOtpEmail(email);
         navigate(buildVerifyOtpPath({ email, query: inviteQuerySuffix }), {
           state: { email },
+        });
+      } else if (errMsg.toLowerCase().includes("already exist") || errMsg.toLowerCase().includes("user already exist")) {
+        Swal.fire({
+          icon: "warning",
+          title: "User already exists",
+          text: "An account with this email is already registered. Please sign in instead.",
+          confirmButtonText: "Go to Login",
+          showCancelButton: true,
+          cancelButtonText: "Cancel",
+          ...getSwalThemeOptions(),
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate(`/login${inviteQuerySuffix}`);
+          }
         });
       } else {
         Swal.fire({

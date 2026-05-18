@@ -1,10 +1,25 @@
 import React, { useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import AuthField from "../components/AuthField";
 import PasswordField from "../components/PasswordField";
 import useToast from "../../../hooks/useToast";
 import { registerPartnerB } from "../services/authApi";
 import { setPendingOtpEmail, buildVerifyOtpPath } from "../../../utils/otpFlow";
+
+function getSwalThemeOptions() {
+  const styles = getComputedStyle(document.documentElement);
+  const isDark = document.documentElement.classList.contains("dark");
+  return {
+    confirmButtonColor: styles.getPropertyValue("--accent-primary").trim() || "#ff5da2",
+    background: isDark
+      ? styles.getPropertyValue("--dark-surface").trim() || "#1c0050"
+      : "#ffffff",
+    color: isDark
+      ? styles.getPropertyValue("--dark-text-primary").trim() || "#ffeefc"
+      : styles.getPropertyValue("--light-text-primary").trim() || "#2a1a3a",
+  };
+}
 
 export default function JoinPage() {
   const { inviteCode } = useParams();
@@ -15,6 +30,11 @@ export default function JoinPage() {
   const params = new URLSearchParams(location.search);
   const coupleId = params.get("coupleId");
   const token = params.get("inviteToken") || params.get("token") || inviteCode;
+
+  const inviteQuery = new URLSearchParams();
+  if (token) inviteQuery.set("inviteToken", token);
+  if (coupleId) inviteQuery.set("coupleId", coupleId);
+  const inviteQuerySuffix = inviteQuery.toString() ? `?${inviteQuery.toString()}` : "";
 
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -44,7 +64,26 @@ export default function JoinPage() {
       setPendingOtpEmail(email);
       navigate(buildVerifyOtpPath({ email }), { state: { email } });
     } catch (err) {
-      error(err.response?.data?.message || "Join failed. Please try again.");
+      // axiosClient interceptor spreads response.data onto the error, so
+      // the message lives at err.message, not err.response?.data?.message
+      const errMsg = err.message || err.response?.data?.message || "Join failed. Please try again.";
+      if (errMsg.toLowerCase().includes("already exist") || errMsg.toLowerCase().includes("user already exist")) {
+        Swal.fire({
+          icon: "warning",
+          title: "User already exists",
+          text: "An account with this email is already registered. Please sign in instead.",
+          confirmButtonText: "Go to Login",
+          showCancelButton: true,
+          cancelButtonText: "Cancel",
+          ...getSwalThemeOptions(),
+        }).then((result) => {
+          if (result.isConfirmed) {
+            navigate(`/login${inviteQuerySuffix}`);
+          }
+        });
+      } else {
+        error(errMsg);
+      }
     } finally {
       setLoading(false);
     }
