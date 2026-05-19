@@ -1,9 +1,10 @@
 export default function LoveNotesStats({ notes }) {
+  const safeNotes = Array.isArray(notes) ? notes : [];
 
-  const total = notes.length;
+  const total = safeNotes.length;
 
   const longest =
-    notes.reduce(
+    safeNotes.reduce(
       (max, n) => Math.max(max, n.content?.length || 0),
       0
     ) || 0;

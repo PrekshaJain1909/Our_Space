@@ -7,8 +7,7 @@ const { asyncHandler } = require("../middleware/asyncHandler");
 
 const otpService = require("../service/otpService");
 const mailService = require("../service/mailService");
-
-const jwt = require("jsonwebtoken");
+const tokenService = require("../service/tokenService");
 
 exports.verifyOTP = asyncHandler(async (req, res) => {
   const { email, otp, userId } = req.body;
@@ -92,11 +91,12 @@ exports.verifyOTP = asyncHandler(async (req, res) => {
   }
 
   // 5️⃣ Generate JWT
-  const token = jwt.sign(
-    { userId: user._id, email: user.email },
-    process.env.JWT_SECRET,
-    { expiresIn: "7d" }
-  );
+  const token = tokenService.generateAuthToken({
+    userId: user._id,
+    email: user.email,
+    role: user.role,
+    coupleId: user.coupleId,
+  });
 
   res.json({
     message: "OTP verified successfully",

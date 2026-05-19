@@ -9,7 +9,6 @@ const otpService = require("../service/otpService");
 const tokenService = require("../service/tokenService");
 const mailService = require("../service/mailService");
 const passwordService = require("../service/passwordService");
-const jwt = require("jsonwebtoken");
 
 exports.registerPartnerA = asyncHandler(async (req, res) => {
   const { coupleName, name, email, password } = req.body;
@@ -87,106 +86,75 @@ exports.registerPartnerA = asyncHandler(async (req, res) => {
 });
 
 exports.login = asyncHandler(async (req, res) => {
-  const { name, coupleName, password } = req.body;
+  const { email, password } = req.body;
 
-  const normalizedCoupleName = (coupleName || name || "").trim();
-  const normalizedPassword = (password || "").trim();
+  const normalizedEmail = (email || "").toString().trim().toLowerCase();
+  const normalizedPassword = (password || "").toString().trim();
 
-  if (!normalizedCoupleName || !normalizedPassword) {
-    return res.status(400).json({ message: "Couple name and password are required" });
+  if (!normalizedEmail || !normalizedPassword) {
+    return res.status(400).json({ message: "Email and password are required" });
   }
 
-  const escapedCoupleName = normalizedCoupleName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  // Find user by email
+  const user = await User.findOne({ email: normalizedEmail }).populate(
+    "coupleId",
+    "coupleName isActive partnerA partnerB"
+  );
 
-  const couple = await Couple.findOne({
-    coupleName: { $regex: `^${escapedCoupleName}$`, $options: "i" },
-  })
-    .populate("partnerA", "name email password role coupleId isVerified")
-    .populate("partnerB", "name email password role coupleId isVerified");
-
-  if (!couple) {
-    return res.status(401).json({ message: "Invalid couple name or password" });
+  if (!user) {
+    return res.status(401).json({ message: "Invalid email or password" });
   }
 
-  const candidates = [couple.partnerA, couple.partnerB].filter(Boolean);
-
-  let matchedUser = null;
-  for (const candidate of candidates) {
-    const isMatch = await passwordService.comparePassword(normalizedPassword, candidate.password);
-    if (isMatch) {
-      matchedUser = candidate;
-      break;
-    }
+  const isMatch = await passwordService.comparePassword(normalizedPassword, user.password);
+  if (!isMatch) {
+    return res.status(401).json({ message: "Invalid email or password" });
   }
 
-  if (!matchedUser) {
-    return res.status(401).json({ message: "Invalid couple name or password" });
-  }
-
-  if (!matchedUser.isVerified) {
+  if (!user.isVerified) {
     return res.status(403).json({
       message: "Please verify your OTP before logging in.",
       code: "USER_UNVERIFIED",
-      email: matchedUser.email,
-      userId: matchedUser._id,
+      email: user.email,
+      userId: user._id,
     });
   }
 
-  // Detect when this user is verified but their partner hasn't verified yet
-  let partnerPending = false;
-  if (couple.partnerA && couple.partnerB && !couple.isActive) {
-    const otherPartner = couple.partnerA._id.equals(matchedUser._id)
-      ? couple.partnerB
-      : couple.partnerA;
-    if (otherPartner && !otherPartner.isVerified) {
-      partnerPending = true;
-    }
-  }
-
-  const token = jwt.sign(
-    { userId: matchedUser._id, email: matchedUser.email },
-    process.env.JWT_SECRET,
-    { expiresIn: "7d" }
-  );
+  const token = tokenService.generateAuthToken({
+    userId: user._id,
+    email: user.email,
+    role: user.role,
+    coupleId: user.coupleId,
+  });
 
   res.json({
     message: "Login successful",
     token,
     user: {
-      _id: matchedUser._id,
-      name: matchedUser.name,
-      email: matchedUser.email,
-      role: matchedUser.role,
-      coupleId: matchedUser.coupleId,
-      isVerified: matchedUser.isVerified,
-      isActive: Boolean(couple.isActive),
-      coupleName: couple.coupleName,
-      partnerPending,
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      coupleId: user.coupleId,
+      isVerified: user.isVerified,
+      isActive: Boolean(user.coupleId?.isActive),
+      coupleName: user.coupleId?.coupleName || null,
     },
   });
 });
 
 exports.refreshToken = asyncHandler(async (req, res) => {
-  const token = req.headers.authorization?.split(" ")[1];
+  const user = req.user;
 
-  if (!token) {
-    return res.status(401).json({ message: "No token provided" });
+  if (!user) {
+    return res.status(401).json({ message: "Invalid session" });
   }
 
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findById(decoded.userId);
+  const newToken = tokenService.generateAuthToken({
+    userId: user._id,
+    email: user.email,
+    role: user.role,
+    coupleId: user.coupleId,
+  });
 
-    if (!user) {
-      return res.status(401).json({ message: "User not found" });
-    }
-
-    const newToken = jwt.sign({ userId: user._id, email: user.email }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
-
-    res.json({ token: newToken });
-  } catch (err) {
-    res.status(401).json({ message: "Invalid or expired token" });
-  }
+  res.json({ token: newToken });
 });

@@ -25,7 +25,7 @@ export default function LoveNotesPage() {
     setLoading(true);
     try {
       const res = await loveNotesApi.getAll();
-      setNotes(res.data || []);
+      setNotes(res.data?.data || []);
     } catch {
       setNotes([]);
     } finally {
@@ -40,7 +40,7 @@ export default function LoveNotesPage() {
   const handleAddNote = async (note) => {
     try {
       const res = await loveNotesApi.create(note);
-      setNotes((prev) => [res.data, ...prev]);
+      setNotes((prev) => [res.data?.data || res.data || {}, ...prev]);
     } catch {
       showError("Failed to save note");
     }

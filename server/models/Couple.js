@@ -7,6 +7,26 @@ const coupleSchema = new mongoose.Schema({
     required: true
   },
 
+  aboutUs: {
+    type: String,
+    default: ""
+  },
+
+  photoUrl: {
+    type: String,
+    default: null
+  },
+
+  startDate: {
+    type: Date,
+    default: null
+  },
+
+  anniversaryDate: {
+    type: Date,
+    default: null
+  },
+
   partnerA: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User"

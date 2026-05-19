@@ -6,6 +6,8 @@ const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
 const inviteRoutes = require("./routes/inviteRoutes");
 const otpRoutes = require("./routes/otpRoutes");
+const loveNotesRoutes = require("./routes/loveNotesRoutes");
+const coupleRoutes = require("./routes/coupleRoutes");
 const { verifyTransporter } = require("./service/mailService");
 const app = express();
 const PORT = Number(process.env.PORT) || 5000;
@@ -34,6 +36,8 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/invite", inviteRoutes);
 app.use("/api/otp", otpRoutes);
+app.use("/api/love-notes", loveNotesRoutes);
+app.use("/api/couple", coupleRoutes);
 
 // Register global error handler (must come after route definitions)
 const { errorHandler } = require("./middleware/errorMiddleware");

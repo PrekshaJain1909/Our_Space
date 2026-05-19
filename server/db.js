@@ -3,7 +3,7 @@ const path = require('path');
 
 // If MONGO_URI is provided, use MongoDB. Otherwise, fall back to file DB.
 const MONGO_URI = process.env.MONGO_URI || process.env.DB_URI || 'mongodb+srv://prekjainsha190994_db_user:<db_password>@cluster0.eqvz71g.mongodb.net/?appName=Cluster0';
-
+console.log(`MongoDB_URI: ${MONGO_URI.includes('<db_password>') ? '***hidden***' : MONGO_URI}`);
 const DB_PATH = path.join(__dirname, 'data', 'db.json');
 
 let mongoClient = null;

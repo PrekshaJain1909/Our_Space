@@ -52,6 +52,20 @@ const NotFoundPage = () => (
 
 
 
+const ProtectedRoute = ({ children }) => {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return <LoadingScreen />;
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return children;
+};
+
 export default function AppRoutes() {
   return (
     <Routes>
@@ -65,16 +79,86 @@ export default function AppRoutes() {
         <Route path="/invite/:inviteCode" element={<JoinPage />} />
         <Route path="/verify-otp" element={<VerifyOtpPage />} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/couple" element={<CoupleProfilePage />} />
-        <Route path="/love-notes" element={<LoveNotesPage />} />
-        <Route path="/healing-zone" element={<HealingZonePage />} />
-        <Route path="/analytics" element={<AnalyticsPage />} />
-        <Route path="/playtime" element={<PlaytimePage />} />
-        <Route path="/bucket" element={<BucketPage />} />
-        <Route path="/timeline" element={<TimelinePage />} />
-        <Route path="/memory-box" element={<MemoryBoxPage />} />
-        <Route path="/mood" element={<MoodPage />} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/couple"
+          element={
+            <ProtectedRoute>
+              <CoupleProfilePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/love-notes"
+          element={
+            <ProtectedRoute>
+              <LoveNotesPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/healing-zone"
+          element={
+            <ProtectedRoute>
+              <HealingZonePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoute>
+              <AnalyticsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/playtime"
+          element={
+            <ProtectedRoute>
+              <PlaytimePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/bucket"
+          element={
+            <ProtectedRoute>
+              <BucketPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/timeline"
+          element={
+            <ProtectedRoute>
+              <TimelinePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/memory-box"
+          element={
+            <ProtectedRoute>
+              <MemoryBoxPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/mood"
+          element={
+            <ProtectedRoute>
+              <MoodPage />
+            </ProtectedRoute>
+          }
+        />
       </Route>
 
       {/* 404 */}

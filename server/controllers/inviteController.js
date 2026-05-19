@@ -8,6 +8,8 @@ const { asyncHandler } = require("../middleware/asyncHandler");
 const otpService = require("../service/otpService");
 const mailService = require("../service/mailService");
 const passwordService = require("../service/passwordService");
+const tokenService = require("../service/tokenService");
+const { asyncHandler: _asyncHandler } = require("../middleware/asyncHandler");
 
 const resolveCoupleFromInvite = async ({ token, coupleId }) => {
   if (token) {
@@ -140,6 +142,36 @@ exports.registerPartnerB = asyncHandler(async (req, res) => {
   });
 });
 
+exports.sendInvite = asyncHandler(async (req, res) => {
+  const user = req.user;
+
+  if (!user || !user.coupleId) {
+    return res.status(400).json({ message: 'User does not belong to a couple' });
+  }
+
+  const couple = await Couple.findById(user.coupleId);
+  if (!couple) return res.status(404).json({ message: 'Couple not found' });
+
+  // Generate a fresh invite token and expiry
+  const inviteToken = tokenService.generateInviteToken();
+  const inviteExpires = tokenService.getInviteExpiry();
+
+  couple.inviteToken = inviteToken;
+  couple.inviteExpires = inviteExpires;
+  await couple.save();
+
+  const inviteLink = tokenService.buildInviteLink(inviteToken);
+
+  // Optionally send to an email if provided
+  const { email } = req.body;
+  if (email) {
+    const normalized = otpService.normalizeOtpEmail(email);
+    await mailService.sendInviteEmail(normalized, inviteLink);
+  }
+
+  res.json({ message: 'Invite created', inviteLink });
+});
+
 exports.getCoupleStatus = asyncHandler(async (req, res) => {
   const { coupleId } = req.params;
 
@@ -147,6 +179,10 @@ exports.getCoupleStatus = asyncHandler(async (req, res) => {
 
   if (!couple) {
     return res.status(404).json({ message: "Couple not found" });
+  }
+
+  if (!req.user?.coupleId || req.user.coupleId.toString() !== couple._id.toString()) {
+    return res.status(403).json({ message: "Not authorized to view this couple." });
   }
 
   res.json({

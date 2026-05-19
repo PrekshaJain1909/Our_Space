@@ -94,6 +94,17 @@ axiosClient.interceptors.request.use(
 );
 
 
+const clearAuthAndRedirect = () => {
+  localStorage.removeItem("auth_token");
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  window.dispatchEvent(new Event("auth-token-updated"));
+  window.dispatchEvent(new Event("user-data-updated"));
+  if (typeof window !== "undefined") {
+    window.location.href = "/login";
+  }
+};
+
 // Handle responses and errors
 axiosClient.interceptors.response.use(
   (response) => response,
@@ -102,12 +113,44 @@ axiosClient.interceptors.response.use(
     const hasSessionToken =
       !!localStorage.getItem("auth_token") || !!localStorage.getItem("token");
 
+    // Guard: avoid retrying the refresh endpoint itself
+    const isRefreshEndpoint = (originalRequest?.url || "").toString().includes(
+      "/auth/refresh"
+    );
+
+    // Prevent concurrent refresh attempts
+    if (typeof axiosClient.isRefreshing === "undefined") {
+      axiosClient.isRefreshing = false;
+    }
+
     // If token expired — optional refresh flow
-    if (hasSessionToken && error.response?.status === 401 && !originalRequest._retry) {
+    if (
+      hasSessionToken &&
+      error.response?.status === 401 &&
+      !originalRequest._retry
+    ) {
+      // If the failed request was the refresh endpoint, stop and redirect
+      if (isRefreshEndpoint) {
+        clearAuthAndRedirect();
+        return Promise.reject({
+          message: "Refresh failed. Please log in again.",
+          status: 401,
+        });
+      }
+
+      // If another refresh is already in progress, do not start another
+      if (axiosClient.isRefreshing) {
+        clearAuthAndRedirect();
+        return Promise.reject({
+          message: "Session invalid. Please log in again.",
+          status: 401,
+        });
+      }
+
       originalRequest._retry = true;
+      axiosClient.isRefreshing = true;
 
       try {
-        // call refresh-token API (if backend supports it)
         const res = await axiosClient.post("/auth/refresh");
         const newToken = res.data?.token;
 
@@ -119,28 +162,38 @@ axiosClient.interceptors.response.use(
         }
       } catch (refreshError) {
         console.error("Session expired — please log in again");
-        localStorage.removeItem("auth_token");
-        localStorage.removeItem("token");
+        clearAuthAndRedirect();
+        return Promise.reject({
+          message: "Session invalid. Please log in again.",
+          status: 401,
+        });
+      } finally {
+        axiosClient.isRefreshing = false;
       }
-    }
-    // If server responds with 403, dispatch readonly event so UI can show banner
-    try {
-      if (error.response?.status === 403) {
-        if (typeof window !== "undefined" && window?.dispatchEvent) {
-          const detail = {
-            status: 403,
-            message: error.response?.data?.message || "Forbidden",
-            url: originalRequest?.url,
-            method: (originalRequest?.method || "").toUpperCase(),
-          };
-          window.dispatchEvent(new CustomEvent("readonly-attempt", { detail }));
-        }
-      }
-    } catch (e) {
-      // ignore
     }
 
-    // Other errors: keep status + payload so callers can branch on auth states.
+    if (error.response?.status === 401) {
+      clearAuthAndRedirect();
+      return Promise.reject({
+        message:
+          error.response.data?.message ||
+          "Unauthorized. Please log in again.",
+        status: 401,
+      });
+    }
+
+    if (error.response?.status === 403) {
+      if (typeof window !== "undefined" && window?.dispatchEvent) {
+        const detail = {
+          status: 403,
+          message: error.response?.data?.message || "Forbidden",
+          url: originalRequest?.url,
+          method: (originalRequest?.method || "").toUpperCase(),
+        };
+        window.dispatchEvent(new CustomEvent("readonly-attempt", { detail }));
+      }
+    }
+
     if (error.response) {
       return Promise.reject({
         ...error.response.data,

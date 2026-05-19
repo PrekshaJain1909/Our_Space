@@ -66,8 +66,6 @@ export default function DashboardPage() {
   );
 
   const displayName = user?.name || "Guest";
-  const isActiveCouple = Boolean(user?.isActive);
-
   return (
     <div className="dashboard-wrapper">
       <div className="dashboard-overlay" />
@@ -77,8 +75,8 @@ export default function DashboardPage() {
           <span className="dashboard-badge">Dashboard</span>
           <h1 className="dashboard-title">Welcome back, {displayName} ✨</h1>
           <p className="dashboard-subtitle">
-            {isActiveCouple
-              ? "Your shared space is active. Here is your relationship pulse for today."
+            {user
+              ? "Your account is ready. You can create, edit and manage your shared content. Invite your partner if you'd like to collaborate." 
               : "Browse everything in guest mode. Login or register when you are ready to edit."}
           </p>
         </header>
@@ -95,10 +93,8 @@ export default function DashboardPage() {
               partner={{
                 name: "Partner",
                 emoji: "🙂",
-                moodLabel: isActiveCouple ? "No mood set" : "Not connected yet",
-                note: isActiveCouple
-                  ? "Waiting for partner mood update."
-                  : "Invite your partner to start sharing mood check-ins.",
+                moodLabel: "Not connected yet",
+                note: "Invite your partner to start sharing mood check-ins.",
               }}
               onUpdateClick={() => navigate("/mood")}
             />

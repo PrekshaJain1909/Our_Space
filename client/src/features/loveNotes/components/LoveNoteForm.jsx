@@ -14,9 +14,11 @@ export default function LoveNoteForm({ onAdd, femaleName, maleName, isAuthentica
     if (!isAuthenticated) return;
     if (!form.content) return;
 
+    // Only send server-accepted fields; server computes from/to using authenticated user
     onAdd({
-      ...form,
-      createdAt: new Date()
+      title: form.title,
+      content: form.content,
+      createdAt: new Date(),
     });
 
     setForm({ from: "female", to: "male", title: "", content: "" });

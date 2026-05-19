@@ -52,11 +52,7 @@ export default function LoginPage() {
     const res = await login(payload);
 
     if (res?.success) {
-      success(
-        res.user?.partnerPending
-          ? "Welcome back 💕 — waiting for your partner to verify."
-          : "Welcome back 💕"
-      );
+      success("Welcome back 💕");
       navigate("/dashboard");
       return;
     }

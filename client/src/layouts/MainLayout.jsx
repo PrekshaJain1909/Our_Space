@@ -193,6 +193,7 @@ ${user.name} 🤍`,
   const isAuthFlowPath = ["/login", "/register", "/verify-otp", "/join"].some(
     (path) => location.pathname === path || location.pathname.startsWith(`${path}/`)
   );
+  // Read-only only for non-authenticated guests. Logged-in users may act immediately.
   const isGuestReadonly = !user && !isAuthFlowPath;
 
   const handleBrandClick = () => {
@@ -334,7 +335,7 @@ ${user.name} 🤍`,
                   Register
                 </button>
               </div>
-            ) : user && !user.isActive ? (
+            ) : (
               <div className="auth-buttons">
                 <button
                   className="auth-btn auth-btn-register"
@@ -347,12 +348,6 @@ ${user.name} 🤍`,
                   Logout
                 </button>
               </div>
-            ) : (
-              <div className="auth-buttons">
-                <button className="auth-btn auth-btn-login" onClick={handleLogout}>
-                  Logout
-                </button>
-              </div>
             )}
             <ThemeToggle />
           </div>
@@ -361,7 +356,7 @@ ${user.name} 🤍`,
         <main className="content">
           {isGuestReadonly && (
             <div className="readonly-banner" role="status" aria-live="polite">
-              Guest mode: editing is disabled until you login or register.
+              {"Guest mode: editing is disabled until you login or register."}
             </div>
           )}
 
