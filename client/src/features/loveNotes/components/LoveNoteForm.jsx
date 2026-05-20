@@ -1,27 +1,86 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useMemo } from "react";
 
-export default function LoveNoteForm({ onAdd, femaleName, maleName, isAuthenticated }) {
+export default function LoveNoteForm({
+  onAdd,
+  femaleName,
+  maleName,
+  isAuthenticated,
+  // if false (default) then authenticated users cannot change selects
+  allowSelectWhenAuthenticated = false,
+}) {
 
-  const [form, setForm] = useState({
-    from: "female",
-    to: "male",
-    title: "",
-    content: ""
-  });
+  // Build partners list dynamically and dedupe
+  const partners = useMemo(() => {
+    const list = [];
+    if (femaleName) list.push(femaleName);
+    if (maleName && maleName !== femaleName) list.push(maleName);
+    // fallback to placeholders if list too small
+    if (list.length === 0) return ["Partner A", "Partner B"];
+    if (list.length === 1) return [list[0], "Partner B"];
+    return list;
+  }, [femaleName, maleName]);
+
+  // indices into `partners` array
+  const [fromIndex, setFromIndex] = useState(0);
+  const [toIndex, setToIndex] = useState(() => (partners.length > 1 ? 1 : 0));
+
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+
+  const pickOther = useCallback(
+    (excludeIndex) => partners.findIndex((_, i) => i !== excludeIndex),
+    [partners]
+  );
+
+  const handleFromChange = useCallback(
+    (e) => {
+      const newFrom = Number(e.target.value);
+      if (Number.isNaN(newFrom) || newFrom < 0 || newFrom >= partners.length) return;
+      if (newFrom === toIndex) {
+        const newTo = pickOther(newFrom);
+        setFromIndex(newFrom);
+        setToIndex(newTo);
+      } else {
+        setFromIndex(newFrom);
+      }
+    },
+    [partners.length, pickOther, toIndex]
+  );
+
+  const handleToChange = useCallback(
+    (e) => {
+      const newTo = Number(e.target.value);
+      if (Number.isNaN(newTo) || newTo < 0 || newTo >= partners.length) return;
+      if (newTo === fromIndex) {
+        const newFrom = pickOther(newTo);
+        setToIndex(newTo);
+        setFromIndex(newFrom);
+      } else {
+        setToIndex(newTo);
+      }
+    },
+    [partners.length, pickOther, fromIndex]
+  );
+
+  const disabledSelects = !isAuthenticated || !allowSelectWhenAuthenticated;
 
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!isAuthenticated) return;
-    if (!form.content) return;
+    if (!content) return;
 
-    // Only send server-accepted fields; server computes from/to using authenticated user
+    // Server computes from/to from authenticated user; keep selects for UI only
     onAdd({
-      title: form.title,
-      content: form.content,
+      title: title,
+      content: content,
       createdAt: new Date(),
     });
 
-    setForm({ from: "female", to: "male", title: "", content: "" });
+    // reset
+    setFromIndex(0);
+    setToIndex(partners.length > 1 ? 1 : 0);
+    setTitle("");
+    setContent("");
   };
 
   return (
@@ -45,29 +104,23 @@ export default function LoveNoteForm({ onAdd, femaleName, maleName, isAuthentica
 
           <div className="ln-field">
             <label>From</label>
-            <select
-              value={form.from}
-              disabled={!isAuthenticated}
-              onChange={(e) =>
-                setForm({ ...form, from: e.target.value })
-              }
-            >
-              <option value="female">{femaleName}</option>
-              <option value="male">{maleName}</option>
+            <select value={fromIndex} onChange={handleFromChange} disabled={disabledSelects}>
+              {partners.map((p, i) => (
+                <option key={p + i} value={i}>
+                  {p}
+                </option>
+              ))}
             </select>
           </div>
 
           <div className="ln-field">
             <label>To</label>
-            <select
-              value={form.to}
-              disabled={!isAuthenticated}
-              onChange={(e) =>
-                setForm({ ...form, to: e.target.value })
-              }
-            >
-              <option value="female">{femaleName}</option>
-              <option value="male">{maleName}</option>
+            <select value={toIndex} onChange={handleToChange} disabled={disabledSelects}>
+              {partners.map((p, i) => (
+                <option key={p + i} value={i} disabled={i === fromIndex}>
+                  {p}
+                </option>
+              ))}
             </select>
           </div>
 
@@ -76,11 +129,9 @@ export default function LoveNoteForm({ onAdd, femaleName, maleName, isAuthentica
         <div className="ln-field">
           <input
             placeholder="e.g. Reasons I love you..."
-            value={form.title}
+            value={title}
             disabled={!isAuthenticated}
-            onChange={(e) =>
-              setForm({ ...form, title: e.target.value })
-            }
+            onChange={(e) => setTitle(e.target.value)}
           />
         </div>
 
@@ -88,11 +139,9 @@ export default function LoveNoteForm({ onAdd, femaleName, maleName, isAuthentica
           <textarea
             rows="4"
             placeholder="Write your heart out…"
-            value={form.content}
+            value={content}
             disabled={!isAuthenticated}
-            onChange={(e) =>
-              setForm({ ...form, content: e.target.value })
-            }
+            onChange={(e) => setContent(e.target.value)}
           />
         </div>
 

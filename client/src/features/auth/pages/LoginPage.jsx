@@ -37,15 +37,15 @@ export default function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const name = e.target.coupleName.value.trim();
+    const email = e.target.email.value.trim();
     const password = e.target.password.value.trim();
 
-    if (!name || !password) {
+    if (!email || !password) {
       toastError("Please fill in all fields");
       return;
     }
 
-    const payload = { name, password };
+    const payload = { email, password };
     if (inviteToken) payload.inviteToken = inviteToken;
     if (coupleId) payload.coupleId = coupleId;
 
@@ -98,11 +98,12 @@ export default function LoginPage() {
 
       <form className="auth-page__form" onSubmit={handleSubmit} noValidate>
         <AuthField
-          id="coupleName"
-          name="coupleName"
-          label="Couple name"
-          placeholder="Moon & Stars"
+          id="email"
+          name="email"
+          label="Email address"
+          placeholder="you@domain.com"
           autoComplete="username"
+          type="email"
           disabled={loading}
         />
 

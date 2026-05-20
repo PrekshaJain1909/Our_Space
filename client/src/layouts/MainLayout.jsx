@@ -53,7 +53,9 @@ export default function MainLayout() {
 
     const syncCoupleStatus = async () => {
       try {
-        const data = await getCoupleStatus(user.coupleId);
+        const coupleIdStr = typeof user.coupleId === 'string' ? user.coupleId : (user.coupleId && (user.coupleId._id || user.coupleId.toString()));
+        if (!coupleIdStr) return;
+        const data = await getCoupleStatus(coupleIdStr);
         const nextIsActive = Boolean(data?.isActive);
 
         if (!isMounted) return;
@@ -87,8 +89,9 @@ export default function MainLayout() {
    */
   const handleInvite = async () => {
   if (!user?.coupleId) return;
+  const coupleIdStr = typeof user.coupleId === 'string' ? user.coupleId : (user.coupleId && (user.coupleId._id || user.coupleId.toString()));
 
-  const inviteLink = `${window.location.origin}/join?coupleId=${user.coupleId}`;
+  const inviteLink = `${window.location.origin}/join?coupleId=${coupleIdStr}`;
 
   try {
     // Copy to clipboard

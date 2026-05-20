@@ -41,7 +41,10 @@ export const resendOtp = async (email) => {
 };
 
 export const getCoupleStatus = async (coupleId) => {
-  const response = await axiosClient.get(`/invite/couple-status/${coupleId}`);
+  // Normalize coupleId (accept object or string)
+  const id = typeof coupleId === 'string' ? coupleId : (coupleId && (coupleId._id || coupleId.toString()));
+  if (!id) throw new Error('Invalid coupleId');
+  const response = await axiosClient.get(`/invite/couple-status/${id}`);
   return response.data;
 };
 

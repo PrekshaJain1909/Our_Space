@@ -18,13 +18,14 @@ exports.buildInviteLink = (token) => {
 };
 
 exports.generateAuthToken = ({ userId, email, role, coupleId }) => {
-  return jwt.sign(
-    { userId, email, role, coupleId }, 
-    process.env.JWT_SECRET,
-    { expiresIn: JWT_EXPIRES }
-  );
+  const secret = process.env.JWT_SECRET || (process.env.NODE_ENV !== 'production' ? 'dev-secret' : null);
+  if (!secret) throw new Error('JWT_SECRET is not configured');
+
+  return jwt.sign({ userId, email, role, coupleId }, secret, { expiresIn: JWT_EXPIRES });
 };
 
 exports.verifyAuthToken = (token) => {
-  return jwt.verify(token, process.env.JWT_SECRET, { maxAge: JWT_EXPIRES });
+  const secret = process.env.JWT_SECRET || (process.env.NODE_ENV !== 'production' ? 'dev-secret' : null);
+  if (!secret) throw new Error('JWT_SECRET is not configured');
+  return jwt.verify(token, secret, { maxAge: JWT_EXPIRES });
 };

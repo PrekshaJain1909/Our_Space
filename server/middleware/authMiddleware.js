@@ -12,6 +12,7 @@ const getBearerToken = (header = "") => {
 exports.authenticateToken = async (req, res, next) => {
   const authHeader = req.headers.authorization || req.headers.Authorization;
   const token = getBearerToken(authHeader);
+  console.log('[auth] Authorization header present?', !!authHeader, 'extracted token?', !!token);
 
   if (!token) {
     return res.status(401).json({
@@ -22,6 +23,7 @@ exports.authenticateToken = async (req, res, next) => {
 
   try {
     const payload = tokenService.verifyAuthToken(token);
+    console.log('[auth] token payload:', { userId: payload?.userId, coupleId: payload?.coupleId });
 
     if (!payload?.userId) {
       throw new Error("Token payload missing userId");

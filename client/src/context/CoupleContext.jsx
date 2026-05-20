@@ -2,6 +2,7 @@
 import React, { createContext, useState, useEffect, useCallback } from "react";
 import coupleApi from "../api/coupleApi";
 import useAuth from "../hooks/useAuth";
+import socketClient, { connectSocket, joinRoom, leaveRoom, onEvent } from '../lib/socket';
 
 const CoupleContext = createContext(null);
 
@@ -18,7 +19,9 @@ export function CoupleProvider({ children }) {
     try {
       setRefreshing(true);
       const res = await coupleApi.getCouple();
-      setCouple(res.data || null);
+      // Backend wraps responses in an envelope: { success, message, data }
+      const payload = res.data?.data || res.data || null;
+      setCouple(payload);
       setError(null);
     } catch (err) {
       console.error("Failed to load couple profile:", err);
@@ -36,6 +39,34 @@ export function CoupleProvider({ children }) {
     loadCouple();
   }, [user, loadCouple]);
 
+  // Setup socket when couple is loaded
+  useEffect(() => {
+    if (!couple || !couple._id) return;
+    try {
+      connectSocket();
+      joinRoom(couple._id);
+
+      const offCreated = onEvent('task:created', (task) => {
+        window.dispatchEvent(new CustomEvent('socket:task', { detail: { type: 'created', task } }));
+      });
+
+      const offUpdated = onEvent('task:updated', (task) => {
+        window.dispatchEvent(new CustomEvent('socket:task', { detail: { type: 'updated', task } }));
+      });
+
+      const offDeleted = onEvent('task:deleted', (payload) => {
+        window.dispatchEvent(new CustomEvent('socket:task', { detail: { type: 'deleted', payload } }));
+      });
+
+      return () => {
+        offCreated(); offUpdated(); offDeleted();
+        leaveRoom(couple._id);
+      };
+    } catch (e) {
+      console.warn('Socket setup failed:', e.message);
+    }
+  }, [couple]);
+
   /* ---------------------- Update Couple Info --------------------- */
   const updateCouple = useCallback(
     async (payload) => {
@@ -43,7 +74,8 @@ export function CoupleProvider({ children }) {
         setLoading(true);
         setError(null);
         const res = await coupleApi.updateCouple(payload);
-        setCouple(res.data);
+        const payloadData = res.data?.data || res.data || null;
+        setCouple(payloadData);
         return { success: true };
       } catch (err) {
         setError(err?.message || "Failed to update couple profile");
@@ -62,7 +94,8 @@ export function CoupleProvider({ children }) {
         setLoading(true);
         setError(null);
         const res = await coupleApi.updatePhoto(formData);
-        setCouple(res.data);
+        const payloadData = res.data?.data || res.data || null;
+        setCouple(payloadData);
         return { success: true };
       } catch (err) {
         setError(err?.message || "Failed to update photo");

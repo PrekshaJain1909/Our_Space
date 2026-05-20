@@ -158,3 +158,16 @@ exports.refreshToken = asyncHandler(async (req, res) => {
 
   res.json({ token: newToken });
 });
+
+exports.getMe = asyncHandler(async (req, res) => {
+  const user = req.user;
+  if (!user) return res.status(401).json({ message: 'Not authenticated' });
+
+  res.json({ success: true, message: 'Current user', user });
+});
+
+exports.logout = asyncHandler(async (req, res) => {
+  // For stateless JWTs there's nothing to invalidate server-side by default.
+  // If refresh tokens or server-side sessions are used, clear them here.
+  res.json({ success: true, message: 'Logged out' });
+});

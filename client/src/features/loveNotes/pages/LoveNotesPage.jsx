@@ -18,8 +18,8 @@ export default function LoveNotesPage() {
   const ctx = useContext(CoupleContext) || {};
   const couple = ctx.couple || {};
 
-  const femaleName = couple.femaleName || "Female";
-  const maleName = couple.maleName || "Male";
+  const femaleName = couple?.partnerA?.name || couple?.femaleName || "Female";
+  const maleName = couple?.partnerB?.name || couple?.maleName || "Male";
 
   const fetchNotes = useCallback(async () => {
     setLoading(true);
@@ -55,6 +55,7 @@ export default function LoveNotesPage() {
           femaleName={femaleName}
           maleName={maleName}
           isAuthenticated={isAuthenticated}
+          allowSelectWhenAuthenticated={true}
         />
 
         <LoveNotesList
