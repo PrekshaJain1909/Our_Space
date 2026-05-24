@@ -11,6 +11,7 @@ import CoupleProfilePage from "./features/coupleProfile/pages/CoupleProfilePage.
 import LoveNotesPage from "./features/loveNotes/pages/LoveNotesPage.jsx";
 import HealingZonePage from "./features/healingZone/pages/HealingZonePage.jsx";
 import AnalyticsPage from "./features/analytics/pages/AnalyticsPage.jsx";
+import HabitDetailPage from "./features/analytics/pages/HabitDetailPage.jsx";
 import PlaytimePage from "./features/playtime/pages/PlaytimePage.jsx";
 import BucketPage from "./features/bucket/pages/BucketPage.jsx";
 import TimelinePage from "./features/timeline/pages/TimelinePage.jsx";
@@ -58,6 +59,7 @@ export default function App() {
           <Route path="/love-notes" element={<LoveNotesPage />} />
           <Route path="/healing-zone" element={<HealingZonePage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
+          <Route path="/monthly-data/:habitId" element={<HabitDetailPage />} />
           <Route path="/invite" element={<InvitePage />} />
           <Route path="/playtime" element={<PlaytimePage />} />
           <Route path="/bucket" element={<BucketPage />} />

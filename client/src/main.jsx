@@ -8,6 +8,7 @@ import { ToastProvider } from "./components/ui/ToastProvider.jsx";
 import { AuthProvider } from "./context/AuthContext.jsx";
 import { UiProvider } from "./context/UiContext.jsx";
 import { CoupleProvider } from "./context/CoupleContext.jsx";
+import { HealingProvider } from "./features/healingZone/context/HealingContext.jsx";
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
@@ -16,7 +17,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
         <AuthProvider>
           <UiProvider>
             <CoupleProvider>
-              <App />
+              <HealingProvider>
+                <App />
+              </HealingProvider>
             </CoupleProvider>
           </UiProvider>
         </AuthProvider>

@@ -34,7 +34,7 @@ button, img {
 
 /* Light Theme: Dreamy Pastel Background */
 :root:not(.dark) {
-  background: linear-gradient(135deg, var(--light-bg-primary, #faf8ff) 0%, var(--light-bg-secondary, #f5f0ff) 50%, var(--light-bg-accent, #fff5f8) 100%);
+  background: linear-gradient(135deg, var(--light-bg-primary) 0%, var(--light-bg-secondary) 50%, var(--light-bg-accent) 100%);
 }
 
 /* Dark Theme: Arcade Valentine Background */
@@ -42,6 +42,36 @@ button, img {
   background: radial-gradient(circle at 20% 50%, rgba(255, 0, 127, 0.1) 0%, transparent 50%),
               radial-gradient(circle at 80% 80%, rgba(0, 255, 255, 0.05) 0%, transparent 50%),
               linear-gradient(135deg, var(--dark-bg-primary, #0a0015) 0%, var(--dark-bg-secondary, #150030) 50%, var(--dark-bg-accent, #1a0045) 100%);
+}
+
+/* -------------------------------------------------------
+   Force dark writing color in Light Mode
+   Ensures all readable text in light theme uses a dark color
+-------------------------------------------------------- */
+:root:not(.dark) {
+  --light-writing-color: var(--light-text-dark, #1f2937);
+}
+
+:root:not(.dark) body,
+:root:not(.dark) body h1,
+:root:not(.dark) body h2,
+:root:not(.dark) body h3,
+:root:not(.dark) body h4,
+:root:not(.dark) body h5,
+:root:not(.dark) p,
+:root:not(.dark) label,
+:root:not(.dark) span,
+:root:not(.dark) a,
+:root:not(.dark) li,
+:root:not(.dark) div,
+:root:not(.dark) input,
+:root:not(.dark) textarea,
+:root:not(.dark) select {
+  color: var(--light-writing-color) !important;
+}
+
+:root:not(.dark) ::placeholder {
+  color: rgba(31,41,55,0.6) !important; /* slightly softer dark placeholder */
 }
 
 /* -------------------------------------------------------
@@ -57,13 +87,13 @@ button, img {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--accent-glow, #ff66c4);
+  background: var(--accent-glow);
   border-radius: 5px;
   transition: background 0.3s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-primary, #ff5da2);
+  background: var(--accent-primary);
 }
 
 .dark::-webkit-scrollbar-thumb {
@@ -71,7 +101,7 @@ button, img {
 }
 
 .dark::-webkit-scrollbar-thumb:hover {
-  background: var(--dark-neon-pink, #ff00ff);
+  background: var(--dark-neon-pink);
 }
 
 /* -------------------------------------------------------
@@ -91,7 +121,7 @@ h1, h2, h3, h4, h5 {
 }
 
 .text-gradient-light {
-  background: linear-gradient(90deg, #ff5da2, #9945ff, #6dd5ed);
+  background: var(--gradient-primary);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -272,6 +302,14 @@ button:active,
 .toast.error { background: linear-gradient(90deg, #ff6b6b, #ff4c6d); color: #fff; }
 .toast.warning { background: linear-gradient(90deg, #ffd580, #ffb84d); color: #1f2937; }
 .toast.info { background: linear-gradient(90deg, #60a5fa, #38bdf8); color: #fff; }
+
+/* Toast container positioning: center-top with modest z-index so header copy remains visible under heavy overlays */
+.toast-container{
+  position:fixed; left:50%; top:18px; transform:translateX(-50%); z-index:1400; display:flex; align-items:center; justify-content:center; pointer-events:auto;
+}
+
+/* Slightly smaller text to avoid obscuring header writeups */
+.toast{ font-size:14px; padding:10px 16px; }
 
 /* -------------------------------------------------------
    Form Helpers (Theme-Aware)
@@ -567,9 +605,9 @@ a:hover {
   .ln-badge,
   .bk-badge
 ) {
-  background: rgba(255, 93, 162, 0.12) !important;
-  border-color: rgba(255, 93, 162, 0.32) !important;
-  color: var(--light-accent-primary) !important;
+  background: var(--accent-glow) !important;
+  border-color: var(--light-card-border) !important;
+  color: var(--accent-primary) !important;
 }
 
 :root:not(.dark) :is(
@@ -1181,3 +1219,13 @@ a:hover {
 .z-modal { z-index: 1600; }
 .z-overlay { z-index: 1500; }
 .z-layout { z-index: 1200; }
+
+/* Analytics calendar styles (non-Tailwind) */
+.calendar-weekdays{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;color:rgba(255,255,255,0.6);font-size:12px}
+.calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.calendar-cell{min-height:88px;padding:10px;border-radius:10px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03);cursor:pointer}
+.calendar-cell.empty{background:transparent;border:0}
+.calendar-cell.status-good{box-shadow:0 0 8px rgba(34,197,94,0.18);border-color:rgba(34,197,94,0.25)}
+.calendar-cell.status-moderate{box-shadow:0 0 8px rgba(250,204,21,0.12);border-color:rgba(250,204,21,0.25)}
+.calendar-cell.status-bad{box-shadow:0 0 8px rgba(239,68,68,0.12);border-color:rgba(239,68,68,0.25)}
+

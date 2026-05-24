@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import useToast from "../../../hooks/useToast";
 import OTPInput from "../components/OTPInput";
 import { verifyOtp, resendOtp } from "../services/authApi";
-import { getPendingOtpEmail, clearPendingOtpContext } from "../../../utils/otpFlow";
+import { getPendingOtpEmail, clearPendingOtpContext, getPendingOtpSentAt } from "../../../utils/otpFlow";
 
 export default function VerifyOtpPage() {
   const location = useLocation();
@@ -13,6 +13,8 @@ export default function VerifyOtpPage() {
   const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(null);
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   const email = location.state?.email || getPendingOtpEmail();
 
@@ -21,6 +23,30 @@ export default function VerifyOtpPage() {
       navigate("/login", { replace: true });
     }
   }, [email, navigate]);
+
+  // Countdown for OTP expiry (service uses 5 minutes)
+  useEffect(() => {
+    const sentAt = getPendingOtpSentAt();
+    if (!sentAt) return setSecondsLeft(null);
+
+    const EXPIRY_SEC = 5 * 60;
+    const update = () => {
+      const elapsed = Math.floor((Date.now() - sentAt) / 1000);
+      const left = EXPIRY_SEC - elapsed;
+      setSecondsLeft(left > 0 ? left : 0);
+    };
+
+    update();
+    const id = setInterval(update, 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  // Resend cooldown tick
+  useEffect(() => {
+    if (!resendCooldown) return;
+    const id = setInterval(() => setResendCooldown((s) => (s > 0 ? s - 1 : 0)), 1000);
+    return () => clearInterval(id);
+  }, [resendCooldown]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -57,12 +83,27 @@ export default function VerifyOtpPage() {
   };
 
   const handleResend = async () => {
+    // Only allow resend when OTP expired or cooldown expired
+    if (secondsLeft > 0) {
+      error(`OTP not expired. Please wait ${secondsLeft} second${secondsLeft !== 1 ? "s" : ""}`);
+      return;
+    }
+
     setResendLoading(true);
     try {
-      await resendOtp({ email });
+      const res = await resendOtp({ email });
       success("New OTP sent! 💌 Check your email.");
+      // start client-side cooldown (matches server RESEND_COOLDOWN_SEC, default 60)
+      setResendCooldown(60);
+      // reset sentAt for countdown
+      try { sessionStorage.setItem('pending_otp_sent_at', String(Date.now())); } catch (e) {}
+      setSecondsLeft(5 * 60);
     } catch (err) {
-      error(err.response?.data?.message || "Failed to resend OTP");
+      const msg = err.response?.data?.message || "Failed to resend OTP";
+      error(msg);
+      // if server tells us to wait, use waitSeconds
+      const wait = err.response?.data?.waitSeconds;
+      if (wait) setResendCooldown(wait);
     } finally {
       setResendLoading(false);
     }
@@ -123,14 +164,38 @@ export default function VerifyOtpPage() {
 
         <footer className="auth-footer">
           <p className="auth-footer__text">
-            Didn't receive the code?{" "}
+            {secondsLeft > 0 ? (
+              <>
+                Code expires in <strong style={{ color: 'var(--accent-primary)' }}> {Math.floor(secondsLeft / 60)}:{String(secondsLeft % 60).padStart(2, '0')}</strong>
+              </>
+            ) : (
+              "Code expired"
+            )}
+          </p>
+          <p className="auth-footer__text" style={{ marginTop: '0.5rem' }}>
             <button
               type="button"
               className="auth-btn auth-btn--link"
               onClick={handleResend}
-              disabled={resendLoading || loading}
+              disabled={resendLoading || loading || (secondsLeft > 0) || (resendCooldown > 0)}
             >
-              {resendLoading ? "Sending..." : "Resend code"}
+              {resendLoading ? "Sending..." : resendCooldown > 0 ? `Wait ${resendCooldown}s` : "Resend code"}
+            </button>
+            <button
+              type="button"
+              className="auth-btn auth-btn--ghost"
+              onClick={() => {
+                // allow quick logout/cleanup from verify page
+                localStorage.removeItem('auth_token');
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                clearPendingOtpContext();
+                window.dispatchEvent(new Event('auth-token-updated'));
+                navigate('/login', { replace: true });
+              }}
+              style={{ marginLeft: '1rem' }}
+            >
+              Logout
             </button>
           </p>
         </footer>

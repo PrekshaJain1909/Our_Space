@@ -15,10 +15,12 @@ const inviteRoutes = require("./routes/inviteRoutes");
 const otpRoutes = require("./routes/otpRoutes");
 const loveNotesRoutes = require("./routes/loveNotesRoutes");
 const healingRoutes = require("./routes/healingRoutes");
+const forgivenessRoutes = require("./routes/forgivenessRoutes");
 const punishmentRoutes = require("./routes/punishmentRoutes");
 const statsRoutes = require("./routes/statsRoutes");
 const tasksRoutes = require("./routes/tasksRoutes");
 const coupleRoutes = require("./routes/coupleRoutes");
+const analyticsRoutes = require("./routes/analyticsRoutes");
 const { verifyTransporter } = require("./service/mailService");
 const tokenService = require('./service/tokenService');
 const User = require('./models/User');
@@ -31,6 +33,8 @@ mongoose.set("bufferCommands", false);
 
 const allowedOrigins = [
   "http://localhost:5173",
+  "http://localhost:5174",
+  "http://localhost:5175",
   "http://localhost:3000",
   process.env.FRONTEND_URL,
   ...(process.env.FRONTEND_URLS || "")
@@ -53,9 +57,11 @@ app.use("/api/invite", inviteRoutes);
 app.use("/api/otp", otpRoutes);
 app.use("/api/love-notes", loveNotesRoutes);
 app.use("/api/healing", healingRoutes);
+app.use("/api/forgiveness", forgivenessRoutes);
 app.use("/api/punishments", punishmentRoutes);
 app.use("/api/healing/stats", statsRoutes);
 app.use("/api/couple", coupleRoutes);
+app.use("/api/analytics", analyticsRoutes);
 // New tasks endpoints (shared todo-like Healing tasks)
 app.use("/api/healing/tasks", tasksRoutes);
 

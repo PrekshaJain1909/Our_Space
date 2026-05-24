@@ -15,7 +15,8 @@ export default function Button({
   const isDisabled = disabled || loading;
 
   const variants = {
-    primary: "btn btn-primary",
+    primary:
+      "bg-gradient-to-r from-pink-500 to-pink-400 hover:from-pink-600 hover:to-pink-500 text-white rounded-full shadow-lg shadow-pink-200/40 transition-all duration-300",
     secondary: "btn btn-secondary",
     danger: "btn btn-danger",
     ghost: "btn btn-ghost",

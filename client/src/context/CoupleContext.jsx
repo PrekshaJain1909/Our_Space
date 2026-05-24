@@ -16,6 +16,9 @@ export function CoupleProvider({ children }) {
 
   /* ---------------------- Load Couple Info ---------------------- */
   const loadCouple = useCallback(async () => {
+    console.count('[CoupleContext] loadCouple');
+    const token = (typeof window !== 'undefined') && (localStorage.getItem('auth_token') || localStorage.getItem('token'));
+    if (!token) return; // avoid calling protected API without token
     try {
       setRefreshing(true);
       const res = await coupleApi.getCouple();
@@ -36,6 +39,8 @@ export function CoupleProvider({ children }) {
   /* ----------------- Initial fetch on first mount ---------------- */
   useEffect(() => {
     if (!user) return; // Only fetch couple data if logged in
+    const token = (typeof window !== 'undefined') && (localStorage.getItem('auth_token') || localStorage.getItem('token'));
+    if (!token) return;
     loadCouple();
   }, [user, loadCouple]);
 
@@ -47,15 +52,15 @@ export function CoupleProvider({ children }) {
       joinRoom(couple._id);
 
       const offCreated = onEvent('task:created', (task) => {
-        window.dispatchEvent(new CustomEvent('socket:task', { detail: { type: 'created', task } }));
+        setTimeout(() => window.dispatchEvent(new CustomEvent('socket:task', { detail: { type: 'created', task } })), 0);
       });
 
       const offUpdated = onEvent('task:updated', (task) => {
-        window.dispatchEvent(new CustomEvent('socket:task', { detail: { type: 'updated', task } }));
+        setTimeout(() => window.dispatchEvent(new CustomEvent('socket:task', { detail: { type: 'updated', task } })), 0);
       });
 
       const offDeleted = onEvent('task:deleted', (payload) => {
-        window.dispatchEvent(new CustomEvent('socket:task', { detail: { type: 'deleted', payload } }));
+        setTimeout(() => window.dispatchEvent(new CustomEvent('socket:task', { detail: { type: 'deleted', payload } })), 0);
       });
 
       return () => {

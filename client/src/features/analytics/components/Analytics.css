@@ -48,9 +48,9 @@
   font-size: 11px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  background: rgba(255, 188, 245, 0.15);
-  border: 1px solid rgba(255, 204, 255, 0.7);
-  color: #ffd9ff;
+  background: var(--accent-glow);
+  border: 1px solid var(--card-border);
+  color: var(--accent-primary);
   margin-bottom: 10px;
 }
 
@@ -86,8 +86,8 @@
 }
 
 .analytics-tab-btn-active {
-  background: linear-gradient(90deg, #ff5bb6, #ff7b7c, #ffb56b);
-  box-shadow: 0 0 14px rgba(255, 152, 230, 0.9);
+  background: var(--gradient-primary);
+  box-shadow: 0 0 14px rgba(99,102,241,0.12);
   color: #fff;
 }
 
@@ -125,6 +125,14 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+/* Light mode: make cards white with pink borders and small shadow */
+:root:not(.dark) .an-card {
+  background: #ffffff;
+  border: 1px solid #fde7f2; /* pink-100-ish */
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  color: var(--text-primary);
 }
 
 /* Card header */
@@ -204,8 +212,30 @@
 .an-field textarea:focus,
 .an-field select:focus {
   background: rgba(18, 5, 55, 0.95);
-  border-color: #ff91e4;
-  box-shadow: 0 0 0 1px rgba(255, 144, 228, 0.6);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 1px var(--accent-glow);
+}
+
+/* Light mode inputs: white background with pink accents */
+:root:not(.dark) .an-field input,
+:root:not(.dark) .an-field textarea,
+:root:not(.dark) .an-field select {
+  background: #ffffff;
+  color: #1f2937; /* text-gray-900 */
+  border: 1px solid #fde7f2; /* border-pink-200-ish */
+}
+
+:root:not(.dark) .an-field input::placeholder,
+:root:not(.dark) .an-field textarea::placeholder {
+  color: #fbcfe8; /* placeholder-pink-300-ish */
+}
+
+:root:not(.dark) .an-field input:focus,
+:root:not(.dark) .an-field textarea:focus,
+:root:not(.dark) .an-field select:focus {
+  background: #ffffff;
+  border-color: #fb7185; /* focus border pink-400-ish */
+  box-shadow: 0 0 0 4px rgba(251, 113, 133, 0.12);
 }
 
 /* Primary button */
@@ -217,15 +247,15 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  background-image: linear-gradient(to right, #ff5bb6, #ff7b7c, #ffb56b);
+  background-image: linear-gradient(90deg, #ec4899, #fb7185); /* pink gradient */
   color: #fff;
-  box-shadow: 0 8px 22px rgba(255, 120, 200, 0.7);
+  box-shadow: 0 8px 22px rgba(236, 72, 153, 0.12);
   transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
 }
 
 .an-primary-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 26px rgba(255, 140, 215, 0.95);
+  box-shadow: 0 10px 26px rgba(236,72,153,0.18);
   filter: brightness(1.04);
 }
 
@@ -271,8 +301,8 @@
 .an-bar {
   width: 100%;
   border-radius: 999px;
-  background: linear-gradient(180deg, #ff5bb6, #ff7b7c);
-  box-shadow: 0 0 12px rgba(255, 140, 215, 0.9);
+  background: var(--gradient-primary);
+  box-shadow: 0 0 12px rgba(99,102,241,0.12);
   transition: height 0.35s ease;
 }
 
@@ -323,8 +353,8 @@
 }
 
 .an-range-btn-active {
-  background: linear-gradient(90deg, #ff5bb6, #ff7b7c);
-  box-shadow: 0 0 10px rgba(255, 152, 230, 0.9);
+  background: var(--gradient-primary);
+  box-shadow: 0 0 10px rgba(99,102,241,0.12);
   color: #fff;
 }
 
@@ -370,7 +400,7 @@
 }
 
 .an-rel-kiss {
-  background: linear-gradient(90deg, #ff5bb6, #ff7b7c);
+  background: var(--gradient-primary);
 }
 
 .an-rel-hug {

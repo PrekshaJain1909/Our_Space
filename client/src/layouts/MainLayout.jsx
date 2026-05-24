@@ -48,6 +48,8 @@ export default function MainLayout() {
   // Keep topbar state in sync when couple becomes complete on another session/device.
   useEffect(() => {
     if (!user?.coupleId) return;
+    const token = (typeof window !== 'undefined') && (localStorage.getItem('auth_token') || localStorage.getItem('token'));
+    if (!token) return; // don't poll protected endpoint without token
 
     let isMounted = true;
 
@@ -57,17 +59,19 @@ export default function MainLayout() {
         if (!coupleIdStr) return;
         const data = await getCoupleStatus(coupleIdStr);
         const nextIsActive = Boolean(data?.isActive);
+        const nextIsComplete = Boolean(data?.isComplete);
 
         if (!isMounted) return;
 
         setUser((prev) => {
           if (!prev) return prev;
-          if (Boolean(prev.isActive) === nextIsActive) return prev;
+          // If nothing changed, skip
+          if (Boolean(prev.isActive) === nextIsActive && Boolean(prev.isComplete) === nextIsComplete) return prev;
 
-          const updatedUser = { ...prev, isActive: nextIsActive };
+          const updatedUser = { ...prev, isActive: nextIsActive, isComplete: nextIsComplete };
           localStorage.setItem("user", JSON.stringify(updatedUser));
-          // Notify app that user data has been updated
-          window.dispatchEvent(new CustomEvent("user-data-updated"));
+          // Notify app that user data has been updated (async to avoid setState-in-render)
+          setTimeout(() => window.dispatchEvent(new CustomEvent("user-data-updated")), 0);
           return updatedUser;
         });
       } catch (error) {
@@ -120,7 +124,7 @@ ${user.name} 🤍`,
               icon: "success",
               title: "Invite Link Copied 💌",
               text: "The invite link has been copied to your clipboard.",
-              confirmButtonColor: "#ff66c4",
+              confirmButtonColor: "#3b82f6",
             });
     }
   } catch (err) {
@@ -129,7 +133,7 @@ ${user.name} 🤍`,
             icon: "error",
             title: "Failed to generate invite link. 💔",
             text: "Please try again.",
-            confirmButtonColor: "#ff66c4",
+            confirmButtonColor: "#3b82f6",
           });
   }
 };
@@ -227,7 +231,7 @@ ${user.name} 🤍`,
     setUser(null);
     
     // Notify other components that user data has been cleared
-    window.dispatchEvent(new CustomEvent("user-data-updated"));
+    setTimeout(() => window.dispatchEvent(new CustomEvent("user-data-updated")), 0);
     
     closeDrawer();
     navigate("/login");
@@ -340,12 +344,14 @@ ${user.name} 🤍`,
               </div>
             ) : (
               <div className="auth-buttons">
-                <button
-                  className="auth-btn auth-btn-register"
-                  onClick={handleInvite}
-                >
-                  Invite Partner 💌
-                </button>
+                {!user?.isComplete && (
+                  <button
+                    className="auth-btn auth-btn-register"
+                    onClick={handleInvite}
+                  >
+                    Invite Partner 💌
+                  </button>
+                )}
 
                 <button className="auth-btn auth-btn-login" onClick={handleLogout}>
                   Logout

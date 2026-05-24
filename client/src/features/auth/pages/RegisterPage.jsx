@@ -11,7 +11,7 @@ function getSwalThemeOptions() {
   const styles = getComputedStyle(document.documentElement);
   const isDark = document.documentElement.classList.contains("dark");
   return {
-    confirmButtonColor: styles.getPropertyValue("--accent-primary").trim() || "#ff5da2",
+  confirmButtonColor: styles.getPropertyValue("--accent-primary").trim() || "#3b82f6",
     background: isDark
       ? styles.getPropertyValue("--dark-surface").trim() || "#1c0050"
       : "#ffffff",

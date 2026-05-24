@@ -10,7 +10,8 @@ import {
   FaRegBookmark,
   FaHeartbeat,
   FaSmile,
-  FaSignOutAlt
+  FaSignOutAlt,
+  FaCalendarAlt
 } from "react-icons/fa";
 import "../../layouts/MainLayout.css";
 
@@ -22,6 +23,7 @@ const navigationItems = [
   { to: "/love-notes", label: "Love Notes", Icon: FaRegBookmark, ariaLabel: "View Love Notes" },
   { to: "/healing-zone", label: "Healing Zone", Icon: FaHeartbeat, ariaLabel: "Access Healing Zone" },
   { to: "/analytics", label: "Analytics", Icon: FaChartBar, ariaLabel: "View Analytics" },
+  { to: "/monthly-data", label: "Monthly Data", Icon: FaCalendarAlt, ariaLabel: "View Monthly Data" },
   { to: "/playtime", label: "Playtime", Icon: FaGamepad, ariaLabel: "Go to Playtime" },
   { to: "/bucket", label: "Bucket & Wedding", Icon: FaListAlt, ariaLabel: "View Bucket List and Wedding Plans" },
   { to: "/timeline", label: "Timeline", Icon: FaClock, ariaLabel: "View Timeline" },

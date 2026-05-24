@@ -403,10 +403,12 @@ exports.createForgiveness = async (req, res, next) => {
   try {
     // Create a forgiveness record and optionally update original entry
     const { originalEntryId, message } = req.body;
-    // Create forgiveness entry
+    // Create forgiveness entry as a Healing item
     req.body.type = 'forgiveness';
     req.body.title = req.body.title || 'Forgiveness';
     req.body.message = message || '';
+
+    console.log('[healing:createForgiveness] user:', req.user && req.user._id, 'body:', req.body);
 
     const resCreate = await exports.createEntry(req, res, next);
 
@@ -419,6 +421,7 @@ exports.createForgiveness = async (req, res, next) => {
         orig.metadata.forgivenessMessage = message || '';
         orig.metadata.forgivenAt = new Date();
         await orig.save();
+        console.log('[healing:createForgiveness] updated original entry id:', orig._id);
         // Emit update for original entry
         try {
           const io = req.app && req.app.get && req.app.get('io');
@@ -429,6 +432,8 @@ exports.createForgiveness = async (req, res, next) => {
         } catch (emitErr) {
           console.warn('[healing] socket emit failed (forgiveness orig update):', emitErr && emitErr.message);
         }
+      } else {
+        console.warn('[healing:createForgiveness] original entry not found or forbidden:', originalEntryId);
       }
     }
 

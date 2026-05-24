@@ -213,7 +213,7 @@ exports.verifyOTP = async (email, otp) => {
       now: new Date().toISOString(),
     });
 
-    return { success: false, message: "OTP has expired. Please request a new one." };
+    return { success: false, message: "OTP expired. Please request a new OTP." };
   }
 
   const incomingHash = hashOtp(normalizedEmail, normalizedOtp);

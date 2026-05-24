@@ -1,7 +1,7 @@
 import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
+import useAuth from "../hooks/useAuth";
 
 // Layouts
 import MainLayout from "../layouts/MainLayout.jsx";
@@ -19,6 +19,7 @@ import CoupleProfilePage from "../features/coupleProfile/pages/CoupleProfilePage
 import LoveNotesPage from "../features/loveNotes/pages/LoveNotesPage.jsx";
 import HealingZonePage from "../features/healingZone/pages/HealingZonePage.jsx";
 import AnalyticsPage from "../features/analytics/pages/AnalyticsPage.jsx";
+import MonthlyDataPage from "../features/monthlyData/pages/MonthlyDataPage.jsx";
 import PlaytimePage from "../features/playtime/pages/PlaytimePage.jsx";
 import BucketPage from "../features/bucket/pages/BucketPage.jsx";
 import TimelinePage from "../features/timeline/pages/TimelinePage.jsx";
@@ -53,7 +54,7 @@ const NotFoundPage = () => (
 
 
 const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
 
   if (loading) {
     return <LoadingScreen />;
@@ -61,6 +62,16 @@ const ProtectedRoute = ({ children }) => {
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
+  }
+
+  // If token exists but we haven't loaded user yet, show loading
+  if (isAuthenticated && !user) {
+    return <LoadingScreen />;
+  }
+
+  // If user is authenticated but not verified, redirect to OTP verification
+  if (user && user.isVerified === false) {
+    return <Navigate to="/verify-otp" replace />;
   }
 
   return children;
@@ -116,6 +127,14 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute>
               <AnalyticsPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/monthly-data"
+          element={
+            <ProtectedRoute>
+              <MonthlyDataPage />
             </ProtectedRoute>
           }
         />

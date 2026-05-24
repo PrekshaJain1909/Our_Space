@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import "./HealingZone.css";
+import forgivenessApi from '../../../api/forgivenessApi';
 
 /**
  * entries = [{ id, apologizer, forgiver, why, ... }]
@@ -7,24 +8,29 @@ import "./HealingZone.css";
 export default function ForgivenessForm({ entries = [], onAddForgiveness }) {
   const [selectedEntryId, setSelectedEntryId] = useState("");
   const [message, setMessage] = useState("");
+  const [title, setTitle] = useState("");
 
   const pendingEntries = entries.filter((e) => e.status !== "done");
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!selectedEntryId || !message.trim()) return;
+    if (!message.trim()) return;
 
-    const forgiveness = {
-      id: Date.now(),
-      entryId: Number(selectedEntryId),
-      message: message.trim(),
-      createdAt: new Date().toISOString(),
-    };
+    const payload = { forgivenessMessage: message.trim() };
+    if (selectedEntryId) payload.originalEntryId = selectedEntryId;
+    if (title && title.trim()) payload.title = title.trim();
 
-    onAddForgiveness && onAddForgiveness(forgiveness);
+    try {
+      const resp = await forgivenessApi.createForgiveness(payload);
+      const saved = resp?.data?.data || resp?.data || resp;
+      if (saved && onAddForgiveness) onAddForgiveness(saved);
+    } catch (err) {
+      console.error('Failed to send forgiveness', err);
+    }
 
     setSelectedEntryId("");
     setMessage("");
+    setTitle("");
   };
 
   return (
@@ -38,12 +44,17 @@ export default function ForgivenessForm({ entries = [], onAddForgiveness }) {
 
       <form className="hz-form" onSubmit={handleSubmit}>
         <div className="hz-field">
+          <label>Title (optional)</label>
+          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Short title (optional)" />
+        </div>
+
+        <div className="hz-field">
           <label>Select entry to forgive</label>
           <select
             value={selectedEntryId}
             onChange={(e) => setSelectedEntryId(e.target.value)}
           >
-            <option value="">Choose a pending entry</option>
+            <option value="">No specific entry</option>
             {pendingEntries.map((e) => (
               <option key={e.id} value={e.id}>
                 {e.apologizer} → {e.forgiver} — {e.why.slice(0, 25)}
@@ -51,6 +62,7 @@ export default function ForgivenessForm({ entries = [], onAddForgiveness }) {
               </option>
             ))}
           </select>
+          <p className="hz-field-help">You can skip choosing an entry and send a direct forgiveness message.</p>
         </div>
 
         <div className="hz-field">
@@ -65,7 +77,7 @@ export default function ForgivenessForm({ entries = [], onAddForgiveness }) {
         </div>
 
         <button type="submit" className="hz-primary-btn">
-          Save forgiveness
+          Send forgiveness
         </button>
       </form>
     </div>

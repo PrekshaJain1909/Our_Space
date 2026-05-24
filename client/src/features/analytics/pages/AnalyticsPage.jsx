@@ -1,101 +1,107 @@
-import React, { useState } from "react";
+import React, { useMemo, useState, useEffect } from "react";
+import useAuth from "../../../hooks/useAuth";
 import "../components/Analytics.css";
-
-import AlcoholLogForm from "../components/AlcoholLogForm";
-import AlcoholChart from "../components/AlcoholAnalyticsChart";
-import CigaretteLogForm from "../components/CigaretteLogForm";
-import CigaretteChart from "../components/CigaretteAnalyticsChart";
-import RelationshipLogForm from "../components/RelationshipLogForm";
-import RelationshipChart from "../components/RelationshipAnalyticsChart";
+import HabitCreator from "../components/habits/HabitCreator";
+import HabitCard from "../components/habits/HabitCard";
 
 export default function AnalyticsPage() {
-  const [activeTab, setActiveTab] = useState("alcohol");
+  const [habits, setHabits] = useState(() => {
+    try {
+      const raw = localStorage.getItem("customHabits:v1");
+      return raw ? JSON.parse(raw) : [];
+    } catch (e) {
+      return [];
+    }
+  });
 
-  const [habitLogs, setHabitLogs] = useState([]); // {id, type, date, amount, unit, note}
-  const [relationshipLogs, setRelationshipLogs] = useState([]); // {id, date, kind, count, note}
+  const { user } = useAuth();
+  const [filter, setFilter] = useState("");
+  const filteredHabits = useMemo(()=>{
+    const q = (filter||"").trim().toLowerCase();
+    return q ? habits.filter(h => (h.name||"").toLowerCase().includes(q)) : habits;
+  }, [habits, filter]);
+  const [showFilter, setShowFilter] = useState(false);
 
-  const handleAddHabitLog = (log) => {
-    setHabitLogs((prev) => [log, ...prev]);
+  const handleAddHabit = (habit) => {
+    setHabits((prev) => [{
+      id: `h-${Date.now()}`,
+      name: habit.name,
+      category: habit.category,
+      ownerId: habit.ownerId || (user?._id || user?.id || null),
+      ownerName: habit.ownerName || (user?.name || user?.displayName || ""),
+      history: [],
+      collapsed: false,
+      createdBy: user?.id || null,
+      createdAt: new Date().toISOString(),
+    }, ...prev]);
   };
 
-  const handleAddRelationshipLog = (log) => {
-    setRelationshipLogs((prev) => [log, ...prev]);
+  // persist habits to localStorage so detail page can read them
+  useEffect(()=>{
+    try{ localStorage.setItem("customHabits:v1", JSON.stringify(habits)); }catch(e){}
+  },[habits]);
+
+  const handleUpdateHabit = (id, update) => {
+    setHabits((prev) => prev.map(h => h.id===id ? { ...h, ...update } : h));
   };
 
-  const alcoholLogs = habitLogs.filter((l) => l.type === "alcohol");
-  const cigaretteLogs = habitLogs.filter((l) => l.type === "cigarette");
-
-  const tabs = [
-    { id: "alcohol", label: "Alcohol" },
-    { id: "cigarette", label: "Cigarette" },
-    { id: "relationship", label: "Relationship" },
-  ];
+  const handleDeleteHabit = (id) => {
+    setHabits((prev) => prev.filter(h => h.id !== id));
+  };
 
   return (
     <div className="analytics-wrapper">
       <div className="analytics-overlay" />
 
       <div className="analytics-inner">
-        {/* Header */}
         <header className="analytics-header">
           <p className="analytics-badge">Analytics</p>
-          <h1 className="analytics-title">Habits & Relationship Insights</h1>
-          <p className="analytics-subtitle">
-            Soft data for alcohol, cigarettes and the sweet parts of your love story. 📈
-          </p>
+          <h1 className="analytics-title">Habits</h1>
+          <p className="analytics-subtitle">Create custom habits and track entries dynamically.</p>
         </header>
 
-        {/* Tabs */}
-        <div className="analytics-tabs">
-          {tabs.map((tab) => (
-            <button
-              key={tab.id}
-              type="button"
-              className={`analytics-tab-btn ${
-                activeTab === tab.id ? "analytics-tab-btn-active" : ""
-              }`}
-              onClick={() => setActiveTab(tab.id)}
-            >
-              {tab.label}
-            </button>
-          ))}
+        <div>
+          <div style={{display:'flex', gap:12, marginBottom:12, alignItems:'center'}}>
+            <button className={`an-range-btn ${!showFilter? 'an-range-btn-active': ''}`} onClick={()=>setShowFilter(false)}>Habits</button>
+            <button className={`an-range-btn ${showFilter? 'an-range-btn-active': ''}`} onClick={()=>setShowFilter(true)}>Filter</button>
+          </div>
+
+          {showFilter && (
+            <div className="analytics-block">
+              <div className="an-card">
+                <h3 className="an-header">Filter Habits</h3>
+                <div className="an-form">
+                  <div className="an-field">
+                    <label>Filter by name (case-insensitive)</label>
+                    <input
+                      value={filter}
+                      onChange={(e)=>setFilter(e.target.value)}
+                      placeholder="Type to filter..."
+                      className="bg-white dark:bg-[#07001fcc] border border-pink-200 dark:border-none text-gray-900 dark:text-white placeholder-pink-300 focus:border-pink-400 focus:ring-2 focus:ring-pink-300 p-2 rounded-md"
+                    />
+                  </div>
+                  <div style={{display:'flex', justifyContent:'space-between', marginTop:8}}>
+                    <div className="an-subtitle">Matches: {filteredHabits.length}</div>
+                    <button onClick={()=>setFilter('')} className="an-range-btn text-pink-500 hover:text-pink-600">Clear</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div className="analytics-block">
+            <HabitCreator onCreate={handleAddHabit} />
+          </div>
+
+          <div className="analytics-block mt-4 space-y-3">
+            {filteredHabits.map((h) => (
+              <div key={h.id} style={{marginBottom:12}}>
+                <HabitCard habit={h} onUpdate={(u)=>handleUpdateHabit(h.id,u)} onDelete={() => handleDeleteHabit(h.id)} />
+              </div>
+            ))}
+            {filteredHabits.length===0 && <div className="text-gray-400">No custom habits found — try a different filter.</div>}
+          </div>
         </div>
-
-        {/* Tab content */}
-        <section className="analytics-tab-content">
-          {activeTab === "alcohol" && (
-            <div className="analytics-column">
-              <div className="analytics-block">
-                <AlcoholLogForm onAdd={handleAddHabitLog} />
-              </div>
-              <div className="analytics-block">
-                <AlcoholChart logs={alcoholLogs} />
-              </div>
-            </div>
-          )}
-
-          {activeTab === "cigarette" && (
-            <div className="analytics-column">
-              <div className="analytics-block">
-                <CigaretteLogForm onAdd={handleAddHabitLog} />
-              </div>
-              <div className="analytics-block">
-                <CigaretteChart logs={cigaretteLogs} />
-              </div>
-            </div>
-          )}
-
-          {activeTab === "relationship" && (
-            <div className="analytics-column">
-              <div className="analytics-block">
-                <RelationshipLogForm onAdd={handleAddRelationshipLog} />
-              </div>
-              <div className="analytics-block">
-                <RelationshipChart logs={relationshipLogs} />
-              </div>
-            </div>
-          )}
-        </section>
       </div>
     </div>
   );

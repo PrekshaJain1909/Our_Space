@@ -86,7 +86,7 @@
 }
 
 .playtime-tab-btn-active {
-  background: linear-gradient(90deg, #ff5bb6, #ff7b7c, #ffb56b);
+  background: var(--gradient-primary);
   box-shadow: 0 0 14px rgba(255, 152, 230, 0.9);
   color: #fff;
 }
@@ -153,7 +153,7 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  background-image: linear-gradient(to right, #ff5bb6, #ff7b7c, #ffb56b);
+  background-image: var(--gradient-primary);
   color: #fff;
   box-shadow: 0 8px 22px rgba(255, 120, 200, 0.7);
   transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
@@ -237,7 +237,7 @@
 .pt-add-row input {
   flex: 1;
   border-radius: 999px;
-  border: 1px solid rgba(255, 184, 255, 0.4);
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 24%, transparent);
   background: rgba(7, 0, 31, 0.88);
   color: #fff;
   padding: 7px 10px;
@@ -250,8 +250,8 @@
 }
 
 .pt-add-row input:focus {
-  border-color: #ff91e4;
-  box-shadow: 0 0 0 1px rgba(255, 144, 228, 0.7);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 1px var(--accent-glow);
 }
 
 .pt-add-btn {
@@ -261,7 +261,7 @@
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  background-image: linear-gradient(to right, #ff5bb6, #ff7b7c);
+  background-image: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
   color: #fff;
   box-shadow: 0 5px 16px rgba(255, 120, 200, 0.7);
 }
@@ -295,7 +295,7 @@
 }
 
 .pt-bingo-cell-active {
-  background: linear-gradient(135deg, #ff5bb6, #ffb56b);
+  background: var(--gradient-card);
   box-shadow: 0 0 14px rgba(255, 152, 230, 0.9);
 }
 
@@ -321,7 +321,7 @@
 .pt-bingo-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #ff5bb6, #ff7b7c, #ffb56b);
+  background: var(--gradient-primary);
   box-shadow: 0 0 10px rgba(255, 140, 215, 0.9);
   transition: width 0.25s ease;
 }

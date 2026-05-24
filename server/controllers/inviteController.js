@@ -189,5 +189,7 @@ exports.getCoupleStatus = asyncHandler(async (req, res) => {
     coupleId: couple._id,
     isActive: Boolean(couple.isActive),
     isComplete: Boolean(couple.partnerA && couple.partnerB),
+    hasPartnerA: Boolean(couple.partnerA),
+    hasPartnerB: Boolean(couple.partnerB),
   });
 });

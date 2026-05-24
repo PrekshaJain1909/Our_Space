@@ -13,18 +13,18 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--accent-primary, #ff5da2), var(--accent-secondary, #9945ff));
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
   color: #fff;
   font-size: 1rem;
   overflow: hidden;
   z-index: 100;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 4px 15px rgba(var(--accent-color, 255, 93, 162), 0.3);
+  box-shadow: 0 4px 15px var(--accent-glow);
 }
 
 .theme-toggle:hover {
   transform: scale(1.1);
-  box-shadow: 0 8px 30px rgba(var(--accent-color, 255, 93, 162), 0.5);
+  box-shadow: 0 8px 30px var(--accent-glow);
 }
 
 .theme-toggle:active {
@@ -32,8 +32,8 @@
 }
 
 .dark .theme-toggle {
-  background: linear-gradient(135deg, var(--dark-neon-pink, #ff00ff), var(--dark-neon-cyan, #00ffff));
-  box-shadow: 0 0 20px rgba(255, 0, 255, 0.4), inset 0 0 10px rgba(0, 255, 255, 0.1);
+  background: linear-gradient(135deg, var(--dark-neon-pink), var(--dark-neon-cyan));
+  box-shadow: 0 0 20px var(--dark-accent-glow), inset 0 0 10px rgba(0, 255, 255, 0.1);
 }
 
 .dark .theme-toggle:hover {
@@ -119,10 +119,10 @@
 
 @keyframes togglePulse {
   0%, 100% {
-    box-shadow: 0 0 10px rgba(var(--accent-color, 255, 93, 162), 0.3);
+    box-shadow: 0 0 10px var(--accent-glow);
   }
   50% {
-    box-shadow: 0 0 25px rgba(var(--accent-color, 255, 93, 162), 0.6);
+    box-shadow: 0 0 25px var(--accent-glow);
   }
 }
 
@@ -170,12 +170,12 @@
    ============================================ */
 
 .theme-toggle:focus-visible {
-  outline: 2px solid var(--accent-primary, #ff5da2);
+  outline: 2px solid var(--accent-primary);
   outline-offset: 3px;
 }
 
 .dark .theme-toggle:focus-visible {
-  outline: 2px solid var(--dark-neon-cyan, #00ffff);
+  outline: 2px solid var(--dark-neon-cyan);
   outline-offset: 3px;
 }
 
@@ -194,6 +194,6 @@
 
 @media (prefers-color-scheme: dark) {
   .theme-toggle {
-    background: linear-gradient(135deg, var(--dark-neon-pink, #ff00ff), var(--dark-neon-cyan, #00ffff));
+    background: linear-gradient(135deg, var(--dark-neon-pink), var(--dark-neon-cyan));
   }
 }

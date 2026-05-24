@@ -180,8 +180,8 @@
 .tl-field textarea:focus,
 .tl-field select:focus {
   background: rgba(18, 5, 55, 0.95);
-  border-color: #ff91e4;
-  box-shadow: 0 0 0 1px rgba(255, 144, 228, 0.6);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 1px var(--accent-glow);
 }
 
 /* Primary button */
@@ -194,7 +194,7 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  background-image: linear-gradient(to right, #ff5bb6, #ff7b7c, #ffb56b);
+  background-image: linear-gradient(to right, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
   color: #fff;
   box-shadow: 0 8px 22px rgba(255, 120, 200, 0.7);
   transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
@@ -256,7 +256,7 @@
   gap: 4px;
   padding: 3px 8px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 184, 255, 0.7);
+  border: 1px solid color-mix(in srgb, var(--accent-primary) 40%, transparent);
   background: rgba(13, 0, 42, 0.9);
   font-size: 11px;
 }
@@ -300,7 +300,7 @@
   top: 0;
   bottom: 0;
   width: 2px;
-  background: linear-gradient(180deg, #ff5bb6, #ffb56b);
+  background: var(--gradient-primary);
   opacity: 0.75;
 }
 

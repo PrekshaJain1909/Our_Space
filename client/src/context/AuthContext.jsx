@@ -9,6 +9,7 @@ export function AuthProvider({ children }) {
 
   // Sync auth state from localStorage so login/OTP flows share one source of truth.
   const loadMe = useCallback(() => {
+    console.count('[AuthContext] loadMe called');
     const authToken = localStorage.getItem("auth_token");
     const token = localStorage.getItem("token");
     const sessionToken = authToken || token;

@@ -6,7 +6,7 @@ import "./HealingZone.css";
  *  { id, apologizer, forgiver, why, punishment, status, createdAt, doneAt }
  * ]
  */
-export default function HealingEntriesTable({ entries = [] }) {
+export default function HealingEntriesTable({ entries = [], onComplete = null, onDelete = null, onRequestComplete = null }) {
   const [statusFilter, setStatusFilter] = useState("all");
   const [personFilter, setPersonFilter] = useState("");
   const [dateFilter, setDateFilter] = useState("");
@@ -77,39 +77,56 @@ export default function HealingEntriesTable({ entries = [] }) {
         {filteredEntries.length === 0 ? (
           <p className="hz-empty">No entries for these filters yet. ✨</p>
         ) : (
-          filteredEntries.map((e) => (
-            <article key={e.id} className="hz-entry-row">
-              <div className="hz-entry-main">
-                <p className="hz-entry-who">
-                  <span className="hz-chip hz-chip-apologizer">
-                    {e.apologizer}
-                  </span>
-                  <span className="hz-entry-arrow">→</span>
-                  <span className="hz-chip hz-chip-forgiver">
-                    {e.forgiver}
-                  </span>
-                </p>
-                <p className="hz-entry-why">{e.why}</p>
-                {e.punishment && (
-                  <p className="hz-entry-punish">
-                    Punishment: <span>{e.punishment}</span>
+          filteredEntries.map((e) => {
+            const isPromise = e.type === 'promise';
+            return (
+              <article key={e.id} className={`hz-entry-row ${e.status === 'done' || e.status === 'completed' ? 'completed' : ''}`}>
+                <div className="hz-entry-main">
+                  <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+                    <span className="hz-entry-type" style={{fontSize:12,opacity:0.9}}>{isPromise ? 'Promise 💖' : 'Healing Entry 🌸'}</span>
+                  </div>
+                  <p className="hz-entry-who">
+                    <span className="hz-chip hz-chip-apologizer">
+                      {e.apologizer}
+                    </span>
+                    <span className="hz-entry-arrow">→</span>
+                    <span className="hz-chip hz-chip-forgiver">
+                      {e.forgiver}
+                    </span>
                   </p>
-                )}
-              </div>
-              <div className="hz-entry-meta">
-                <span className={`hz-status hz-status-${e.status}`}>
-                  {e.status === "done" ? "Done" : "Pending"}
-                </span>
-                <span className="hz-entry-date">
-                  {new Date(e.createdAt).toLocaleDateString(undefined, {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </span>
-              </div>
-            </article>
-          ))
+                  <p className="hz-entry-why">{isPromise ? (e.punishment || e.title || e.description || e.promiseText) : e.why}</p>
+                  {e.punishment && (
+                    <p className="hz-entry-punish">
+                      Punishment: <span>{e.punishment}</span>
+                    </p>
+                  )}
+                </div>
+                <div className="hz-entry-meta">
+                  <label style={{display:'flex',alignItems:'center',gap:8}}>
+                    <input
+                      type="checkbox"
+                      checked={e.status === 'done' || e.status === 'completed'}
+                      onChange={() => onRequestComplete ? onRequestComplete(e) : (onComplete && onComplete(e.id))}
+                    />
+                    <span className={`hz-status hz-status-${e.status}`}>
+                      {e.status === "done" || e.status === 'completed' ? "Completed" : "Active"}
+                    </span>
+                  </label>
+
+                  <span className="hz-entry-date">
+                    {new Date(e.createdAt).toLocaleDateString(undefined, {
+                      day: "2-digit",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </span>
+                  {e.doneAt && (
+                    <div className="hz-entry-completed">Completed on {new Date(e.doneAt).toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' })} ❤️</div>
+                  )}
+                </div>
+              </article>
+            )
+          })
         )}
       </div>
     </div>

@@ -1209,8 +1209,8 @@ body {
 }
 
 :root:not(.dark) .layout {
-  background: linear-gradient(135deg, #faf8ff 0%, #f5f0ff 50%, #fff5f8 100%),
-    radial-gradient(600px 400px at 70% 80%, rgba(157, 100, 200, 0.08), transparent);
+  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-accent) 100%),
+    radial-gradient(600px 400px at 70% 80%, rgba(99,102,241,0.04), transparent);
 }
 
 :root:not(.dark) .sidebar-wrap,
@@ -1225,13 +1225,13 @@ body {
 }
 
 :root:not(.dark) .nav-item:hover {
-  background: rgba(255, 93, 162, 0.08);
-  color: #ff5da2;
+  background: rgba(59,130,246,0.06); /* light blue hover */
+  color: var(--accent-primary);
 }
 
 :root:not(.dark) .nav-item.active {
-  background: linear-gradient(135deg, rgba(255, 93, 162, 0.1), rgba(157, 100, 200, 0.08));
-  color: #ff5da2;
+  background: linear-gradient(135deg, rgba(59,130,246,0.06), rgba(99,102,241,0.04));
+  color: var(--accent-primary);
 }
 
 /* Dark Theme: Arcade Valentine */

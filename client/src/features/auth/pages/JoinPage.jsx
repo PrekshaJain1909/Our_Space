@@ -4,14 +4,14 @@ import Swal from "sweetalert2";
 import AuthField from "../components/AuthField";
 import PasswordField from "../components/PasswordField";
 import useToast from "../../../hooks/useToast";
-import { registerPartnerB } from "../services/authApi";
+import { registerPartnerB, resendOtp } from "../services/authApi";
 import { setPendingOtpEmail, buildVerifyOtpPath } from "../../../utils/otpFlow";
 
 function getSwalThemeOptions() {
   const styles = getComputedStyle(document.documentElement);
   const isDark = document.documentElement.classList.contains("dark");
   return {
-    confirmButtonColor: styles.getPropertyValue("--accent-primary").trim() || "#ff5da2",
+  confirmButtonColor: styles.getPropertyValue("--accent-primary").trim() || "#3b82f6",
     background: isDark
       ? styles.getPropertyValue("--dark-surface").trim() || "#1c0050"
       : "#ffffff",
@@ -38,6 +38,9 @@ export default function JoinPage() {
 
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showResend, setShowResend] = useState(false);
+  const [resendEmail, setResendEmail] = useState("");
+  const [resendLoading, setResendLoading] = useState(false);
 
   const handleJoin = async (e) => {
     e.preventDefault();
@@ -86,6 +89,22 @@ export default function JoinPage() {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleResendOtp = async (e) => {
+    e.preventDefault();
+    if (!resendEmail.trim()) return;
+
+    setResendLoading(true);
+    try {
+      await resendOtp(resendEmail.trim());
+      setPendingOtpEmail(resendEmail.trim());
+      navigate(buildVerifyOtpPath({ email: resendEmail.trim() }), { state: { email: resendEmail.trim() } });
+    } catch (err) {
+      error(err.response?.data?.message || err.message || "Could not resend OTP");
+    } finally {
+      setResendLoading(false);
     }
   };
 
@@ -168,6 +187,50 @@ export default function JoinPage() {
             )}
           </button>
         </form>
+        <footer className="auth-footer">
+          {!showResend ? (
+            <p className="auth-footer__text">
+              Already registered?{" "}
+              <button
+                type="button"
+                className="auth-btn auth-btn--link"
+                onClick={() => setShowResend(true)}
+                disabled={loading}
+              >
+                Resend OTP
+              </button>
+            </p>
+          ) : (
+            <form className="auth-resend" onSubmit={handleResendOtp}>
+              <input
+                type="email"
+                className="auth-field__input"
+                placeholder="Registered email"
+                value={resendEmail}
+                onChange={(e) => setResendEmail(e.target.value)}
+                required
+                disabled={resendLoading}
+              />
+              <div className="auth-resend__actions">
+                <button
+                  type="submit"
+                  className="auth-btn auth-btn--primary"
+                  disabled={resendLoading}
+                >
+                  {resendLoading ? "Sending..." : "Send OTP"}
+                </button>
+                <button
+                  type="button"
+                  className="auth-btn auth-btn--ghost"
+                  onClick={() => setShowResend(false)}
+                  disabled={resendLoading}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
+        </footer>
       </div>
     </div>
   );

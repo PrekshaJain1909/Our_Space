@@ -55,8 +55,8 @@
 .bpc-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #ff5bb6, #ff7b7c, #ffb56b);
-  box-shadow: 0 0 10px rgba(255, 140, 215, 0.95);
+  background: var(--gradient-primary);
+  box-shadow: 0 0 10px rgba(99,102,241,0.12);
   transition: width 0.4s ease;
 }
 
@@ -77,8 +77,8 @@
 .bpc-stat-number {
   font-size: 18px;
   font-weight: 700;
-  color: #ffaadf;
-  text-shadow: 0 0 6px rgba(255, 139, 231, 0.5);
+  color: var(--accent-primary);
+  text-shadow: 0 0 6px rgba(99,102,241,0.12);
 }
 
 .bpc-stat-label {

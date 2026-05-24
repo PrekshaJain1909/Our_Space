@@ -42,19 +42,21 @@ const isPublicRoute = (url) => {
 // Attach auth token to every request
 axiosClient.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem("auth_token") || localStorage.getItem("token");
+    const token = (typeof window !== "undefined") && (localStorage.getItem("auth_token") || localStorage.getItem("token"));
 
-    // 🔍 DEBUG LOG (IMPORTANT)
-    console.log(
-      "[axiosClient] Request:",
-      config.method?.toUpperCase(),
-      config.url,
-      "token:",
-      token ? "FOUND" : "NOT FOUND"
-    );
+    // If there's no token and the route is protected, block the request early
+    const url = (config.url || "").toString();
+    // Trace API calls
+    try {
+      // eslint-disable-next-line no-console
+      console.log("API CALL:", url, "Token:", token);
+    } catch (e) {}
+    if (!token && !isPublicRoute(url)) {
+      console.warn('[axiosClient] Blocked unauthenticated request to', url);
+      return Promise.reject({ message: 'Authentication required', status: 401, noAuth: true });
+    }
 
     // Allow public onboarding/auth routes without token
-    const url = (config.url || "").toString();
     if (!token && isPublicRoute(url)) {
       return config;
     }
@@ -62,24 +64,19 @@ axiosClient.interceptors.request.use(
     // If token exists, attach it
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
-      // 🔍 CONFIRM HEADER ATTACHMENT
-      console.log("[axiosClient] Authorization header set:", config.headers.Authorization);
-      console.log(
-        "[axiosClient] Attaching Authorization header:",
-        config.headers.Authorization
-      );
+      // Authorization header attached
     } else {
       // Block write operations if not logged in
       const method = (config.method || "get").toLowerCase();
       if (method !== "get" && method !== "head") {
-        window.dispatchEvent(
+        setTimeout(() => window.dispatchEvent(
           new CustomEvent("readonly-attempt", {
             detail: {
               method: method.toUpperCase(),
               url: config.url,
             },
           })
-        );
+        ), 0);
 
         return Promise.reject({
           message: "Read-only mode: login required",
@@ -98,8 +95,13 @@ const clearAuthAndRedirect = () => {
   localStorage.removeItem("auth_token");
   localStorage.removeItem("token");
   localStorage.removeItem("user");
-  window.dispatchEvent(new Event("auth-token-updated"));
-  window.dispatchEvent(new Event("user-data-updated"));
+  setTimeout(() => window.dispatchEvent(new Event("auth-token-updated")), 0);
+  setTimeout(() => window.dispatchEvent(new Event("user-data-updated")), 0);
+  // Log redirect origin for tracing
+  try {
+    // eslint-disable-next-line no-console
+    console.log("Redirect triggered from: axiosClient.js");
+  } catch (e) {}
   if (typeof window !== "undefined") {
     window.location.href = "/login";
   }
@@ -173,7 +175,11 @@ axiosClient.interceptors.response.use(
     }
 
     if (error.response?.status === 401) {
-      clearAuthAndRedirect();
+      // Prevent multiple simultaneous redirects
+      if (!axiosClient._isRedirecting) {
+        axiosClient._isRedirecting = true;
+        clearAuthAndRedirect();
+      }
       return Promise.reject({
         message:
           error.response.data?.message ||
@@ -190,7 +196,7 @@ axiosClient.interceptors.response.use(
           url: originalRequest?.url,
           method: (originalRequest?.method || "").toUpperCase(),
         };
-        window.dispatchEvent(new CustomEvent("readonly-attempt", { detail }));
+        setTimeout(() => window.dispatchEvent(new CustomEvent("readonly-attempt", { detail })), 0);
       }
     }
 

@@ -174,8 +174,8 @@
 .md-field textarea:focus,
 .md-field select:focus {
   background: rgba(18, 5, 55, 0.95);
-  border-color: #ff91e4;
-  box-shadow: 0 0 0 1px rgba(255, 144, 228, 0.6);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 1px var(--accent-glow);
 }
 
 /* Primary button */
@@ -188,9 +188,9 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  background-image: linear-gradient(to right, #ff5bb6, #ff7b7c, #ffb56b);
+  background-image: var(--gradient-primary);
   color: #fff;
-  box-shadow: 0 8px 22px rgba(255, 120, 200, 0.7);
+  box-shadow: 0 8px 22px rgba(99,102,241,0.12);
   transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
 }
 
@@ -363,8 +363,8 @@
 }
 
 .md-calendar-cell-today {
-  box-shadow: 0 0 12px rgba(255, 152, 230, 0.9);
-  border-color: rgba(255, 210, 255, 0.9);
+  box-shadow: 0 0 12px var(--accent-glow);
+  border-color: color-mix(in srgb, var(--accent-primary) 40%, white);
 }
 
 .md-calendar-cell-has {
@@ -453,23 +453,23 @@
 .md-bar {
   width: 100%;
   border-radius: 999px;
-  background: linear-gradient(180deg, #ff5bb6, #ff7b7c);
-  box-shadow: 0 0 10px rgba(255, 140, 215, 0.9);
+  background: var(--gradient-primary);
+  box-shadow: 0 0 10px rgba(99,102,241,0.12);
   transition: height 0.3s ease;
 }
 
 /* optional mood-based tint variations */
 .md-bar-excited {
-  background: linear-gradient(180deg, #ffd76b, #ff9f6b);
+  background: linear-gradient(180deg, var(--color-warning), var(--color-warning-dark));
 }
 .md-bar-happy {
-  background: linear-gradient(180deg, #ffb86c, #ff7b7c);
+  background: linear-gradient(180deg, var(--color-primary), var(--accent-secondary));
 }
 .md-bar-romantic {
-  background: linear-gradient(180deg, #ff5bb6, #ff8adf);
+  background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
 }
 .md-bar-okay {
-  background: linear-gradient(180deg, #a3a8ff, #7b8bff);
+  background: linear-gradient(180deg, var(--accent-secondary), var(--accent-primary));
 }
 .md-bar-tired {
   background: linear-gradient(180deg, #8883c4, #55507f);

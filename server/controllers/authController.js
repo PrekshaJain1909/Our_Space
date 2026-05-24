@@ -171,3 +171,41 @@ exports.logout = asyncHandler(async (req, res) => {
   // If refresh tokens or server-side sessions are used, clear them here.
   res.json({ success: true, message: 'Logged out' });
 });
+
+// POST /api/auth/resend-otp  – simple wrapper so clients can call this under /api/auth
+exports.resendOtp = asyncHandler(async (req, res) => {
+  const { email, userId } = req.body;
+
+  const normalizedEmail = otpService.normalizeOtpEmail(email);
+
+  if (!normalizedEmail && !userId) {
+    return res.status(400).json({ message: "Email or userId is required" });
+  }
+
+  const user = userId
+    ? await User.findById(userId)
+    : await User.findOne({ email: normalizedEmail });
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+
+  if (user.isVerified) {
+    return res.status(400).json({ message: "This account is already verified" });
+  }
+
+  const otp = otpService.generateOTP();
+  const targetEmail = (user.email || "").trim().toLowerCase();
+  const result = await otpService.saveOTP(targetEmail, otp, true);
+
+  if (!result.success) {
+    const status = result.waitSeconds ? 429 : 400;
+    return res.status(status).json({
+      message: result.message,
+      ...(result.waitSeconds && { waitSeconds: result.waitSeconds }),
+    });
+  }
+
+  await mailService.sendOTPEmail(targetEmail, otp);
+
+  res.json({ message: "A new OTP has been sent to your email." });
+});

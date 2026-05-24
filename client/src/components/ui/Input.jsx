@@ -40,13 +40,13 @@ export default function Input({
         )}
 
         {/* Textarea mode */}
-        {textarea ? (
+          {textarea ? (
           <textarea
             rows={rows}
             value={value}
             onChange={onChange}
             placeholder={placeholder}
-            className="input-field"
+            className={"bg-white dark:bg-[#07001fcc] border border-pink-200 dark:border-none text-gray-900 dark:text-white placeholder-pink-300 focus:border-pink-400 focus:ring-2 focus:ring-pink-300 p-2 rounded-md input-field " + className}
             {...rest}
           />
         ) : (
@@ -55,7 +55,7 @@ export default function Input({
             value={value}
             onChange={onChange}
             placeholder={placeholder}
-            className="input-field"
+            className={"bg-white dark:bg-[#07001fcc] border border-pink-200 dark:border-none text-gray-900 dark:text-white placeholder-pink-300 focus:border-pink-400 focus:ring-2 focus:ring-pink-300 p-2 rounded-md input-field " + className}
             {...rest}
           />
         )}

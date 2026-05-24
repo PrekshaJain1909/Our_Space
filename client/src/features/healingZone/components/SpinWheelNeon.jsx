@@ -1,84 +1,133 @@
 import React, { useEffect, useRef, useState } from "react";
 import "./SpinWheelNeon.css";
-
-const STORAGE_KEY = "punishments_neon_v1";
-
-const DEFAULT_PUNISHMENTS = [
-  "Dance for 1 min",
-  "10 push-ups",
-  "Sing a romantic song",
-  "Write 'sorry' 20 times",
-  "Give a tight hug",
-  "Compliment 5 things",
-];
+import punishmentApi from '../../../api/punishmentApi';
+import useToast from '../../../hooks/useToast';
 
 export default function SpinWheelNeon() {
-  const [punishments, setPunishments] = useState(() => {
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      return raw ? JSON.parse(raw) : DEFAULT_PUNISHMENTS;
-    } catch {
-      return DEFAULT_PUNISHMENTS;
-    }
-  });
-
+  const [punishments, setPunishments] = useState([]); // { _id, text }
   const [newPunishment, setNewPunishment] = useState("");
   const [spinning, setSpinning] = useState(false);
   const [selected, setSelected] = useState(null);
   const [rotation, setRotation] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   const wheelRef = useRef(null);
+  const { success: toastSuccess, error: toastError } = useToast();
 
-  // sync to localStorage
+  // fetch templates on mount
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(punishments));
-    } catch {
-      // ignore
-    }
-  }, [punishments]);
+    let mounted = true;
+    setLoading(true);
+    punishmentApi.getPunishments()
+      .then((res) => {
+        if (!mounted) return;
+        const list = (res && res.data && (res.data.data || res.data)) || res.data || [];
+        // normalize to { _id, text }
+        const items = Array.isArray(list) ? list.map(t => ({ _id: t._id, text: t.text })) : [];
+        setPunishments(items);
+      })
+      .catch((err) => {
+        console.error('Failed to load punishments', err);
+        toastError('Failed to load punishments');
+      })
+      .finally(() => mounted && setLoading(false));
+    return () => { mounted = false; };
+  }, []);
 
   const handleAddPunishment = (e) => {
     e.preventDefault();
     const value = newPunishment.trim();
     if (!value) return;
-    if (punishments.includes(value)) {
+    if (punishments.some(p => p.text === value)) {
       setNewPunishment("");
       return;
     }
-    setPunishments((prev) => [...prev, value]);
-    setNewPunishment("");
+
+    // call backend to create template
+    setLoading(true);
+    punishmentApi.addPunishment({ text: value })
+      .then((res) => {
+        const tpl = (res && res.data && (res.data.data || res.data)) || res.data || res;
+        const item = { _id: tpl._id, text: tpl.text };
+        setPunishments((prev) => [...prev, item]);
+        setNewPunishment("");
+        toastSuccess('Punishment added');
+      })
+      .catch((err) => {
+        console.error('Add failed', err);
+        toastError('Failed to add punishment');
+      })
+      .finally(() => setLoading(false));
   };
 
   const handleRemovePunishment = (item) => {
-    setPunishments((prev) => prev.filter((p) => p !== item));
-    if (selected === item) setSelected(null);
+    // optimistic remove
+    const orig = [...punishments];
+    setPunishments((prev) => prev.filter((p) => p._id !== item._id));
+    punishmentApi.deletePunishment(item._id)
+      .then(() => {
+        toastSuccess('Punishment removed');
+      })
+      .catch((err) => {
+        console.error('Delete failed', err);
+        toastError('Failed to remove punishment');
+        setPunishments(orig);
+      });
+    if (selected && selected._id === item._id) setSelected(null);
   };
 
-  const handleSpin = () => {
+  const handleSpin = async () => {
     if (spinning || punishments.length === 0) return;
-
     setSpinning(true);
     setSelected(null);
 
-    const segmentAngle = 360 / punishments.length;
-    const randomIndex = Math.floor(Math.random() * punishments.length);
+    try {
+      const res = await punishmentApi.spinPunishment();
+      const body = res && res.data && (res.data.data || res.data) || res.data || res;
+      const serverText = body && (body.text || body);
 
-    // Center of chosen segment
-    const chosenAngle = randomIndex * segmentAngle + segmentAngle / 2;
+      // find index in current list
+      let index = punishments.findIndex(p => p.text === serverText);
+      let addedTemp = false;
+      if (index === -1) {
+        // temporarily include generated item at end
+        const temp = { _id: `temp-${Date.now()}`, text: serverText };
+        setPunishments(prev => [...prev, temp]);
+        index = punishments.length; // last index
+        addedTemp = true;
+      }
 
-    // Add multiple full rotations for drama
-    const extraTurns = 4; // full 360s
-    const finalRotation =
-      rotation + extraTurns * 360 + (360 - chosenAngle); // align chosen at top
+      const segmentAngle = 360 / (punishments.length || 1);
+      const chosenAngle = index * segmentAngle + segmentAngle / 2;
+      const extraTurns = 4;
+      const finalRotation = rotation + extraTurns * 360 + (360 - chosenAngle);
+      setRotation(finalRotation);
+      setSelected({ _id: null, text: serverText });
 
-    setRotation(finalRotation);
-    setSelected(punishments[randomIndex]);
-
-    // set spinning false after animation
-    setTimeout(() => {
+      setTimeout(() => {
+        setSpinning(false);
+        // cleanup temp
+        if (addedTemp) setPunishments(prev => prev.filter(p => !String(p._id).startsWith('temp-')));
+      }, 4200);
+    } catch (err) {
+      console.error('Spin failed', err);
+      toastError('Failed to spin the wheel');
       setSpinning(false);
-    }, 4200); // must match CSS transition duration
+    }
+  };
+
+  const handleSaveSelected = async () => {
+    if (!selected || !selected.text) return;
+    setLoading(true);
+    try {
+      const resp = await punishmentApi.saveGeneratedPunishment({ text: selected.text });
+      toastSuccess('Saved generated punishment');
+    } catch (err) {
+      console.error('Save generated failed', err);
+      toastError('Failed to save generated punishment');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -104,13 +153,13 @@ export default function SpinWheelNeon() {
             {/* segments just for feel */}
             {punishments.map((p, idx) => (
               <div
-                key={p}
+                key={p._id}
                 className="sw-segment-text"
                 style={{
-                  transform: `rotate(${(360 / punishments.length) * idx}deg)`,
+                  transform: `rotate(${(360 / (punishments.length || 1)) * idx}deg)`,
                 }}
               >
-                <span>{p}</span>
+                <span>{p.text}</span>
               </div>
             ))}
           </div>
@@ -127,7 +176,10 @@ export default function SpinWheelNeon() {
           {selected && !spinning && (
             <div className="sw-result">
               <p className="sw-result-label">Selected punishment</p>
-              <p className="sw-result-text">{selected}</p>
+              <p className="sw-result-text">{selected.text}</p>
+              <div className="mt-3 space-x-2">
+                <button type="button" className="sw-save-btn" onClick={handleSaveSelected} disabled={loading}>Save</button>
+              </div>
             </div>
           )}
 
@@ -155,8 +207,8 @@ export default function SpinWheelNeon() {
 
           <div className="sw-list">
             {punishments.map((p) => (
-              <div key={p} className="sw-item">
-                <span className="sw-item-text">{p}</span>
+              <div key={p._id} className="sw-item">
+                <span className="sw-item-text">{p.text}</span>
                 <button
                   type="button"
                   className="sw-remove-btn"
