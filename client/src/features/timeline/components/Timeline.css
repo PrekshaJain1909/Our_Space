@@ -73,6 +73,42 @@
   gap: 16px;
 }
 
+/* New grid for separated cards */
+.timeline-grid {
+  display: grid;
+  grid-template-columns: 0.42fr 0.58fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.timeline-card {
+  /* reuse card look */
+  background: rgba(15, 6, 40, 0.9);
+  border-radius: 22px;
+  padding: 18px;
+  border: 1px solid rgba(255, 177, 244, 0.35);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  color: #ffe9ff;
+}
+
+.filters-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.event-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.reminder-card {
+  display: block;
+  width: 100%;
+}
+
 .timeline-left,
 .timeline-right {
   display: flex;

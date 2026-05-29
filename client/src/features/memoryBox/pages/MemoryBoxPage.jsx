@@ -49,8 +49,9 @@ export default function MemoryBoxPage() {
 
       <div className="memory-inner">
         {/* Header */}
+        <p className="memory-badge">MemoryBox</p>
         <header className="memory-header">
-          <p className="memory-badge">MemoryBox</p>
+          
           <h1 className="memory-title">Your Shared Memory Box</h1>
           <p className="memory-subtitle">
             Save photos with tiny stories, moods and dates — a soft archive of your love. ✨

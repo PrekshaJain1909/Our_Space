@@ -29,7 +29,7 @@ export default function HabitDetailPage(){
     <div className="analytics-wrapper">
       <div className="analytics-overlay" />
       <div className="analytics-inner p-4">
-        <header className="analytics-header mb-4">
+        <header className="analytics-header mb-4 floating-note">
           <p className="analytics-badge">{habit.name} Analytics</p>
           <h1 className="analytics-title">{habit.name}</h1>
           <p className="analytics-subtitle">Habit summary, monthly statistics and calendar tracking.</p>

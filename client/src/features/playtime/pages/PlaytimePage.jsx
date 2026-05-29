@@ -18,12 +18,16 @@ export default function PlaytimePage() {
 
   return (
     <div className="playtime-wrapper">
+      
       <div className="playtime-overlay" />
 
       <div className="playtime-inner">
+        
         {/* Header */}
-        <header className="playtime-header">
-          <p className="playtime-badge">Playtime</p>
+        <p className="playtime-badge">Playtime</p>
+        <br />
+        <header className="playtime-header floating-note">
+          
           <h1 className="playtime-title">Games for You Two</h1>
           <p className="playtime-subtitle">
             Turn boring evenings into laughter, dares and cute challenges. 🎮💞

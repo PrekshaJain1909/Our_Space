@@ -21,6 +21,7 @@ const statsRoutes = require("./routes/statsRoutes");
 const tasksRoutes = require("./routes/tasksRoutes");
 const coupleRoutes = require("./routes/coupleRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
+const bucketRoutes = require("./routes/bucketRoutes");
 const { verifyTransporter } = require("./service/mailService");
 const tokenService = require('./service/tokenService');
 const User = require('./models/User');
@@ -62,6 +63,7 @@ app.use("/api/punishments", punishmentRoutes);
 app.use("/api/healing/stats", statsRoutes);
 app.use("/api/couple", coupleRoutes);
 app.use("/api/analytics", analyticsRoutes);
+app.use("/api/bucket", bucketRoutes);
 // New tasks endpoints (shared todo-like Healing tasks)
 app.use("/api/healing/tasks", tasksRoutes);
 

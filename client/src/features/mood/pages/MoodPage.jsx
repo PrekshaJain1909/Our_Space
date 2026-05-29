@@ -30,12 +30,13 @@ export default function MoodPage() {
 
       <div className="mood-inner">
         {/* Header */}
-        <header className="mood-header">
-          <p className="mood-badge">Mood & Upset Space</p>
+         <p className="mood-badge">Mood & Upset Space</p>
+         <br/>
+        <header className="mood-header floating-note">
+         
           <h1 className="mood-title">How Are We Really Doing?</h1>
           <p className="mood-subtitle">
-            Track your daily moods with emojis and write why you’re upset from each POV —
-            with gentle analytics over time. 🌙
+            Two moods, two perspectives, one journey of understanding ✨
           </p>
         </header>
 

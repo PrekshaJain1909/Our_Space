@@ -3,6 +3,7 @@ import "../components/Timeline.css";
 
 import TimelineFilters from "../components/TimelineFilters";
 import TimelineEvents from "../components/TimelineEvents";
+import TimelineReminder from "../components/TimelineReminder";
 import AnniversaryCountdown from "../components/AnniversaryCountdown";
 
 export default function TimelinePage() {
@@ -29,6 +30,51 @@ export default function TimelinePage() {
 
   const handleAddEvent = (event) => {
     setEvents((prev) => [event, ...prev]);
+  };
+
+  // Controlled add-event form state (lifted so reminder settings live separately)
+  const [newTitle, setNewTitle] = useState("");
+  const [newDate, setNewDate] = useState(() => new Date().toISOString().slice(0, 10));
+  const [newType, setNewType] = useState("random");
+  const [newDescription, setNewDescription] = useState("");
+  const [newTagsInput, setNewTagsInput] = useState("");
+
+  // reminder settings (Section 3)
+  const [newReminderDate, setNewReminderDate] = useState("");
+  const [newReminderChannels, setNewReminderChannels] = useState({ whatsapp: false, sms: false, email: false });
+
+  const handleAddEventFromForm = (e) => {
+    e.preventDefault();
+    if (!newTitle.trim() || !newDate) return;
+
+    const selectedChannels = Object.entries(newReminderChannels)
+      .filter(([, value]) => value)
+      .map(([key]) => key);
+
+    const newEvent = {
+      id: Date.now(),
+      title: newTitle.trim(),
+      date: newDate,
+      type: newType,
+      description: newDescription.trim(),
+      tags: newTagsInput
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean),
+      reminderDate: newReminderDate || null,
+      reminderChannels: selectedChannels,
+      createdAt: new Date().toISOString(),
+    };
+
+    handleAddEvent(newEvent);
+
+    setNewTitle("");
+    setNewDate(new Date().toISOString().slice(0, 10));
+    setNewType("random");
+    setNewDescription("");
+    setNewTagsInput("");
+    setNewReminderDate("");
+    setNewReminderChannels({ whatsapp: false, sms: false, email: false });
   };
 
   const years = useMemo(() => {
@@ -72,44 +118,63 @@ export default function TimelinePage() {
 
       <div className="timeline-inner">
         {/* Header */}
-        <header className="timeline-header">
-          <p className="timeline-badge">Timelines</p>
+         <p className="timeline-badge">Timelines</p>
+         <br/>
+        <header className="timeline-header floating-note">
+         
           <h1 className="timeline-title">Your Love Story Timeline</h1>
           <p className="timeline-subtitle">
-            Log every special moment, set reminders for dates and watch the countdown
-            to your anniversary. 📅💘
+            Track milestones, set reminders, and count down together 📅✨
           </p>
         </header>
 
-        <section className="timeline-layout">
-          {/* Left: filters + countdown */}
-          <div className="timeline-left">
-            <div className="timeline-block">
-              <TimelineFilters
-                typeFilter={typeFilter}
-                setTypeFilter={setTypeFilter}
-                yearFilter={yearFilter}
-                setYearFilter={setYearFilter}
-                years={years}
-                search={search}
-                setSearch={setSearch}
-                reminderFilter={reminderFilter}
-                setReminderFilter={setReminderFilter}
-              />
-            </div>
+        <div className="timeline-grid">
+          <section className="timeline-card filters-card">
+            <TimelineFilters
+              typeFilter={typeFilter}
+              setTypeFilter={setTypeFilter}
+              yearFilter={yearFilter}
+              setYearFilter={setYearFilter}
+              years={years}
+              search={search}
+              setSearch={setSearch}
+              reminderFilter={reminderFilter}
+              setReminderFilter={setReminderFilter}
+            />
 
-            <div className="timeline-block">
+            <div style={{ marginTop: 12 }}>
               <AnniversaryCountdown
                 anniversaryDate={anniversaryDate}
                 onChangeDate={setAnniversaryDate}
               />
             </div>
-          </div>
+          </section>
 
-          {/* Right: events */}
-          <div className="timeline-right">
-            <TimelineEvents events={filteredEvents} onAddEvent={handleAddEvent} />
-          </div>
+          <section className="timeline-card event-card">
+            <TimelineEvents
+              events={filteredEvents}
+              title={newTitle}
+              setTitle={setNewTitle}
+              date={newDate}
+              setDate={setNewDate}
+              type={newType}
+              setType={setNewType}
+              description={newDescription}
+              setDescription={setNewDescription}
+              tagsInput={newTagsInput}
+              setTagsInput={setNewTagsInput}
+              onAddEvent={handleAddEventFromForm}
+            />
+          </section>
+        </div>
+
+        <section className="timeline-card reminder-card" style={{ marginTop: 16 }}>
+          <TimelineReminder
+            reminderDate={newReminderDate}
+            setReminderDate={setNewReminderDate}
+            reminderChannels={newReminderChannels}
+            setReminderChannels={setNewReminderChannels}
+          />
         </section>
       </div>
     </div>

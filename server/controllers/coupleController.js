@@ -186,3 +186,16 @@ exports.deleteCouple = async (req, res, next) => {
     next(err);
   }
 };
+
+exports.getPartners = async (req, res, next) => {
+  try {
+    if (!req.user?.coupleId) return sendError(res, 404, 'Couple profile not found.');
+    const couple = await Couple.findById(req.user.coupleId).populate('partnerA','name').populate('partnerB','name');
+    if (!couple) return sendError(res, 404, 'Couple profile not found.');
+
+    const partnerOne = couple.partnerA ? (couple.partnerA.name || '') : '';
+    const partnerTwo = couple.partnerB ? (couple.partnerB.name || '') : '';
+
+    return res.json({ success: true, data: { partnerOne, partnerTwo } });
+  } catch (err) { next(err); }
+};

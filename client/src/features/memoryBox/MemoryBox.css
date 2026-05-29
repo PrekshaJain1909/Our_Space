@@ -15,6 +15,11 @@
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
+/* Prevent any horizontal overflow from the MemoryBox page */
+.memory-wrapper {
+  overflow-x: hidden;
+}
+
 .memory-overlay {
   position: absolute;
   inset: 0;
@@ -29,12 +34,44 @@
   padding: 32px 18px 60px;
 }
 
+/* Constrain child elements to container width and prevent overflow */
+.memory-inner {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
 /* ===============================
    HEADER
 ================================ */
 
 .memory-header {
   margin-bottom: 26px;
+}
+
+/* Slightly lighter floating note for MemoryBox header specifically */
+.memory-header.floating-note {
+  display: block;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255,111,163,0.04), rgba(185,131,255,0.02));
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 6px 16px rgba(11,10,17,0.10);
+  transform: translateY(-6px) rotate(-0.15deg);
+  max-width: 900px;
+}
+
+.memory-header.floating-note .memory-title {
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+.memory-header.floating-note .memory-subtitle {
+  color: #e9d7f0;
+  font-size: 13px;
+  margin: 0;
+  opacity: 0.95;
 }
 
 .memory-badge {
@@ -62,6 +99,49 @@
   max-width: 640px;
 }
 
+/* New hero header matching Timeline design (refined proportions) */
+.memory-hero {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  width: 100%;
+  padding: 34px 42px;
+  background: rgba(255,255,255,0.72);
+  border-radius: 28px;
+  box-shadow: 0 10px 28px rgba(236,72,153,0.08);
+}
+
+.hero-accent {
+  width: 12px;
+  height: 110px;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, #ec4899, #a855f7);
+}
+
+.hero-content {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  flex-wrap: nowrap;
+}
+
+.hero-content h1 {
+  margin: 0;
+  font-size: 4rem;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -2px;
+  white-space: nowrap;
+}
+
+.hero-content p {
+  margin: 0;
+  font-size: 1.35rem;
+  color: #6b7280;
+  max-width: 760px;
+  line-height: 1.5;
+}
+
 /* ===============================
    LAYOUT
 ================================ */
@@ -70,6 +150,16 @@
   display: grid;
   grid-template-columns: 360px minmax(0, 1fr);
   gap: 20px;
+}
+
+/* Ensure layout columns don't force overflow */
+.memory-layout,
+.memory-left,
+.memory-right,
+.memory-block {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .memory-left,
@@ -278,8 +368,10 @@
   background: rgba(15, 23, 42, 0.9);
   border-radius: 18px;
   width: min(900px, 92%);
+  max-width: calc(100vw - 32px);
   max-height: 90vh;
   overflow-y: auto;
+  overflow-x: hidden;
   position: relative;
 }
 
@@ -350,13 +442,57 @@
     grid-template-columns: 1fr;
   }
 }
-.mb-field {
+.mb-field,
+.mb-field input,
+.mb-field textarea,
+.mb-field select {
+  max-width: 100%;
   min-width: 0;
+  box-sizing: border-box;
 }
 
 .mb-field input,
 .mb-field textarea,
 .mb-field select {
   width: 100%;
-  box-sizing: border-box;
+}
+.memory-hero {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  padding: 20px 24px;
+  background: rgba(255, 255, 255, 0.72);
+  border-radius: 22px;
+  border: 1px solid rgba(255, 204, 255, 0.25);
+  box-shadow: 0 12px 24px rgba(236, 72, 153, 0.08);
+}
+
+.hero-accent {
+  width: 12px;
+  height: 64px;
+  border-radius: 999px;
+  background: linear-gradient(to bottom, #ec4899, #a855f7);
+}
+
+.hero-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.hero-content h1 {
+  margin: 0;
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: #1f2937;
+  line-height: 1.1;
+  white-space: nowrap;
+}
+
+.hero-content p {
+  margin: 0;
+  font-size: 1rem;
+  color: #6b7280;
+  line-height: 1.5;
 }

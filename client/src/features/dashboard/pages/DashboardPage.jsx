@@ -71,12 +71,13 @@ export default function DashboardPage() {
       <div className="dashboard-overlay" />
 
       <div className="dashboard-inner">
-        <header className="dashboard-header">
-          <span className="dashboard-badge">Dashboard</span>
+        <span className="dashboard-badge">Dashboard</span>
+        <header className="dashboard-header floating-note">
+          
           <h1 className="dashboard-title">Welcome back, {displayName} ✨</h1>
           <p className="dashboard-subtitle">
             {user
-              ? "Your account is ready. You can create, edit and manage your shared content. Invite your partner if you'd like to collaborate." 
+              ? "Your space is ready — create, edit, and share memories together ✨" 
               : "Browse everything in guest mode. Login or register when you are ready to edit."}
           </p>
         </header>

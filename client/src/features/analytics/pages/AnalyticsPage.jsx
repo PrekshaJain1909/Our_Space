@@ -54,8 +54,9 @@ export default function AnalyticsPage() {
       <div className="analytics-overlay" />
 
       <div className="analytics-inner">
-        <header className="analytics-header">
-          <p className="analytics-badge">Analytics</p>
+        <p className="analytics-badge">Analytics</p> <br />
+        <header className="analytics-header floating-note">
+          
           <h1 className="analytics-title">Habits</h1>
           <p className="analytics-subtitle">Create custom habits and track entries dynamically.</p>
         </header>

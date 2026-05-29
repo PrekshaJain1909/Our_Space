@@ -1,58 +1,20 @@
-import React, { useState } from "react";
+import React from "react";
 import "./Timeline.css";
 
-export default function TimelineEvents({ events = [], onAddEvent }) {
-  const [title, setTitle] = useState("");
-  const [date, setDate] = useState(() => new Date().toISOString().slice(0, 10));
-  const [type, setType] = useState("random");
-  const [description, setDescription] = useState("");
-  const [tagsInput, setTagsInput] = useState("");
-
-  const [reminderDate, setReminderDate] = useState("");
-  const [reminderChannels, setReminderChannels] = useState({
-    whatsapp: false,
-    sms: false,
-    email: false,
-  });
-
-  const handleChannelToggle = (channel) => {
-    setReminderChannels((prev) => ({
-      ...prev,
-      [channel]: !prev[channel],
-    }));
-  };
-
-  const handleAddEvent = (e) => {
-    e.preventDefault();
-    if (!title.trim() || !date) return;
-
-    const selectedChannels = Object.entries(reminderChannels)
-      .filter(([, value]) => value)
-      .map(([key]) => key);
-
-    const newEvent = {
-      id: Date.now(),
-      title: title.trim(),
-      date,
-      type,
-      description: description.trim(),
-      tags: tagsInput
-        .split(",")
-        .map((t) => t.trim())
-        .filter(Boolean),
-      reminderDate: reminderDate || null,
-      reminderChannels: selectedChannels,
-      createdAt: new Date().toISOString(),
-    };
-
-    onAddEvent && onAddEvent(newEvent);
-
-    setTitle("");
-    setDescription("");
-    setTagsInput("");
-    setReminderDate("");
-    setReminderChannels({ whatsapp: false, sms: false, email: false });
-  };
+export default function TimelineEvents({
+  events = [],
+  onAddEvent,
+  title,
+  setTitle,
+  date,
+  setDate,
+  type,
+  setType,
+  description,
+  setDescription,
+  tagsInput,
+  setTagsInput,
+}) {
 
   return (
     <div className="tl-card tl-events-card">
@@ -64,7 +26,7 @@ export default function TimelineEvents({ events = [], onAddEvent }) {
         </p>
       </div>
 
-      <form className="tl-form" onSubmit={handleAddEvent}>
+      <form className="tl-form" onSubmit={onAddEvent}>
         <div className="tl-row">
           <div className="tl-field">
             <label>Title</label>
@@ -121,54 +83,7 @@ export default function TimelineEvents({ events = [], onAddEvent }) {
             placeholder="Write what happened and how it felt…"
           />
         </div>
-
-        {/* Reminder section */}
-        <div className="tl-reminder-block">
-          <div className="tl-reminder-row">
-            <div className="tl-field">
-              <label>Reminder date (optional)</label>
-              <input
-                type="date"
-                value={reminderDate}
-                onChange={(e) => setReminderDate(e.target.value)}
-              />
-            </div>
-
-            <div className="tl-reminder-channels">
-              <p className="tl-reminder-label">Reminder via (UI only)</p>
-              <div className="tl-reminder-chip-row">
-                <label className="tl-reminder-chip">
-                  <input
-                    type="checkbox"
-                    checked={reminderChannels.whatsapp}
-                    onChange={() => handleChannelToggle("whatsapp")}
-                  />
-                  <span>WhatsApp</span>
-                </label>
-                <label className="tl-reminder-chip">
-                  <input
-                    type="checkbox"
-                    checked={reminderChannels.sms}
-                    onChange={() => handleChannelToggle("sms")}
-                  />
-                  <span>SMS</span>
-                </label>
-                <label className="tl-reminder-chip">
-                  <input
-                    type="checkbox"
-                    checked={reminderChannels.email}
-                    onChange={() => handleChannelToggle("email")}
-                  />
-                  <span>Email</span>
-                </label>
-              </div>
-              <p className="tl-reminder-note">
-                This app only stores your preferences. Actual WhatsApp/SMS/Email
-                sending needs backend integration later.
-              </p>
-            </div>
-          </div>
-        </div>
+        {/* Reminder moved to separate card (TimelineReminder) */}
 
         <button type="submit" className="tl-primary-btn">
           Add event

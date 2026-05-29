@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import "./Bucket.css";
 
-export default function BucketListForm({ onAdd }) {
+export default function BucketListForm({ onAdd, partners = [] }) {
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("travel");
   const [targetDate, setTargetDate] = useState("");
-  const [together, setTogether] = useState("both"); // both | him | her
+  const [together, setTogether] = useState(""); // '' = placeholder, otherwise partner name or 'both'
   const [notes, setNotes] = useState("");
 
   const handleSubmit = (e) => {
@@ -79,14 +79,28 @@ export default function BucketListForm({ onAdd }) {
 
           <div className="bk-field">
             <label>For</label>
-            <select
-              value={together}
-              onChange={(e) => setTogether(e.target.value)}
-            >
-              <option value="both">Both of us</option>
-              <option value="him">Mainly him</option>
-              <option value="her">Mainly her</option>
-            </select>
+            <div className="bk-select-wrapper">
+              <select
+                className={`bk-select ${together ? 'has-value' : ''}`}
+                value={together}
+                onChange={(e) => setTogether(e.target.value)}
+              >
+                <option value="" disabled>
+                  Choose who this memory is for
+                </option>
+                {partners && partners.length > 0 ? (
+                  <>
+                    <option value={partners[0]}>{partners[0]}</option>
+                    {partners[1] ? <option value={partners[1]}>{partners[1]}</option> : null}
+                    <option value="both">Both of us</option>
+                  </>
+                ) : (
+                  <>
+                    <option value="both">Both of us</option>
+                  </>
+                )}
+              </select>
+            </div>
           </div>
         </div>
 

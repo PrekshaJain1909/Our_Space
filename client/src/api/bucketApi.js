@@ -20,6 +20,9 @@ const bucketApi = {
   // Get all bucket list items
   getBucketItems: (params = {}) =>
     axiosClient.get("/bucket", { params }),
+
+  // Get single bucket item by id
+  getBucketItem: (id) => axiosClient.get(`/bucket/${id}`),
   /*
     params example (optional):
     { status: "pending" } or { category: "travel" }
@@ -32,6 +35,10 @@ const bucketApi = {
   // Mark bucket item as done
   completeBucketItem: (id) =>
     axiosClient.patch(`/bucket/${id}/complete`),
+
+  // Restore a bucket item (uncomplete)
+  restoreBucketItem: (id) =>
+    axiosClient.patch(`/bucket/${id}/restore`),
 
   // Delete a bucket list item
   deleteBucketItem: (id) =>

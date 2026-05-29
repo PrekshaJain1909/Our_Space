@@ -9,5 +9,6 @@ router.put("/", authenticateToken, coupleController.updateCouple);
 router.patch("/", authenticateToken, coupleController.patchCouple);
 router.put("/photo", authenticateToken, coupleController.updatePhoto);
 router.delete("/", authenticateToken, coupleController.deleteCouple);
+router.get('/partners', authenticateToken, coupleController.getPartners);
 
 module.exports = router;

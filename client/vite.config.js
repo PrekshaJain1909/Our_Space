@@ -14,8 +14,14 @@ export default defineConfig({
         '**/*~',
         '**/~*',
         '**/*-Journal/**',
-        '**/OneDrive/**'
+        // Removed '**/OneDrive/**' because the project is inside OneDrive on Windows.
+        // Ignoring the OneDrive folder caused Vite's watcher to ignore all project files,
+        // preventing HMR from seeing changes. If you still experience missed events,
+        // consider enabling polling below (slower, but reliable on some setups).
       ]
+      // Example fallback (uncomment if needed):
+      // usePolling: true,
+      // interval: 100
     }
   }
 })

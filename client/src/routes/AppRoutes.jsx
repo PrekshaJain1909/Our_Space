@@ -2,6 +2,7 @@ import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
+const BucketDetailPage = React.lazy(() => import('../features/bucket/pages/BucketDetailPage.jsx'));
 
 // Layouts
 import MainLayout from "../layouts/MainLayout.jsx";
@@ -151,6 +152,16 @@ export default function AppRoutes() {
           element={
             <ProtectedRoute>
               <BucketPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/bucket/:taskId"
+          element={
+            <ProtectedRoute>
+              <React.Suspense fallback={<div>Loading...</div>}>
+                <BucketDetailPage />
+              </React.Suspense>
             </ProtectedRoute>
           }
         />
