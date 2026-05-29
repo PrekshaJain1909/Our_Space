@@ -84,7 +84,7 @@ export default function HabitCard({ habit, onUpdate, onDelete }) {
         <div className="mt-3">
           {habit.ownerId && habit.ownerName && meId === habit.ownerId && (
             <div style={{background:'#fff1f2', color:'#9f1239', padding:12, borderRadius:8, marginBottom:12}}>
-              This habit is assigned to you. Only your partner can update it for accountability.
+              This habit is assigned to your partner. Only your partner can update it for accountability.
             </div>
           )}
           {habit.ownerId && habit.ownerName && meId !== habit.ownerId && (
