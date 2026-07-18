@@ -75,22 +75,22 @@ app.use(errorHandler);
 function validateEnv() {
   const required = ['MONGO_URI', 'MONGODB_URI', 'JWT_SECRET', 'BREVO_API_KEY'];
   const missing = required.filter(v => !process.env[v]);
-  
+
   if (missing.includes('MONGO_URI') && missing.includes('MONGODB_URI')) {
     console.error('❌ ERROR: Neither MONGO_URI nor MONGODB_URI is set');
     console.error('   Set one of these in your Render environment variables');
     process.exit(1);
   }
-  
+
   if (!process.env.JWT_SECRET) {
     console.warn('⚠️  WARNING: JWT_SECRET not set. Set it in your Render environment variables');
   }
-  
+
   if (!process.env.BREVO_API_KEY) {
     console.warn('⚠️  WARNING: BREVO_API_KEY not set. Email OTP will fail');
     console.warn('   Set BREVO_API_KEY in your Render environment variables');
   }
-  
+
   console.log('✓ Starting server with:');
   console.log(`  PORT: ${PORT}`);
   console.log(`  MongoDB: ${MONGO_URI ? MONGO_URI.split('@')[0] + '***' : 'NOT SET'}`);
@@ -101,12 +101,13 @@ function validateEnv() {
 async function startServer() {
   try {
     validateEnv();
-    
+
     if (!MONGO_URI) {
       throw new Error("Missing MONGO_URI/MONGODB_URI in server/.env");
     }
 
     console.log('\n🔄 Connecting to MongoDB...');
+    console.log(process.env.MONGO_URI);
     await mongoose.connect(MONGO_URI, {
       serverSelectionTimeoutMS: 12000,
       connectTimeoutMS: 10000
@@ -135,7 +136,7 @@ async function startServer() {
   const server = http.createServer(app);
   if (IOServer) {
     const io = new IOServer(server, {
-      cors: { origin: allowedOrigins, methods: ['GET','POST'] }
+      cors: { origin: allowedOrigins, methods: ['GET', 'POST'] }
     });
 
     // Authenticate socket connections using JWT passed in `handshake.auth.token`
