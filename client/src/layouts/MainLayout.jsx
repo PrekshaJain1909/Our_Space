@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
 import { Analytics } from "@vercel/analytics/react";
+import { showThemeAlert } from "../utils/swalTheme";
+import { useTheme } from "../hooks/useTheme";
 import Sidebar from "../components/Sidebar/Sidebar";
 import ThemeToggle from "../components/ui/ThemeToggle";
 import { getCoupleStatus } from "../features/auth/services/authApi";
@@ -10,6 +11,7 @@ import "./MainLayout.css";
 export default function MainLayout() {
   const navigate = useNavigate();
   const location = useLocation();
+  const theme = useTheme();
 
   const [user, setUser] = useState(null);
   const [collapsed, setCollapsed] = useState(false);
@@ -92,20 +94,20 @@ export default function MainLayout() {
    * Update time every minute for dynamic greeting
    */
   const handleInvite = async () => {
-  if (!user?.coupleId) return;
-  const coupleIdStr = typeof user.coupleId === 'string' ? user.coupleId : (user.coupleId && (user.coupleId._id || user.coupleId.toString()));
+    if (!user?.coupleId) return;
+    const coupleIdStr = typeof user.coupleId === 'string' ? user.coupleId : (user.coupleId && (user.coupleId._id || user.coupleId.toString()));
 
-  const inviteLink = `${window.location.origin}/join?coupleId=${coupleIdStr}`;
+    const inviteLink = `${window.location.origin}/join?coupleId=${coupleIdStr}`;
 
-  try {
-    // Copy to clipboard
-    await navigator.clipboard.writeText(inviteLink);
+    try {
+      // Copy to clipboard
+      await navigator.clipboard.writeText(inviteLink);
 
-    // If device supports share API (mobile)
-    if (navigator.share) {
-      await navigator.share({
-  title: "Join Me In Ourspace 💖",
-  text: `Hi Love 💗
+      // If device supports share API (mobile)
+      if (navigator.share) {
+        await navigator.share({
+          title: "Join Me In Ourspace 💖",
+          text: `Hi Love 💗
 
 I don’t want just memories…
 I want a space that belongs to us.
@@ -116,27 +118,33 @@ Tap the link and step into our world 💞
 
 Always yours,
 ${user.name} 🤍`,
-  url: inviteLink,
-});
+          url: inviteLink,
+        });
 
-    } else {
-      Swal.fire({
-              icon: "success",
-              title: "Invite Link Copied 💌",
-              text: "The invite link has been copied to your clipboard.",
-              confirmButtonColor: "#3b82f6",
-            });
+      } else {
+        showThemeAlert(theme, {
+          icon: "success",
+          title: "Invite Link Copied 💌",
+          text: "The invite link has been copied to your clipboard.",
+          confirmText: "Okay",
+          cancelText: "",
+          showCancelButton: false,
+          confirmColor: 'success',
+        });
+      }
+    } catch (err) {
+      console.error("Invite error:", err);
+      showThemeAlert(theme, {
+        icon: "error",
+        title: "Failed to generate invite link. 💔",
+        text: "Please try again.",
+        confirmText: "Okay",
+        cancelText: "",
+        showCancelButton: false,
+        confirmColor: 'error',
+      });
     }
-  } catch (err) {
-    console.error("Invite error:", err);
-    Swal.fire({
-            icon: "error",
-            title: "Failed to generate invite link. 💔",
-            text: "Please try again.",
-            confirmButtonColor: "#3b82f6",
-          });
-  }
-};
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -229,10 +237,10 @@ ${user.name} 🤍`,
     localStorage.removeItem("auth_token");
     localStorage.removeItem("user");
     setUser(null);
-    
+
     // Notify other components that user data has been cleared
     setTimeout(() => window.dispatchEvent(new CustomEvent("user-data-updated")), 0);
-    
+
     closeDrawer();
     navigate("/login");
   };
@@ -253,9 +261,8 @@ ${user.name} 🤍`,
     <div className={layoutClass}>
       {/* Desktop Sidebar */}
       <aside
-        className={`sidebar-wrap ${
-          collapsed ? "sidebar--collapsed" : "sidebar--expanded"
-        }`}
+        className={`sidebar-wrap ${collapsed ? "sidebar--collapsed" : "sidebar--expanded"
+          }`}
       >
         <div className="sidebar-header">
           <div className="sidebar-header-row">
@@ -328,8 +335,8 @@ ${user.name} 🤍`,
           </div>
 
           <div className="topbar-right">
-            
-            
+
+
             {!user ? (
               <div className="auth-buttons">
                 <button className="auth-btn auth-btn-login" onClick={goToLogin}>

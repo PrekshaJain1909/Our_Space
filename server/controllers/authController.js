@@ -119,12 +119,21 @@ exports.login = asyncHandler(async (req, res) => {
     });
   }
 
-  const token = tokenService.generateAuthToken({
+  const tokenPayload = {
     userId: user._id,
     email: user.email,
     role: user.role,
     coupleId: user.coupleId,
+  };
+
+  console.log("[auth] Login token payload:", {
+    userId: tokenPayload.userId?.toString?.() || tokenPayload.userId,
+    email: tokenPayload.email,
+    role: tokenPayload.role,
+    coupleId: tokenPayload.coupleId?.toString?.() || tokenPayload.coupleId,
   });
+
+  const token = tokenService.generateAuthToken(tokenPayload);
 
   res.json({
     message: "Login successful",

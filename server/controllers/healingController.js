@@ -3,15 +3,27 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const Couple = require('../models/Couple');
 
-function sendError(res, status, message) {
+function sendError(res, status, message, reason = null) {
+  if (reason) {
+    console.warn(`[healing] ${reason}`);
+  }
   return res.status(status).json({ success: false, message });
 }
 
 const getValidObjectId = (id) => {
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    return null;
+  if (!id) return null;
+  if (id instanceof mongoose.Types.ObjectId) return id;
+  if (typeof id === 'string' || typeof id === 'number') {
+    const value = id.toString();
+    if (!mongoose.Types.ObjectId.isValid(value)) return null;
+    return new mongoose.Types.ObjectId(value);
   }
-  return new mongoose.Types.ObjectId(id);
+  if (id?.toString) {
+    const value = id.toString();
+    if (!mongoose.Types.ObjectId.isValid(value)) return null;
+    return new mongoose.Types.ObjectId(value);
+  }
+  return null;
 };
 
 const getOtherPartnerName = async (user) => {
@@ -33,8 +45,13 @@ const getOtherPartnerName = async (user) => {
 
 exports.createEntry = async (req, res, next) => {
   try {
-    console.log('[healing:createEntry] user:', req.user);
-    console.log('[healing:createEntry] body:', req.body);
+    console.log('[healing:createEntry] req.user:', req.user && {
+      id: req.user._id?.toString?.(),
+      userId: req.user.userId,
+      coupleId: req.user.coupleId?.toString?.(),
+      role: req.user.role,
+    });
+    console.log('[healing:createEntry] request body:', req.body);
     console.log('[healing:createEntry] params:', req.params);
     // Accept multiple client payload shapes (legacy keys from frontend)
     const {
@@ -64,12 +81,27 @@ exports.createEntry = async (req, res, next) => {
     const userId = user && (user.userId || user._id || user.id);
     const userObjectId = getValidObjectId(userId);
 
-    if (!userObjectId) return sendError(res, 401, 'Unauthorized');
-    if (!title || !noteText) return sendError(res, 400, 'Title and message are required');
+    if (!user) {
+      return sendError(res, 401, 'Authentication required. Please log in again.', 'createEntry missing req.user');
+    }
+
+    if (!userObjectId) {
+      console.warn('[healing:createEntry] authentication failed: unable to resolve user id', { userId, rawUserId: userId });
+      return sendError(res, 401, 'Unable to resolve authenticated user. Please log in again.', 'createEntry invalid user id');
+    }
+    if (!title || !noteText) {
+      console.warn('[healing:createEntry] validation failed', { title, noteText });
+      return sendError(res, 400, 'Title and message are required');
+    }
     if (noteText.length > 5000) return sendError(res, 400, 'Message exceeds maximum length (5000)');
 
     const fromName = user.name || user.email || 'You';
     const otherName = (await getOtherPartnerName(user)) || 'Your partner';
+    const normalizedAssignedTo = getValidObjectId(assignedTo);
+
+    if (assignedTo && !normalizedAssignedTo) {
+      console.warn('[healing:createEntry] invalid assignedTo provided, ignoring it', assignedTo);
+    }
 
     const entry = await Healing.create({
       coupleId: user.coupleId || null,
@@ -82,10 +114,12 @@ exports.createEntry = async (req, res, next) => {
       message: noteText,
       mood,
       category,
-      assignedTo: assignedTo || forgiver || null,
+      assignedTo: normalizedAssignedTo || null,
       dueDate: dueDate ? new Date(dueDate) : null,
       favorite: Boolean(favorite),
     });
+
+    console.log('[healing:createEntry] save success', { id: entry._id, type: entry.type });
 
     // Emit socket event for real-time updates (if socket.io attached)
     try {
@@ -194,14 +228,15 @@ exports.getStats = async (req, res, next) => {
   try {
     const userId = req.user && (req.user.userId || req.user._id || req.user.id);
     const userObjectId = getValidObjectId(userId);
-    if (!userObjectId) return sendError(res, 401, 'Unauthorized');
+    if (!req.user) return sendError(res, 401, 'Authentication required. Please log in again.', 'getStats missing req.user');
+    if (!userObjectId) return sendError(res, 401, 'Unable to resolve authenticated user. Please log in again.', 'getStats invalid user id');
 
     const filter = { userId: userObjectId };
     const entries = await Healing.find(filter).select('message title createdAt');
     const total = entries.length;
 
     const words = {};
-    const stopWords = new Set(["a","an","and","the","to","for","with","of","in","on","at","by","is","it","this","that"]);
+    const stopWords = new Set(["a", "an", "and", "the", "to", "for", "with", "of", "in", "on", "at", "by", "is", "it", "this", "that"]);
     let longestEntryLength = 0;
     let latestDate = null;
     let totalLength = 0;

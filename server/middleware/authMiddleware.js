@@ -4,26 +4,32 @@ const tokenService = require("../service/tokenService");
 
 const getBearerToken = (header = "") => {
   if (typeof header !== "string") return null;
-  const parts = header.split(" ");
-  if (parts.length !== 2 || parts[0] !== "Bearer") return null;
+  const trimmedHeader = header.trim();
+  if (!trimmedHeader.startsWith("Bearer")) return null;
+  const parts = trimmedHeader.split(/\s+/);
+  if (parts.length < 2) return null;
   return parts[1];
 };
 
 exports.authenticateToken = async (req, res, next) => {
   const authHeader = req.headers.authorization || req.headers.Authorization;
   const token = getBearerToken(authHeader);
-  console.log('[auth] Authorization header present?', !!authHeader, 'extracted token?', !!token);
+
+  console.log("[auth] Authorization header:", authHeader || "(missing)");
+  console.log("[auth] Extracted token:", token ? `${token.slice(0, 12)}...${token.slice(-6)}` : "(missing)");
+  console.log("[auth] Token length:", token ? token.length : 0);
 
   if (!token) {
+    console.warn("[auth] Authentication failed: missing or malformed Authorization header");
     return res.status(401).json({
       success: false,
-      message: "Authorization required. Provide a valid Bearer token.",
+      message: "Missing Authorization header. Provide a valid Bearer token.",
     });
   }
 
   try {
     const payload = tokenService.verifyAuthToken(token);
-    console.log('[auth] token payload:', { userId: payload?.userId, coupleId: payload?.coupleId });
+    console.log("[auth] Decoded JWT payload:", payload);
 
     if (!payload?.userId) {
       throw new Error("Token payload missing userId");
@@ -34,6 +40,7 @@ exports.authenticateToken = async (req, res, next) => {
     );
 
     if (!user) {
+      console.warn("[auth] Authentication failed: user not found for token", { userId: payload.userId });
       return res.status(401).json({
         success: false,
         message: "User not found for provided token.",
@@ -41,16 +48,36 @@ exports.authenticateToken = async (req, res, next) => {
     }
 
     req.user = user;
+    console.log("[auth] Authenticated user:", {
+      id: user._id?.toString?.(),
+      role: user.role,
+      coupleId: user.coupleId?.toString?.(),
+      isVerified: user.isVerified,
+    });
     next();
   } catch (err) {
-    const isTokenExpired = err.name === "TokenExpiredError";
+    console.error("[auth] JWT verification failed:", {
+      name: err?.name,
+      message: err?.message,
+      stack: err?.stack,
+    });
+
+    const isTokenExpired = err?.name === "TokenExpiredError";
+    const reason = err?.message === "JWT_SECRET is not configured"
+      ? "Invalid JWT secret"
+      : isTokenExpired
+        ? "Token expired"
+        : "Invalid or malformed token";
     const message = isTokenExpired
       ? "Session expired. Please log in again."
-      : "Invalid authorization token.";
+      : err?.message === "JWT_SECRET is not configured"
+        ? "JWT secret is not configured on the server."
+        : "Invalid authorization token.";
 
     return res.status(401).json({
       success: false,
       message,
+      reason,
     });
   }
 };

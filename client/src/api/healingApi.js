@@ -4,8 +4,17 @@ const healingApi = {
   /* -------------------- MISTAKE + PUNISHMENT ENTRIES -------------------- */
 
   // Add new healing entry (mistake -> punishment)
-  addEntry: (payload) =>
-    axiosClient.post("/healing/entries", payload),
+  addEntry: async (payload) => {
+    console.log("[healingApi] addEntry request", payload);
+    try {
+      const res = await axiosClient.post("/healing/entries", payload);
+      console.log("[healingApi] addEntry response", res?.data);
+      return res;
+    } catch (err) {
+      console.error("[healingApi] addEntry error", err);
+      throw err;
+    }
+  },
   /*
     payload example:
     {
@@ -27,9 +36,13 @@ const healingApi = {
   completeEntry: (id) =>
     axiosClient.patch(`/healing/entries/${id}/complete`),
 
+  // Edit an entry (title/message)
+  updateEntry: (id, payload) =>
+    axiosClient.put(`/healing/${id}`, payload),
+
   // Delete entry
   deleteEntry: (id) =>
-    axiosClient.delete(`/healing/entries/${id}`),
+    axiosClient.delete(`/healing/${id}`),
 
 
   /* ------------------------------ PROMISES ------------------------------ */

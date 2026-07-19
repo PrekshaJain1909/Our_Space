@@ -42,31 +42,36 @@ const isPublicRoute = (url) => {
 // Attach auth token to every request
 axiosClient.interceptors.request.use(
   (config) => {
-    const token = (typeof window !== "undefined") && (localStorage.getItem("auth_token") || localStorage.getItem("token"));
+    const token = (typeof window !== "undefined")
+      ? (localStorage.getItem("auth_token") || localStorage.getItem("token") || "")
+      : "";
 
-    // If there's no token and the route is protected, block the request early
     const url = (config.url || "").toString();
-    // Trace API calls
+
     try {
       // eslint-disable-next-line no-console
-      console.log("API CALL:", url, "Token:", token);
-    } catch (e) {}
+      console.log("API CALL:", url, "Token present:", Boolean(token));
+    } catch (e) { }
+
     if (!token && !isPublicRoute(url)) {
-      console.warn('[axiosClient] Blocked unauthenticated request to', url);
-      return Promise.reject({ message: 'Authentication required', status: 401, noAuth: true });
+      console.warn("[axiosClient] Blocked unauthenticated request to", url);
+      return Promise.reject({ message: "Authentication required", status: 401, noAuth: true });
     }
 
-    // Allow public onboarding/auth routes without token
     if (!token && isPublicRoute(url)) {
       return config;
     }
 
-    // If token exists, attach it
     if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-      // Authorization header attached
+      if (config.headers && typeof config.headers.set === "function") {
+        config.headers.set("Authorization", `Bearer ${token}`);
+      } else {
+        config.headers = {
+          ...(config.headers || {}),
+          Authorization: `Bearer ${token}`,
+        };
+      }
     } else {
-      // Block write operations if not logged in
       const method = (config.method || "get").toLowerCase();
       if (method !== "get" && method !== "head") {
         setTimeout(() => window.dispatchEvent(
@@ -101,7 +106,7 @@ const clearAuthAndRedirect = () => {
   try {
     // eslint-disable-next-line no-console
     console.log("Redirect triggered from: axiosClient.js");
-  } catch (e) {}
+  } catch (e) { }
   if (typeof window !== "undefined") {
     window.location.href = "/login";
   }
@@ -175,11 +180,16 @@ axiosClient.interceptors.response.use(
     }
 
     if (error.response?.status === 401) {
-      // Prevent multiple simultaneous redirects
-      if (!axiosClient._isRedirecting) {
-        axiosClient._isRedirecting = true;
-        clearAuthAndRedirect();
+      const url = (originalRequest?.url || "").toString();
+      const isHealingRequest = url.includes("/healing") || url.includes("/api/healing");
+
+      if (!isHealingRequest) {
+        if (!axiosClient._isRedirecting) {
+          axiosClient._isRedirecting = true;
+          clearAuthAndRedirect();
+        }
       }
+
       return Promise.reject({
         message:
           error.response.data?.message ||

@@ -1,31 +1,20 @@
 import React, { useState } from "react";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
 import AuthField from "../components/AuthField";
+import { showThemeAlert } from "../../../utils/swalTheme";
+import { useTheme } from "../../../hooks/useTheme";
 import PasswordField from "../components/PasswordField";
 import useToast from "../../../hooks/useToast";
 import { registerPartnerB, resendOtp } from "../services/authApi";
 import { setPendingOtpEmail, buildVerifyOtpPath } from "../../../utils/otpFlow";
 
-function getSwalThemeOptions() {
-  const styles = getComputedStyle(document.documentElement);
-  const isDark = document.documentElement.classList.contains("dark");
-  return {
-  confirmButtonColor: styles.getPropertyValue("--accent-primary").trim() || "#3b82f6",
-    background: isDark
-      ? styles.getPropertyValue("--dark-surface").trim() || "#1c0050"
-      : "#ffffff",
-    color: isDark
-      ? styles.getPropertyValue("--dark-text-primary").trim() || "#ffeefc"
-      : styles.getPropertyValue("--light-text-primary").trim() || "#2a1a3a",
-  };
-}
 
 export default function JoinPage() {
   const { inviteCode } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const { error } = useToast();
+  const theme = useTheme();
 
   const params = new URLSearchParams(location.search);
   const coupleId = params.get("coupleId");
@@ -71,14 +60,13 @@ export default function JoinPage() {
       // the message lives at err.message, not err.response?.data?.message
       const errMsg = err.message || err.response?.data?.message || "Join failed. Please try again.";
       if (errMsg.toLowerCase().includes("already exist") || errMsg.toLowerCase().includes("user already exist")) {
-        Swal.fire({
+        showThemeAlert(theme, {
           icon: "warning",
           title: "User already exists",
           text: "An account with this email is already registered. Please sign in instead.",
-          confirmButtonText: "Go to Login",
-          showCancelButton: true,
-          cancelButtonText: "Cancel",
-          ...getSwalThemeOptions(),
+          confirmText: "Go to Login",
+          cancelText: "Cancel",
+          confirmColor: 'warning',
         }).then((result) => {
           if (result.isConfirmed) {
             navigate(`/login${inviteQuerySuffix}`);

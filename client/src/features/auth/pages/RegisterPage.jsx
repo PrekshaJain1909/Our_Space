@@ -1,29 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import Swal from "sweetalert2";
 import { registerPartnerA, registerPartnerB, resendOtp } from "../services/authApi";
+import { showThemeAlert } from "../../../utils/swalTheme";
+import { useTheme } from "../../../hooks/useTheme";
 import AuthPageShell from "../components/AuthPageShell";
 import AuthField from "../components/AuthField";
 import PasswordField from "../components/PasswordField";
 import { buildVerifyOtpPath, setPendingOtpEmail } from "../../../utils/otpFlow";
 
-function getSwalThemeOptions() {
-  const styles = getComputedStyle(document.documentElement);
-  const isDark = document.documentElement.classList.contains("dark");
-  return {
-  confirmButtonColor: styles.getPropertyValue("--accent-primary").trim() || "#3b82f6",
-    background: isDark
-      ? styles.getPropertyValue("--dark-surface").trim() || "#1c0050"
-      : "#ffffff",
-    color: isDark
-      ? styles.getPropertyValue("--dark-text-primary").trim() || "#ffeefc"
-      : styles.getPropertyValue("--light-text-primary").trim() || "#2a1a3a",
-  };
-}
 
 export default function RegisterPage() {
   const navigate = useNavigate();
   const location = useLocation();
+  const theme = useTheme();
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showResend, setShowResend] = useState(false);
@@ -66,10 +55,13 @@ export default function RegisterPage() {
       : !coupleName || !name || !email || !password;
 
     if (missing) {
-      Swal.fire({
+      showThemeAlert(theme, {
         icon: "warning",
         title: "All fields required 💌",
-        ...getSwalThemeOptions(),
+        confirmText: "Okay",
+        cancelText: "",
+        showCancelButton: false,
+        confirmColor: 'warning',
       });
       return;
     }
@@ -105,25 +97,27 @@ export default function RegisterPage() {
           state: { email },
         });
       } else if (errMsg.toLowerCase().includes("already exist") || errMsg.toLowerCase().includes("user already exist")) {
-        Swal.fire({
+        showThemeAlert(theme, {
           icon: "warning",
           title: "User already exists",
           text: "An account with this email is already registered. Please sign in instead.",
-          confirmButtonText: "Go to Login",
-          showCancelButton: true,
-          cancelButtonText: "Cancel",
-          ...getSwalThemeOptions(),
+          confirmText: "Go to Login",
+          cancelText: "Cancel",
+          confirmColor: 'warning',
         }).then((result) => {
           if (result.isConfirmed) {
             navigate(`/login${inviteQuerySuffix}`);
           }
         });
       } else {
-        Swal.fire({
+        showThemeAlert(theme, {
           icon: "error",
           title: isInviteFlow ? "Join failed" : "Registration failed",
           text: errMsg,
-          ...getSwalThemeOptions(),
+          confirmText: "Okay",
+          cancelText: "",
+          showCancelButton: false,
+          confirmColor: 'error',
         });
       }
     } finally {
@@ -138,13 +132,13 @@ export default function RegisterPage() {
     setResendLoading(true);
     try {
       await resendOtp(resendEmail.trim());
-      Swal.fire({
+      showThemeAlert(theme, {
         icon: "success",
         title: "OTP sent 💌",
         text: "Check your email for the new code.",
-        ...getSwalThemeOptions(),
         timer: 2500,
         showConfirmButton: false,
+        confirmColor: 'success',
       });
       const email = resendEmail.trim();
       setPendingOtpEmail(email);
@@ -152,11 +146,14 @@ export default function RegisterPage() {
         state: { email },
       });
     } catch (err) {
-      Swal.fire({
+      showThemeAlert(theme, {
         icon: "error",
         title: "Could not resend OTP",
         text: err.response?.data?.message || "Please try again.",
-        ...getSwalThemeOptions(),
+        confirmText: "Okay",
+        cancelText: "",
+        showCancelButton: false,
+        confirmColor: 'error',
       });
     } finally {
       setResendLoading(false);
@@ -179,7 +176,7 @@ export default function RegisterPage() {
 
   return (
     <AuthPageShell
-     
+
       heroTitle={heroTitle}
       heroDescription={
         isInviteFlow
