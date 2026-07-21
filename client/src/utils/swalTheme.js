@@ -46,26 +46,26 @@ function getSwalThemeConfig(theme) {
     };
 }
 
-function applyButtonStyles(button, { background, color, border, shadow }) {
-    if (!button) {
+function applySwalThemeVariables(theme) {
+    if (typeof document === 'undefined') {
         return;
     }
 
-    button.style.background = background;
-    button.style.color = color;
-    button.style.border = border;
-    button.style.boxShadow = shadow;
-    button.style.height = '46px';
-    button.style.minWidth = '120px';
-    button.style.borderRadius = '14px';
-    button.style.fontWeight = '600';
-    button.style.transition = 'transform 0.25s ease, box-shadow 0.25s ease';
-    button.addEventListener('mouseenter', () => {
-        button.style.transform = 'scale(1.03)';
-    });
-    button.addEventListener('mouseleave', () => {
-        button.style.transform = 'scale(1)';
-    });
+    const swalTheme = getSwalThemeConfig(theme);
+    const root = document.documentElement;
+
+    root.style.setProperty('--healing-swal-bg', swalTheme.background);
+    root.style.setProperty('--healing-swal-text', swalTheme.color);
+    root.style.setProperty('--healing-swal-title', swalTheme.titleColor);
+    root.style.setProperty('--healing-swal-subtext', swalTheme.textColor);
+    root.style.setProperty('--healing-swal-border', swalTheme.border);
+    root.style.setProperty('--healing-swal-overlay', swalTheme.overlay);
+    root.style.setProperty('--healing-swal-confirm-bg', swalTheme.confirmBackground);
+    root.style.setProperty('--healing-swal-confirm-text', swalTheme.confirmColor);
+    root.style.setProperty('--healing-swal-cancel-bg', swalTheme.cancelBackground);
+    root.style.setProperty('--healing-swal-cancel-text', swalTheme.cancelColor);
+    root.style.setProperty('--healing-swal-confirm-shadow', swalTheme.confirmShadow);
+    root.style.setProperty('--healing-swal-shadow', swalTheme.boxShadow);
 }
 
 export function showThemeAlert(theme, {
@@ -77,67 +77,16 @@ export function showThemeAlert(theme, {
     confirmColor,
     showCancelButton = true,
     showConfirmButton = true,
+    showLoaderOnConfirm = false,
     customClass: customClassOverride,
     preConfirm: originalPreConfirm,
     ...rest
 }) {
     const swalTheme = getSwalThemeConfig(theme);
+    applySwalThemeVariables(theme);
 
     const didOpen = rest.didOpen;
     const mergedDidOpen = (popup) => {
-        const container = Swal.getContainer();
-        if (container) {
-            container.style.zIndex = '10070';
-            container.style.backgroundColor = swalTheme.overlay;
-            container.style.backdropFilter = swalTheme.backdropFilter;
-        }
-
-        const popupEl = popup?.querySelector('.swal2-popup');
-        if (popupEl) {
-            popupEl.style.background = swalTheme.background;
-            popupEl.style.border = swalTheme.border;
-            popupEl.style.color = swalTheme.color;
-            popupEl.style.boxShadow = swalTheme.boxShadow;
-            popupEl.style.borderRadius = '24px';
-        }
-
-        const titleEl = popup?.querySelector('.swal2-title');
-        if (titleEl) {
-            titleEl.style.color = swalTheme.titleColor;
-        }
-
-        const textEl = popup?.querySelector('.swal2-html-container');
-        if (textEl) {
-            textEl.style.color = swalTheme.textColor;
-        }
-
-        const confirmBtn = popup?.querySelector('.swal2-confirm');
-        if (confirmBtn) {
-            const background = confirmColor === 'error'
-                ? swalTheme.errorColor
-                : confirmColor === 'success'
-                    ? swalTheme.successColor
-                    : confirmColor === 'warning'
-                        ? swalTheme.warningColor
-                        : swalTheme.confirmBackground;
-            applyButtonStyles(confirmBtn, {
-                background,
-                color: swalTheme.confirmColor,
-                border: 'none',
-                shadow: swalTheme.confirmShadow,
-            });
-        }
-
-        const cancelBtn = popup?.querySelector('.swal2-cancel');
-        if (cancelBtn) {
-            applyButtonStyles(cancelBtn, {
-                background: swalTheme.cancelBackground,
-                color: swalTheme.cancelColor,
-                border: swalTheme.cancelBorder,
-                shadow: 'none',
-            });
-        }
-
         if (typeof didOpen === 'function') {
             didOpen(popup);
         }
@@ -169,12 +118,16 @@ export function showThemeAlert(theme, {
         icon,
         showCancelButton,
         showConfirmButton,
+        showLoaderOnConfirm,
         confirmButtonText: confirmText,
         cancelButtonText: cancelText,
         buttonsStyling: false,
         reverseButtons: true,
-        allowOutsideClick: () => !Swal.isLoading(),
-        allowEscapeKey: () => !Swal.isLoading(),
+        allowOutsideClick: () => true,
+        allowEscapeKey: () => true,
+        focusCancel: true,
+        returnFocus: false,
+        stopKeydownPropagation: false,
         showClass: {
             popup: 'animate__animated animate__zoomIn',
         },
@@ -205,6 +158,8 @@ export function showSuccessToast(theme, {
         toast.addEventListener('mouseleave', Swal.resumeTimer);
     };
 
+    applySwalThemeVariables(theme);
+
     return Swal.fire({
         toast: true,
         position,
@@ -219,7 +174,7 @@ export function showSuccessToast(theme, {
         background: swalTheme.background,
         color: swalTheme.color,
         customClass: {
-            popup: 'healing-swal-popup',
+            popup: 'healing-swal-popup healing-swal-toast',
         },
     });
 }

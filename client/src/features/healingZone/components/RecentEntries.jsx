@@ -144,13 +144,40 @@ export default function RecentEntries({ max = 6 }) {
     }
   };
 
+  const runConfirmAction = async ({ title, text, icon = 'question', confirmText = 'Yes', cancelText = 'Cancel', onConfirm }) => {
+    const result = await showThemeAlert(theme, {
+      title,
+      text,
+      icon,
+      confirmText,
+      cancelText,
+      showLoaderOnConfirm: true,
+      preConfirm: async () => {
+        try {
+          await onConfirm();
+          return true;
+        } catch (error) {
+          const message = error?.message || 'Something went wrong. Please try again.';
+          Swal.showValidationMessage(message);
+          return false;
+        }
+      },
+    });
+
+    if (!result.isConfirmed) {
+      return false;
+    }
+
+    return true;
+  };
+
   const handleToggleStatus = async (entry) => {
     if (!entry?.id || busyId) return;
     setBusyId(entry.id);
     const status = getStatus(entry);
     const isCompleted = status === 'completed' || status === 'forgiven';
     try {
-      const confirmResult = await showThemeAlert(theme, {
+      const confirmed = await runConfirmAction({
         title: isCompleted ? 'Mark as pending?' : 'Mark as completed?',
         text: isCompleted
           ? 'This punishment will be reopened and moved back to pending.'
@@ -158,20 +185,16 @@ export default function RecentEntries({ max = 6 }) {
         icon: 'question',
         confirmText: isCompleted ? 'Reopen' : 'Yes',
         cancelText: 'Cancel',
-        showLoaderOnConfirm: true,
-        preConfirm: async () => {
+        onConfirm: async () => {
           if (isCompleted) {
             await reopenEntry(entry.id);
           } else {
             await completeEntry(entry.id);
           }
-          return true;
         },
       });
 
-      if (!confirmResult.isConfirmed) return;
-
-      Swal.close();
+      if (!confirmed) return;
 
       if (selectedEntry?.id === entry.id) {
         setSelectedEntry((prev) => prev ? {
@@ -187,6 +210,7 @@ export default function RecentEntries({ max = 6 }) {
       promptToast('error', '❌ Something went wrong', 'Please try again.');
     } finally {
       setBusyId(null);
+      Swal.close();
     }
   };
 
@@ -204,33 +228,21 @@ export default function RecentEntries({ max = 6 }) {
     setEditDraft((prev) => ({ ...prev, [field]: value }));
   };
 
-  const hasEditChanges = () => {
-    if (!selectedEntry) return false;
-    return ['reason', 'punishment', 'description'].some((field) => String(editDraft[field] || '').trim() !== String(selectedEntry[field] || '').trim());
+  const getOriginalFieldValue = (field) => {
+    if (!selectedEntry) return '';
+    if (field === 'reason') {
+      return String(selectedEntry.reason || selectedEntry.why || '').trim();
+    }
+    return String(selectedEntry[field] || '').trim();
   };
 
-  const handleCloseEdit = async () => {
+  const hasEditChanges = () => {
+    if (!selectedEntry) return false;
+    return ['reason', 'punishment', 'description'].some((field) => String(editDraft[field] || '').trim() !== getOriginalFieldValue(field));
+  };
+
+  const handleCloseEdit = () => {
     if (!isEditing) return;
-
-    if (!hasEditChanges()) {
-      setIsEditing(false);
-      setEditDraft({
-        reason: selectedEntry?.reason || selectedEntry?.why || '',
-        punishment: selectedEntry?.punishment || '',
-        description: selectedEntry?.description || '',
-      });
-      return;
-    }
-
-    const confirmResult = await showThemeAlert(theme, {
-      title: 'Discard changes?',
-      text: 'Your edits will be lost.',
-      icon: 'warning',
-      confirmText: 'Discard',
-      cancelText: 'Keep editing',
-    });
-
-    if (!confirmResult.isConfirmed) return;
 
     setIsEditing(false);
     setEditDraft({
@@ -238,6 +250,7 @@ export default function RecentEntries({ max = 6 }) {
       punishment: selectedEntry?.punishment || '',
       description: selectedEntry?.description || '',
     });
+    setBusyId(null);
   };
 
   const handleSaveEdit = async () => {
@@ -256,7 +269,19 @@ export default function RecentEntries({ max = 6 }) {
 
     setBusyId(selectedEntry.id);
     try {
-      await editEntry(selectedEntry.id, payload);
+      const confirmed = await runConfirmAction({
+        title: 'Save changes?',
+        text: 'This will update the healing entry immediately.',
+        icon: 'question',
+        confirmText: 'Save',
+        cancelText: 'Cancel',
+        onConfirm: async () => {
+          await editEntry(selectedEntry.id, payload);
+        },
+      });
+
+      if (!confirmed) return;
+
       setSelectedEntry((prev) => prev ? {
         ...prev,
         reason: payload.reason,
@@ -270,6 +295,7 @@ export default function RecentEntries({ max = 6 }) {
       promptToast('error', '❌ Something went wrong', 'Please try again.');
     } finally {
       setBusyId(null);
+      Swal.close();
     }
   };
 
@@ -279,29 +305,27 @@ export default function RecentEntries({ max = 6 }) {
 
     setBusyId(entry.id);
     try {
-      const confirmResult = await showThemeAlert(theme, {
+      const confirmed = await runConfirmAction({
         title: 'Delete this punishment?',
         text: 'This action cannot be undone.',
         icon: 'warning',
         confirmText: 'Delete',
         cancelText: 'Cancel',
-        showLoaderOnConfirm: true,
-        preConfirm: async () => {
+        onConfirm: async () => {
           await deleteEntry(entry.id);
           deleteSucceeded = true;
-          return true;
         },
       });
 
-      if (!confirmResult.isConfirmed || !deleteSucceeded) return;
+      if (!confirmed || !deleteSucceeded) return;
 
-      Swal.close();
       closeModal();
       promptToast('success', '🗑 Entry Deleted', 'The healing entry has been removed.');
     } catch (error) {
       promptToast('error', '❌ Something went wrong', 'Please try again.');
     } finally {
       setBusyId(null);
+      Swal.close();
     }
   };
 
@@ -414,12 +438,23 @@ export default function RecentEntries({ max = 6 }) {
                 }}
               >
                 <div className="hz-entry-main">
-                  <p className="hz-entry-who">
-                    <span className="hz-chip hz-chip-apologizer">{entry.apologizer}</span>
-                    <span className="hz-entry-arrow">→</span>
-                    <span className="hz-chip hz-chip-forgiver">{entry.forgiver}</span>
-                  </p>
+                  <div className="hz-entry-people-row">
+                    <p className="hz-entry-who">
+                      <span className="hz-chip hz-chip-apologizer">{entry.apologizer}</span>
+                      <span className="hz-entry-arrow">→</span>
+                      <span className="hz-chip hz-chip-forgiver">{entry.forgiver}</span>
+                    </p>
+                  </div>
+
                   <p className="hz-entry-punish">Punishment: <span>{entry.punishment || 'No punishment assigned'}</span></p>
+
+                  {entry.reason || entry.description ? (
+                    <p className="hz-entry-context">
+                      {(entry.reason || entry.description) && (
+                        <span>{entry.reason || entry.description}</span>
+                      )}
+                    </p>
+                  ) : null}
                 </div>
 
                 <div className="hz-entry-meta">

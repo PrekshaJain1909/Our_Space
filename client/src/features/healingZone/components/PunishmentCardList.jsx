@@ -103,6 +103,7 @@ export default function PunishmentCardList({
 
     const closeDrawer = () => {
         setIsDrawerOpen(false);
+        setEditMode(false);
         window.setTimeout(() => setSelectedPunishment(null), 220);
     };
 
@@ -118,6 +119,12 @@ export default function PunishmentCardList({
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [isDrawerOpen]);
+
+    const resetDraftValues = () => {
+        if (!selectedPunishmentData) return;
+        setDraftTitle(selectedPunishmentData.reason || selectedPunishmentData.why || selectedPunishmentData.punishment || selectedPunishmentData.title || '');
+        setDraftDescription(selectedPunishmentData.description || selectedPunishmentData.message || '');
+    };
 
     const handleSaveEdit = async () => {
         if (!selectedPunishmentData?.id) return;
@@ -137,6 +144,11 @@ export default function PunishmentCardList({
         } catch (err) {
             console.error('Edit failed:', err);
         }
+    };
+
+    const handleCancelEdit = () => {
+        resetDraftValues();
+        setEditMode(false);
     };
 
     const handleDelete = async () => {
@@ -279,7 +291,7 @@ export default function PunishmentCardList({
                                     <textarea value={draftDescription} onChange={(e) => setDraftDescription(e.target.value)} />
                                 </label>
                                 <div className="hz-detail-actions">
-                                    <button type="button" className="hz-secondary-btn" onClick={() => setEditMode(false)}>Cancel</button>
+                                    <button type="button" className="hz-secondary-btn" onClick={handleCancelEdit}>Cancel</button>
                                     <button type="button" className="hz-primary-btn" onClick={handleSaveEdit}>Save</button>
                                 </div>
                             </div>
