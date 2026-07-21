@@ -1,59 +1,35 @@
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo } from "react";
 import "./HealingZone.css";
 import { useHealing } from '../context/HealingContext';
 import CoupleContext from '../../../context/CoupleContext';
 import useAuth from '../../../hooks/useAuth';
+
+const CATEGORIES = [
+  { value: 'sleep', label: '🌙 Sleep' },
+  { value: 'study', label: '📚 Study' },
+  { value: 'health', label: '💧 Health' },
+  { value: 'food', label: '🍔 Food' },
+  { value: 'communication', label: '📞 Communication' },
+  { value: 'relationship', label: '💕 Relationship' },
+  { value: 'custom', label: '🎉 Custom' },
+];
 
 export default function PromiseEntryForm({ onAddPromise }) {
   const healingCtx = useHealing();
   const { couple } = React.useContext(CoupleContext) || {};
   const { isAuthenticated, user } = useAuth();
 
-  const femaleName = couple?.partnerA?.name || couple?.femaleName || null;
-  const maleName = couple?.partnerB?.name || couple?.maleName || null;
-
-  const partners = useMemo(() => {
-    const list = [];
-    if (femaleName) list.push(femaleName);
-    if (maleName && maleName !== femaleName) list.push(maleName);
-    if (list.length === 0) return ["Partner A", "Partner B"];
-    if (list.length === 1) return [list[0], "Partner B"];
-    return list;
-  }, [femaleName, maleName]);
-
-  // default indices
-  const [fromIndex, setFromIndex] = useState(0);
-  const [toIndex, setToIndex] = useState(() => (partners.length > 1 ? 1 : 0));
+  const currentUserName = user?.name || 'You';
+  const partnerName = couple?.partnerA?.name === currentUserName
+    ? couple?.partnerB?.name
+    : couple?.partnerB?.name === currentUserName
+      ? couple?.partnerA?.name
+      : couple?.femaleName || couple?.maleName || 'Your partner';
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [category, setCategory] = useState('relationship');
   const [dueDate, setDueDate] = useState("");
-
-  const pickOther = useCallback((excludeIndex) => partners.findIndex((_, i) => i !== excludeIndex), [partners]);
-
-  const handleFromChange = useCallback((e) => {
-    const newFrom = Number(e.target.value);
-    if (Number.isNaN(newFrom) || newFrom < 0 || newFrom >= partners.length) return;
-    if (newFrom === toIndex) {
-      const newTo = pickOther(newFrom);
-      setFromIndex(newFrom);
-      setToIndex(newTo);
-    } else {
-      setFromIndex(newFrom);
-    }
-  }, [partners.length, pickOther, toIndex]);
-
-  const handleToChange = useCallback((e) => {
-    const newTo = Number(e.target.value);
-    if (Number.isNaN(newTo) || newTo < 0 || newTo >= partners.length) return;
-    if (newTo === fromIndex) {
-      const newFrom = pickOther(newTo);
-      setToIndex(newTo);
-      setFromIndex(newFrom);
-    } else {
-      setToIndex(newTo);
-    }
-  }, [partners.length, pickOther, fromIndex]);
 
   const disabledSelects = !isAuthenticated;
 
@@ -64,7 +40,9 @@ export default function PromiseEntryForm({ onAddPromise }) {
 
     const payload = {
       title: title.trim(),
-      promiseText: description || title,
+      promiseText: description || title.trim(),
+      description: description.trim(),
+      category,
       dueDate: dueDate || null,
     };
 
@@ -74,8 +52,7 @@ export default function PromiseEntryForm({ onAddPromise }) {
     setTitle("");
     setDescription("");
     setDueDate("");
-    setFromIndex(0);
-    setToIndex(partners.length > 1 ? 1 : 0);
+    setCategory('relationship');
   };
 
   return (
@@ -94,27 +71,18 @@ export default function PromiseEntryForm({ onAddPromise }) {
 
         <div className="hz-row">
           <div className="hz-field">
-            <label>From</label>
-            <select value={fromIndex} onChange={handleFromChange} disabled={disabledSelects}>
-              {partners.map((p, i) => (
-                <option key={p + i} value={i}>{p}</option>
-              ))}
-            </select>
+            <label>Made by</label>
+            <input type="text" value={currentUserName} readOnly />
           </div>
-
           <div className="hz-field">
-            <label>To</label>
-            <select value={toIndex} onChange={handleToChange} disabled={disabledSelects}>
-              {partners.map((p, i) => (
-                <option key={p + i} value={i} disabled={i === fromIndex}>{p}</option>
-              ))}
-            </select>
+            <label>Promise to</label>
+            <input type="text" value={partnerName || 'Your partner'} readOnly />
           </div>
         </div>
 
         <div className="hz-field">
           <label>Promise title</label>
-          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Monthly date night" disabled={!isAuthenticated} required />
+          <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. I promise I’ll sleep before 11 PM" disabled={!isAuthenticated} required />
         </div>
 
         <div className="hz-field">
@@ -122,9 +90,20 @@ export default function PromiseEntryForm({ onAddPromise }) {
           <textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="More details about this promise…" disabled={!isAuthenticated} />
         </div>
 
-        <div className="hz-field">
-          <label>Due date (optional)</label>
-          <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} disabled={!isAuthenticated} />
+        <div className="hz-row">
+          <div className="hz-field">
+            <label>Category</label>
+            <select value={category} onChange={(e) => setCategory(e.target.value)} disabled={disabledSelects}>
+              {CATEGORIES.map((item) => (
+                <option key={item.value} value={item.value}>{item.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="hz-field">
+            <label>Due date (optional)</label>
+            <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} disabled={!isAuthenticated} />
+          </div>
         </div>
 
         <button type="submit" className="hz-primary-btn" disabled={!isAuthenticated}>Save promise</button>

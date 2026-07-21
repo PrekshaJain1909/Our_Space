@@ -47,17 +47,17 @@ const healingApi = {
 
   /* ------------------------------ PROMISES ------------------------------ */
 
-  // Add promise
-  addPromise: (payload) =>
-    axiosClient.post("/healing/promises", payload),
+  // Request a new promise (partner must accept)
+  requestPromise: (payload) =>
+    axiosClient.post("/healing/promises/request", payload),
   /*
     payload example:
     {
-      promiser,
-      promiseTo,
+      title,
       promiseText,
       description?,
-      date?
+      category?,
+      dueDate?
     }
   */
 
@@ -65,9 +65,21 @@ const healingApi = {
   getPromises: () =>
     axiosClient.get("/healing/promises"),
 
+  // Accept a promise request
+  acceptPromise: (id) =>
+    axiosClient.patch(`/healing/promises/${id}/accept`),
+
+  // Decline a promise request
+  declinePromise: (id) =>
+    axiosClient.patch(`/healing/promises/${id}/decline`),
+
   // Fulfill a promise
   fulfillPromise: (id) =>
     axiosClient.patch(`/healing/promises/${id}/fulfill`),
+
+  // Break an active promise
+  breakPromise: (id) =>
+    axiosClient.patch(`/healing/promises/${id}/break`),
 
   // Delete a promise
   deletePromise: (id) =>
