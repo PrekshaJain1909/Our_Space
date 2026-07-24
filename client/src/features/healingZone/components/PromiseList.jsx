@@ -3,8 +3,8 @@ import './HealingZone.css';
 import { useHealing } from '../context/HealingContext';
 import useAuth from '../../../hooks/useAuth';
 
-export default function PromiseList({ onRequestComplete }) {
-  const { promises, completePromise, acceptPromise, declinePromise, breakPromise } = useHealing();
+export default function PromiseList() {
+  const { promises, acceptPromise, declinePromise, requestBreakPromise, agreeBreakPromise, disagreeBreakPromise } = useHealing();
   const { user } = useAuth();
 
   const currentUserId = user?._id || user?.id || user?.userId;
@@ -29,14 +29,13 @@ export default function PromiseList({ onRequestComplete }) {
 
   const pending = dedupedPromises.filter((p) => String(p.status).toLowerCase() === 'pending');
   const active = dedupedPromises.filter((p) => String(p.status).toLowerCase() === 'active');
-  const completed = dedupedPromises.filter((p) => String(p.status).toLowerCase() === 'completed');
+  const breakRequested = dedupedPromises.filter((p) => String(p.status).toLowerCase() === 'break_requested');
   const broken = dedupedPromises.filter((p) => String(p.status).toLowerCase() === 'broken');
   const declined = dedupedPromises.filter((p) => String(p.status).toLowerCase() === 'declined');
 
   const canRespond = (promise) => currentUserId && String(currentUserId) === String(promise.assignedTo);
-  const canModify = (promise) =>
-    currentUserId &&
-    (String(currentUserId) === String(promise.assignedTo) || String(currentUserId) === String(promise.createdBy));
+  const canRequestBreak = (promise) => currentUserId && String(currentUserId) === String(promise.assignedTo);
+  const canResolveBreak = (promise) => currentUserId && String(currentUserId) === String(promise.createdBy);
 
   if (!promises || promises.length === 0) {
     return (
@@ -109,19 +108,11 @@ export default function PromiseList({ onRequestComplete }) {
               {promise.description && <p className="hz-entry-punish">{promise.description}</p>}
             </div>
             <div className="hz-entry-meta">
-              <label style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                <input
-                  type="checkbox"
-                  checked={promise.status === 'completed'}
-                  onChange={() => (onRequestComplete ? onRequestComplete(promise.id) : completePromise?.(promise.id))}
-                />
-                <span className="hz-status hz-status-active">Active</span>
-              </label>
+              <span className="hz-status hz-status-active">Active</span>
               <span className="hz-entry-date">{formatDate(promise.createdAt)}</span>
-              {promise.dueDate && <div className="hz-entry-completed">Due by {formatDate(promise.dueDate)}</div>}
-              {canModify(promise) && (
-                <button type="button" className="hz-secondary-btn" onClick={() => breakPromise(promise.id)}>
-                  Mark broken
+              {canRequestBreak(promise) && (
+                <button type="button" className="hz-secondary-btn" onClick={() => requestBreakPromise(promise.id)}>
+                  Request break
                 </button>
               )}
             </div>
@@ -129,17 +120,15 @@ export default function PromiseList({ onRequestComplete }) {
         ))}
       </div>
 
-      {(completed.length > 0 || broken.length > 0 || declined.length > 0) && <div style={{ height: 12 }} />}
-
-      {completed.length > 0 && (
+      {breakRequested.length > 0 && (
         <>
           <div className="hz-header">
-            <span className="hz-badge">Completed Promises</span>
-            <p className="hz-subtitle">Promises that were fulfilled successfully.</p>
+            <span className="hz-badge">Break Requested</span>
+            <p className="hz-subtitle">A partner has requested to mark an accepted promise as broken.</p>
           </div>
           <div className="hz-table-list">
-            {completed.map((promise) => (
-              <article key={promise.id} className="hz-entry-row completed" style={{ transition: 'all 300ms ease' }}>
+            {breakRequested.map((promise) => (
+              <article key={promise.id} className="hz-entry-row warning" style={{ transition: 'all 300ms ease' }}>
                 <div className="hz-entry-main">
                   <p className="hz-entry-who">
                     <span className="hz-chip hz-chip-apologizer">{promise.from || 'Requester'}</span>
@@ -147,12 +136,22 @@ export default function PromiseList({ onRequestComplete }) {
                     <span className="hz-chip hz-chip-forgiver">{promise.to || 'Partner'}</span>
                   </p>
                   <p className="hz-entry-why">{promise.title || promise.promiseText || promise.description}</p>
+                  {promise.breakReason && <p className="hz-entry-punish">Reason: {promise.breakReason}</p>}
                 </div>
                 <div className="hz-entry-meta">
-                  <span className="hz-status hz-status-done">Completed</span>
+                  <span className="hz-status hz-status-warning">Break requested</span>
                   <span className="hz-entry-date">{formatDate(promise.createdAt)}</span>
-                  {promise.fulfilledAt && (
-                    <div className="hz-entry-completed">Fulfilled on {formatDate(promise.fulfilledAt)} ❤️</div>
+                  {canResolveBreak(promise) ? (
+                    <div className="hz-button-row">
+                      <button type="button" className="hz-secondary-btn" onClick={() => disagreeBreakPromise(promise.id)}>
+                        Reject
+                      </button>
+                      <button type="button" className="hz-primary-btn" onClick={() => agreeBreakPromise(promise.id)}>
+                        Agree
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="hz-entry-completed">Waiting for creator response</div>
                   )}
                 </div>
               </article>

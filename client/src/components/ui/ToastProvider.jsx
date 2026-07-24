@@ -1,45 +1,44 @@
-import React, { createContext, useContext, useState, useCallback } from "react";
+import React, { createContext, useContext, useCallback } from "react";
+import useTheme from "../../hooks/useTheme";
+import { showSuccessToast } from "../../utils/swalTheme";
 
 const ToastContext = createContext();
 
 export function ToastProvider({ children }) {
-  const [toast, setToast] = useState(null);
-  const [visible, setVisible] = useState(false);
-  const showToast = useCallback((type, message) => {
-    setToast({ type, message });
-    setVisible(true);
-    setTimeout(() => setVisible(false), 3500);
-  }, []);
-  const removeToast = useCallback(() => setVisible(false), []);
+  const theme = useTheme();
+
+  const showToast = useCallback((type, message, options = {}) => {
+    const iconMap = {
+      success: 'success',
+      error: 'error',
+      warning: 'warning',
+      info: 'info',
+    };
+
+    return showSuccessToast(theme, {
+      icon: iconMap[type] || 'info',
+      title: message,
+      text: options.text,
+      timer: options.timer || 2000,
+      position: options.position || 'top-end',
+    });
+  }, [theme]);
 
   const value = {
-    success: (msg) => showToast("success", msg),
-    error: (msg) => showToast("error", msg),
-    warning: (msg) => showToast("warning", msg),
-    info: (msg) => showToast("info", msg),
-    removeToast,
+    success: (msg, options) => showToast("success", msg, options),
+    error: (msg, options) => showToast("error", msg, options),
+    warning: (msg, options) => showToast("warning", msg, options),
+    info: (msg, options) => showToast("info", msg, options),
+    removeToast: () => null,
   };
 
   return (
     <ToastContext.Provider value={value}>
       {children}
-      <Toast message={toast?.message} type={toast?.type} visible={visible} onClose={removeToast} />
     </ToastContext.Provider>
   );
 }
 
 export function useToastContext() {
   return useContext(ToastContext);
-}
-
-function Toast({ message, type, visible, onClose }) {
-  if (!visible || !message) return null;
-
-  return (
-    <div className="toast-container" role="alert" onClick={onClose}>
-      <div className={`toast ${type || 'info'}`}>
-        {message}
-      </div>
-    </div>
-  );
 }

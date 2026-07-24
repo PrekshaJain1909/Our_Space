@@ -4,8 +4,7 @@ import { FaHeart, FaHandsHelping, FaRegHeart, FaDice, FaListUl, FaChartBar } fro
 import "../components/HealingZone.css";
 
 import HealingEntryForm from "../components/HealingEntryForm";
-import PromiseEntryForm from "../components/PromiseEntryForm";
-import PromiseList from "../components/PromiseList";
+import PromiseSection from "../components/PromiseSection";
 import ForgivenessForm from "../components/ForgivenessForm";
 import HealingEntriesTable from "../components/HealingEntriesTable";
 import HealingStats from "../components/HealingStats";
@@ -146,8 +145,7 @@ function HealingZoneInner() {
       case "promise":
         return (
           <div className="healing-block">
-            <PromiseEntryForm onAddPromise={handleAddPromise} />
-            <PromiseList onRequestComplete={handleRequestCompletePromise} />
+            <PromiseSection />
           </div>
         );
       case "forgive":

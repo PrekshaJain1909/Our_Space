@@ -15,24 +15,27 @@
   --light-surface-hover: #f6f9ff;
   --light-card-bg: rgba(245, 249, 255, 0.9);
   --light-card-border: rgba(96, 125, 255, 0.12);
-  
+
   --light-text-primary: #1f2937;
   --light-text-secondary: #4b5563;
   --light-text-tertiary: #6b7280;
-  
+
   /* Avoid light pink in light mode: use neutral/blue accents */
-  --light-accent-primary: #a78bfa; /* user-requested starting color */
-  --light-accent-secondary: #d63384; /* fuchsia-leaning pink */
-  --light-accent-tertiary: #ff9ccf; /* soft pink */
-  --light-accent-glow: rgba(179,31,91,0.10);
+  --light-accent-primary: #a78bfa;
+  /* user-requested starting color */
+  --light-accent-secondary: #d63384;
+  /* fuchsia-leaning pink */
+  --light-accent-tertiary: #ff9ccf;
+  /* soft pink */
+  --light-accent-glow: rgba(179, 31, 91, 0.10);
   --light-accent-title: #8f1a47;
   --light-text-rose: #4f1030;
   --light-text-rose-soft: #6b1438;
-  
-  --light-shadow-sm: 0 2px 8px rgba(99,102,241,0.06);
-  --light-shadow-md: 0 6px 20px rgba(99,102,241,0.08);
-  --light-shadow-lg: 0 12px 40px rgba(99,102,241,0.10);
-  
+
+  --light-shadow-sm: 0 2px 8px rgba(99, 102, 241, 0.06);
+  --light-shadow-md: 0 6px 20px rgba(99, 102, 241, 0.08);
+  --light-shadow-lg: 0 12px 40px rgba(99, 102, 241, 0.10);
+
   /* ---- DARK THEME: Arcade Valentine Mode ---- */
   --dark-bg-primary: #0a0015;
   --dark-bg-secondary: #150030;
@@ -41,28 +44,28 @@
   --dark-surface-hover: #241060;
   --dark-card-bg: rgba(26, 0, 80, 0.5);
   --dark-card-border: rgba(255, 0, 127, 0.2);
-  
+
   --dark-text-primary: #ffeefc;
   --dark-text-secondary: #d4b5ff;
   --dark-text-tertiary: #a89bbb;
-  
+
   --dark-accent-primary: #ff00ff;
   --dark-accent-secondary: #00ffff;
   --dark-accent-tertiary: #ff1493;
   --dark-accent-glow: #ff00ff;
   --dark-accent-title: #ffeefc;
   --dark-text-rose: #f3c4e1;
-  
+
   --dark-neon-pink: #ff00ff;
   --dark-neon-cyan: #00ffff;
   --dark-neon-red: #ff1493;
   --dark-neon-purple: #c700ff;
-  
+
   --dark-shadow-sm: 0 2px 12px rgba(255, 0, 255, 0.15);
   --dark-shadow-md: 0 8px 24px rgba(255, 0, 255, 0.25);
   --dark-shadow-lg: 0 16px 48px rgba(255, 0, 255, 0.35);
   --dark-shadow-glow: 0 0 40px rgba(255, 0, 255, 0.4), inset 0 0 20px rgba(0, 255, 255, 0.1);
-  
+
   /* ---- Brand Colors (Legacy Compatibility) ---- */
   --color-primary: #3b82f6;
   --color-primary-light: #93c5fd;
@@ -84,11 +87,11 @@
   --color-info: #3b82f6;
 
   /* ---- Shadows ---- */
-  --shadow-xs: 0px 1px 2px rgba(0,0,0,0.06);
-  --shadow-sm: 0px 2px 6px rgba(0,0,0,0.08);
-  --shadow-md: 0px 4px 12px rgba(0,0,0,0.1);
-  --shadow-lg: 0px 10px 20px rgba(0,0,0,0.15);
-  --shadow-xl: 0px 25px 40px rgba(0,0,0,0.18);
+  --shadow-xs: 0px 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-sm: 0px 2px 6px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0px 10px 20px rgba(0, 0, 0, 0.15);
+  --shadow-xl: 0px 25px 40px rgba(0, 0, 0, 0.18);
 
   /* ---- Border Radius Scale ---- */
   --radius-sm: 6px;
@@ -112,8 +115,90 @@
 
   /* ---- Gradients ---- */
   --gradient-primary: linear-gradient(90deg, #b31f5b, #d63384, #ff9ccf);
-  --gradient-card: linear-gradient(135deg, rgba(179,31,91,0.08), rgba(255,156,207,0.04));
-  
+  --gradient-card: linear-gradient(135deg, rgba(179, 31, 91, 0.08), rgba(255, 156, 207, 0.04));
+
+  /* ---- PROMISE SECTION PALETTE ---- */
+  --promise-panel-bg: linear-gradient(180deg, rgba(255, 244, 255, 0.92), rgba(241, 232, 255, 0.96));
+  --promise-panel-highlight: rgba(255, 94, 207, 0.18);
+  --promise-panel-shadow: rgba(255, 94, 207, 0.14);
+  --promise-panel-glow: rgba(255, 94, 207, 0.08);
+  --promise-card-bg: rgba(255, 255, 255, 0.92);
+  --promise-card-hover-bg: rgba(255, 255, 255, 0.08);
+  --promise-card-hover-border: rgba(255, 94, 207, 0.35);
+  --promise-card-hover-shadow: rgba(255, 94, 207, 0.22);
+  --promise-category-bg: rgba(236, 72, 153, 0.12);
+  --promise-category-border: rgba(236, 72, 153, 0.18);
+  --promise-category-text: #be185d;
+  --promise-view-btn-bg: rgba(255, 255, 255, 0.88);
+  --promise-view-btn-border: rgba(255, 255, 255, 0.4);
+  --promise-view-btn-hover-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  --promise-delete-color: #ef4444;
+  --promise-delete-border: rgba(239, 68, 68, 0.22);
+  --promise-action-hover-bg: rgba(248, 113, 113, 0.08);
+  --promise-btn-accept-bg: linear-gradient(135deg, #10b981, #059669);
+  --promise-btn-accept-shadow: rgba(16, 185, 129, 0.25);
+  --promise-btn-decline-bg: rgba(255, 255, 255, 0.06);
+  --promise-btn-decline-border: rgba(255, 255, 255, 0.12);
+  --promise-btn-break-bg: rgba(239, 68, 68, 0.08);
+  --promise-btn-break-border: rgba(239, 68, 68, 0.25);
+  --promise-btn-break-color: #f87171;
+  --promise-btn-agree-bg: linear-gradient(135deg, #ef4444, #dc2626);
+  --promise-btn-agree-shadow: rgba(239, 68, 68, 0.25);
+  --promise-btn-disagree-bg: rgba(255, 255, 255, 0.08);
+  --promise-btn-disagree-border: rgba(255, 255, 255, 0.15);
+  --promise-btn-edit-bg: linear-gradient(135deg, #ff5ecf 0%, #8b5cf6 100%);
+  --promise-btn-edit-shadow: rgba(139, 92, 246, 0.22);
+  --promise-btn-edit-color: #fff;
+  --promise-btn-edit-hover-shadow: rgba(236, 72, 153, 0.28);
+  --promise-search-bg: rgba(255, 255, 255, 0.05);
+  --promise-search-border: rgba(255, 255, 255, 0.12);
+  --promise-search-icon: #ffdaff;
+  --promise-filter-bg: rgba(255, 255, 255, 0.05);
+  --promise-filter-border: rgba(255, 255, 255, 0.12);
+  --promise-stat-card-bg: rgba(255, 255, 255, 0.05);
+  --promise-stat-card-border: rgba(255, 94, 207, 0.16);
+  --promise-stat-card-shadow: rgba(56, 10, 92, 0.12);
+  --promise-stat-icon-bg: rgba(255, 94, 207, 0.12);
+  --promise-stat-icon-color: #ff5ecf;
+  --promise-stat-name-color: rgba(255, 235, 251, 0.85);
+  --promise-stat-value-color: #fff;
+  --promise-stat-note-color: rgba(255, 255, 255, 0.8);
+  --promise-stat-note-excellent: #34d399;
+  --promise-stat-note-strong: #60a5fa;
+  --promise-stat-note-attention: #fbbf24;
+  --promise-stat-note-critical: #f87171;
+  --promise-stat-note-rebuild: #c084fc;
+  --promise-status-warning-bg: rgba(251, 191, 36, 0.16);
+  --promise-status-warning-color: #b45309;
+  --promise-status-warning-border: rgba(251, 191, 36, 0.28);
+  --promise-status-success-bg: rgba(16, 185, 129, 0.14);
+  --promise-status-success-color: #047857;
+  --promise-status-success-border: rgba(16, 185, 129, 0.25);
+  --promise-status-info-bg: rgba(59, 130, 246, 0.14);
+  --promise-status-info-color: #1d4ed8;
+  --promise-status-info-border: rgba(59, 130, 246, 0.25);
+  --promise-status-danger-bg: rgba(239, 68, 68, 0.14);
+  --promise-status-danger-color: #b91c1c;
+  --promise-status-danger-border: rgba(239, 68, 68, 0.25);
+  --promise-status-muted-bg: rgba(148, 163, 184, 0.18);
+  --promise-status-muted-color: #475569;
+  --promise-status-muted-border: rgba(148, 163, 184, 0.28);
+  --promise-secondary-text: rgba(17, 24, 39, 0.75);
+  --promise-text-color: #fff;
+  --promise-description-color: rgba(255, 233, 255, 0.7);
+  --promise-footer-border: rgba(255, 255, 255, 0.06);
+  --promise-footer-color: rgba(255, 255, 255, 0.45);
+  --promise-name-chip-creator-bg: rgba(255, 94, 207, 0.12);
+  --promise-name-chip-creator-color: #ff5ecf;
+  --promise-name-chip-recipient-bg: rgba(155, 92, 255, 0.12);
+  --promise-name-chip-recipient-color: #b785ff;
+  --promise-note-bg: rgba(245, 158, 11, 0.08);
+  --promise-note-color: #fbbf24;
+  --promise-arrow-color: rgba(107, 114, 128, 0.88);
+  --promise-date-color: rgba(107, 114, 128, 0.95);
+  --promise-card-footer-border: rgba(255, 255, 255, 0.06);
+  --promise-card-meta-border: rgba(255, 255, 255, 0.06);
+
   /* ---- Background Patterns ---- */
   --bg-couple-moon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 900'%3E%3Cdefs%3E%3ClinearGradient id='sky' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0%25' stop-color='%230f1a35'/%3E%3Cstop offset='100%25' stop-color='%232b4a78'/%3E%3C/linearGradient%3E%3CradialGradient id='moonGlow' cx='0.78' cy='0.24' r='0.18'%3E%3Cstop offset='0%25' stop-color='%23fff6cf' stop-opacity='1'/%3E%3Cstop offset='100%25' stop-color='%23fff6cf' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='1600' height='900' fill='url(%23sky)'/%3E%3Ccircle cx='1250' cy='205' r='175' fill='url(%23moonGlow)'/%3E%3Ccircle cx='1225' cy='195' r='78' fill='%23f8f1d6'/%3E%3Cpath d='M1216 165c18 22 17 65-1 86-12 14-31 22-50 22 18 8 40 7 58-5 29-19 36-60 16-88-5-7-11-13-18-18 2 2 3 4-5 5z' fill='%23111d37' opacity='.55'/%3E%3Cg fill='%23ffffff' opacity='.78'%3E%3Ccircle cx='250' cy='165' r='2.5'/%3E%3Ccircle cx='410' cy='245' r='1.8'/%3E%3Ccircle cx='540' cy='128' r='2.2'/%3E%3Ccircle cx='720' cy='210' r='1.9'/%3E%3Ccircle cx='940' cy='155' r='2.3'/%3E%3Ccircle cx='1040' cy='300' r='1.7'/%3E%3Ccircle cx='145' cy='310' r='1.7'/%3E%3C/g%3E%3Cpath d='M0 690c180-60 340-60 520-15s350 65 520 18 330-62 560-4v211H0z' fill='%23203861' opacity='.8'/%3E%3Cpath d='M0 735c220-66 390-34 540 10s280 78 420 34 300-66 640-18v139H0z' fill='%23162b4c' opacity='.95'/%3E%3C/svg%3E");
 }
@@ -129,24 +214,103 @@
   --surface-hover: var(--light-surface-hover);
   --card-bg: var(--light-card-bg);
   --card-border: var(--light-card-border);
-  
+
   --text-primary: var(--light-text-primary);
   --text-secondary: var(--light-text-secondary);
   --text-tertiary: var(--light-text-tertiary);
-  
+
   --accent-primary: var(--light-accent-primary);
   --accent-secondary: var(--light-accent-secondary);
   --accent-tertiary: var(--light-accent-tertiary);
   --accent-glow: var(--light-accent-glow);
-  
+
   --shadow-sm: var(--light-shadow-sm);
   --shadow-md: var(--light-shadow-md);
   --shadow-lg: var(--light-shadow-lg);
-  
+
   --color-bg: var(--light-bg-primary);
   --color-surface: var(--light-surface);
   --color-border: var(--light-card-border);
   --color-text: var(--light-text-primary);
+  --promise-panel-bg: linear-gradient(180deg, rgba(255, 244, 255, 0.92), rgba(241, 232, 255, 0.96));
+  --promise-panel-highlight: rgba(255, 94, 207, 0.18);
+  --promise-panel-shadow: rgba(255, 94, 207, 0.14);
+  --promise-panel-glow: rgba(255, 94, 207, 0.08);
+  --promise-card-bg: rgba(255, 255, 255, 0.92);
+  --promise-card-hover-bg: rgba(255, 255, 255, 0.08);
+  --promise-card-hover-border: rgba(255, 94, 207, 0.35);
+  --promise-card-hover-shadow: rgba(255, 94, 207, 0.22);
+  --promise-category-bg: rgba(236, 72, 153, 0.12);
+  --promise-category-border: rgba(236, 72, 153, 0.18);
+  --promise-category-text: #be185d;
+  --promise-view-btn-bg: rgba(255, 255, 255, 0.88);
+  --promise-view-btn-border: rgba(255, 255, 255, 0.4);
+  --promise-view-btn-hover-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+  --promise-delete-color: #ef4444;
+  --promise-delete-border: rgba(239, 68, 68, 0.22);
+  --promise-action-hover-bg: rgba(248, 113, 113, 0.08);
+  --promise-btn-accept-bg: linear-gradient(135deg, #10b981, #059669);
+  --promise-btn-accept-shadow: rgba(16, 185, 129, 0.25);
+  --promise-btn-decline-bg: rgba(255, 255, 255, 0.06);
+  --promise-btn-decline-border: rgba(255, 255, 255, 0.12);
+  --promise-btn-break-bg: rgba(239, 68, 68, 0.08);
+  --promise-btn-break-border: rgba(239, 68, 68, 0.25);
+  --promise-btn-break-color: #f87171;
+  --promise-btn-agree-bg: linear-gradient(135deg, #ef4444, #dc2626);
+  --promise-btn-agree-shadow: rgba(239, 68, 68, 0.25);
+  --promise-btn-disagree-bg: rgba(255, 255, 255, 0.08);
+  --promise-btn-disagree-border: rgba(255, 255, 255, 0.15);
+  --promise-btn-edit-bg: linear-gradient(135deg, #ff5ecf 0%, #8b5cf6 100%);
+  --promise-btn-edit-shadow: rgba(139, 92, 246, 0.22);
+  --promise-btn-edit-color: #fff;
+  --promise-btn-edit-hover-shadow: rgba(236, 72, 153, 0.28);
+  --promise-search-bg: rgba(255, 255, 255, 0.05);
+  --promise-search-border: rgba(255, 255, 255, 0.12);
+  --promise-search-icon: #ffdaff;
+  --promise-filter-bg: rgba(255, 255, 255, 0.05);
+  --promise-filter-border: rgba(255, 255, 255, 0.12);
+  --promise-stat-card-bg: rgba(255, 255, 255, 0.05);
+  --promise-stat-card-border: rgba(255, 94, 207, 0.16);
+  --promise-stat-card-shadow: rgba(56, 10, 92, 0.12);
+  --promise-stat-icon-bg: rgba(255, 94, 207, 0.12);
+  --promise-stat-icon-color: #ff5ecf;
+  --promise-stat-name-color: rgba(255, 235, 251, 0.85);
+  --promise-stat-value-color: #fff;
+  --promise-stat-note-color: rgba(255, 255, 255, 0.8);
+  --promise-stat-note-excellent: #34d399;
+  --promise-stat-note-strong: #60a5fa;
+  --promise-stat-note-attention: #fbbf24;
+  --promise-stat-note-critical: #f87171;
+  --promise-stat-note-rebuild: #c084fc;
+  --promise-status-warning-bg: rgba(251, 191, 36, 0.16);
+  --promise-status-warning-color: #b45309;
+  --promise-status-warning-border: rgba(251, 191, 36, 0.28);
+  --promise-status-success-bg: rgba(16, 185, 129, 0.14);
+  --promise-status-success-color: #047857;
+  --promise-status-success-border: rgba(16, 185, 129, 0.25);
+  --promise-status-info-bg: rgba(59, 130, 246, 0.14);
+  --promise-status-info-color: #1d4ed8;
+  --promise-status-info-border: rgba(59, 130, 246, 0.25);
+  --promise-status-danger-bg: rgba(239, 68, 68, 0.14);
+  --promise-status-danger-color: #b91c1c;
+  --promise-status-danger-border: rgba(239, 68, 68, 0.25);
+  --promise-status-muted-bg: rgba(148, 163, 184, 0.18);
+  --promise-status-muted-color: #475569;
+  --promise-status-muted-border: rgba(148, 163, 184, 0.28);
+  --promise-secondary-text: rgba(17, 24, 39, 0.75);
+  --promise-text-color: #fff;
+  --promise-description-color: rgba(255, 233, 255, 0.7);
+  --promise-footer-border: rgba(255, 255, 255, 0.06);
+  --promise-footer-color: rgba(255, 255, 255, 0.45);
+  --promise-name-chip-creator-bg: rgba(255, 94, 207, 0.12);
+  --promise-name-chip-creator-color: #ff5ecf;
+  --promise-name-chip-recipient-bg: rgba(155, 92, 255, 0.12);
+  --promise-name-chip-recipient-color: #b785ff;
+  --promise-note-bg: rgba(245, 158, 11, 0.08);
+  --promise-note-color: #fbbf24;
+  --promise-arrow-color: rgba(107, 114, 128, 0.88);
+  --promise-date-color: rgba(107, 114, 128, 0.95);
+  --promise-card-footer-border: rgba(255, 255, 255, 0.06);
 }
 
 /* ============================================
@@ -160,26 +324,104 @@
   --surface-hover: var(--dark-surface-hover);
   --card-bg: var(--dark-card-bg);
   --card-border: var(--dark-card-border);
-  
+
   --text-primary: var(--dark-text-primary);
   --text-secondary: var(--dark-text-secondary);
   --text-tertiary: var(--dark-text-tertiary);
-  
+
   --accent-primary: var(--dark-accent-primary);
   --accent-secondary: var(--dark-accent-secondary);
   --accent-tertiary: var(--dark-accent-tertiary);
   --accent-glow: var(--dark-accent-glow);
-  
+  --promise-panel-bg: linear-gradient(180deg, rgba(27, 16, 54, 0.92), rgba(35, 16, 68, 0.94));
+  --promise-panel-highlight: rgba(255, 94, 207, 0.18);
+  --promise-panel-shadow: rgba(255, 94, 207, 0.18);
+  --promise-panel-glow: rgba(255, 94, 207, 0.08);
+  --promise-card-bg: rgba(26, 0, 80, 0.72);
+  --promise-card-hover-bg: rgba(255, 255, 255, 0.08);
+  --promise-card-hover-border: rgba(255, 94, 207, 0.45);
+  --promise-card-hover-shadow: rgba(255, 94, 207, 0.22);
+  --promise-category-bg: rgba(255, 94, 207, 0.14);
+  --promise-category-border: rgba(255, 94, 207, 0.2);
+  --promise-category-text: #ffb5e8;
+  --promise-view-btn-bg: rgba(255, 255, 255, 0.08);
+  --promise-view-btn-border: rgba(255, 255, 255, 0.12);
+  --promise-view-btn-hover-shadow: 0 10px 24px rgba(255, 255, 255, 0.12);
+  --promise-delete-color: #fecaca;
+  --promise-delete-border: rgba(254, 202, 202, 0.22);
+  --promise-action-hover-bg: rgba(248, 113, 113, 0.08);
+  --promise-btn-accept-bg: linear-gradient(135deg, #10b981, #059669);
+  --promise-btn-accept-shadow: rgba(16, 185, 129, 0.25);
+  --promise-btn-decline-bg: rgba(255, 255, 255, 0.06);
+  --promise-btn-decline-border: rgba(255, 255, 255, 0.12);
+  --promise-btn-break-bg: rgba(239, 68, 68, 0.08);
+  --promise-btn-break-border: rgba(239, 68, 68, 0.25);
+  --promise-btn-break-color: #f87171;
+  --promise-btn-agree-bg: linear-gradient(135deg, #ef4444, #dc2626);
+  --promise-btn-agree-shadow: rgba(239, 68, 68, 0.25);
+  --promise-btn-disagree-bg: rgba(255, 255, 255, 0.08);
+  --promise-btn-disagree-border: rgba(255, 255, 255, 0.15);
+  --promise-btn-edit-bg: linear-gradient(135deg, #ff5ecf 0%, #8b5cf6 100%);
+  --promise-btn-edit-shadow: rgba(139, 92, 246, 0.22);
+  --promise-btn-edit-color: #fff;
+  --promise-btn-edit-hover-shadow: rgba(236, 72, 153, 0.28);
+  --promise-search-bg: rgba(255, 255, 255, 0.05);
+  --promise-search-border: rgba(255, 255, 255, 0.12);
+  --promise-search-icon: #ffdaff;
+  --promise-filter-bg: rgba(255, 255, 255, 0.05);
+  --promise-filter-border: rgba(255, 255, 255, 0.12);
+  --promise-stat-card-bg: rgba(255, 255, 255, 0.05);
+  --promise-stat-card-border: rgba(255, 94, 207, 0.16);
+  --promise-stat-card-shadow: rgba(56, 10, 92, 0.12);
+  --promise-stat-icon-bg: rgba(255, 94, 207, 0.12);
+  --promise-stat-icon-color: #ff5ecf;
+  --promise-stat-name-color: rgba(255, 235, 251, 0.85);
+  --promise-stat-value-color: #fff;
+  --promise-stat-note-color: rgba(255, 255, 255, 0.8);
+  --promise-stat-note-excellent: #34d399;
+  --promise-stat-note-strong: #60a5fa;
+  --promise-stat-note-attention: #fbbf24;
+  --promise-stat-note-critical: #f87171;
+  --promise-stat-note-rebuild: #c084fc;
+  --promise-status-warning-bg: rgba(251, 191, 36, 0.16);
+  --promise-status-warning-color: #b45309;
+  --promise-status-warning-border: rgba(251, 191, 36, 0.28);
+  --promise-status-success-bg: rgba(16, 185, 129, 0.14);
+  --promise-status-success-color: #047857;
+  --promise-status-success-border: rgba(16, 185, 129, 0.25);
+  --promise-status-info-bg: rgba(59, 130, 246, 0.14);
+  --promise-status-info-color: #1d4ed8;
+  --promise-status-info-border: rgba(59, 130, 246, 0.25);
+  --promise-status-danger-bg: rgba(239, 68, 68, 0.14);
+  --promise-status-danger-color: #b91c1c;
+  --promise-status-danger-border: rgba(239, 68, 68, 0.25);
+  --promise-status-muted-bg: rgba(148, 163, 184, 0.18);
+  --promise-status-muted-color: #c7d2fe;
+  --promise-status-muted-border: rgba(148, 163, 184, 0.28);
+  --promise-secondary-text: rgba(255, 233, 255, 0.7);
+  --promise-text-color: #fff;
+  --promise-description-color: rgba(255, 255, 255, 0.78);
+  --promise-footer-border: rgba(255, 255, 255, 0.06);
+  --promise-footer-color: rgba(255, 255, 255, 0.45);
+  --promise-name-chip-creator-bg: rgba(255, 94, 207, 0.12);
+  --promise-name-chip-creator-color: #ff5ecf;
+  --promise-name-chip-recipient-bg: rgba(155, 92, 255, 0.12);
+  --promise-name-chip-recipient-color: #b785ff;
+  --promise-note-bg: rgba(245, 158, 11, 0.08);
+  --promise-note-color: #fbbf24;
+  --promise-arrow-color: rgba(255, 255, 255, 0.65);
+  --promise-date-color: rgba(255, 255, 255, 0.72);
+  --promise-card-footer-border: rgba(255, 255, 255, 0.06);
   --shadow-sm: var(--dark-shadow-sm);
   --shadow-md: var(--dark-shadow-md);
   --shadow-lg: var(--dark-shadow-lg);
   --shadow-glow: var(--dark-shadow-glow);
-  
+
   --color-bg: var(--dark-bg-primary);
   --color-surface: var(--dark-surface);
   --color-border: var(--dark-card-border);
   --color-text: var(--dark-text-primary);
-  
+
   --shadow-md: var(--dark-shadow-md);
   --shadow-lg: var(--dark-shadow-lg);
 }

@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState } from "react";
 import "./HealingZone.css";
 import { useHealing } from '../context/HealingContext';
 import CoupleContext from '../../../context/CoupleContext';
@@ -29,7 +29,6 @@ export default function PromiseEntryForm({ onAddPromise }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [category, setCategory] = useState('relationship');
-  const [dueDate, setDueDate] = useState("");
 
   const disabledSelects = !isAuthenticated;
 
@@ -43,7 +42,6 @@ export default function PromiseEntryForm({ onAddPromise }) {
       promiseText: description || title.trim(),
       description: description.trim(),
       category,
-      dueDate: dueDate || null,
     };
 
     if (onAddPromise) onAddPromise(payload);
@@ -51,7 +49,6 @@ export default function PromiseEntryForm({ onAddPromise }) {
 
     setTitle("");
     setDescription("");
-    setDueDate("");
     setCategory('relationship');
   };
 
@@ -90,23 +87,16 @@ export default function PromiseEntryForm({ onAddPromise }) {
           <textarea rows={3} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="More details about this promise…" disabled={!isAuthenticated} />
         </div>
 
-        <div className="hz-row">
-          <div className="hz-field">
-            <label>Category</label>
-            <select value={category} onChange={(e) => setCategory(e.target.value)} disabled={disabledSelects}>
-              {CATEGORIES.map((item) => (
-                <option key={item.value} value={item.value}>{item.label}</option>
-              ))}
-            </select>
-          </div>
-
-          <div className="hz-field">
-            <label>Due date (optional)</label>
-            <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} disabled={!isAuthenticated} />
-          </div>
+        <div className="hz-field">
+          <label>Category</label>
+          <select value={category} onChange={(e) => setCategory(e.target.value)} disabled={disabledSelects}>
+            {CATEGORIES.map((item) => (
+              <option key={item.value} value={item.value}>{item.label}</option>
+            ))}
+          </select>
         </div>
 
-        <button type="submit" className="hz-primary-btn" disabled={!isAuthenticated}>Save promise</button>
+        <button type="submit" className="hz-primary-btn" disabled={!isAuthenticated}>Send promise request</button>
       </form>
     </div>
   );

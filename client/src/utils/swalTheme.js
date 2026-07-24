@@ -106,7 +106,7 @@ export function showThemeAlert(theme, {
         : undefined;
 
     const mergedCustomClass = {
-        popup: 'healing-swal-popup',
+        popup: 'healing-swal-popup healing-swal-modal',
         confirmButton: 'healing-confirm-btn',
         cancelButton: 'healing-cancel-btn',
         ...customClassOverride,
@@ -116,6 +116,7 @@ export function showThemeAlert(theme, {
         title,
         text,
         icon,
+        position: 'center',
         showCancelButton,
         showConfirmButton,
         showLoaderOnConfirm,
@@ -153,12 +154,47 @@ export function showSuccessToast(theme, {
     position = 'top-end',
 }) {
     const swalTheme = getSwalThemeConfig(theme);
+
+    applySwalThemeVariables(theme);
+
+    if (typeof document !== 'undefined') {
+        const existingToast = document.querySelector('.swal2-container.swal2-top-end');
+        if (existingToast) {
+            existingToast.remove();
+        }
+    }
+
     const toastDidOpen = (toast) => {
         toast.addEventListener('mouseenter', Swal.stopTimer);
         toast.addEventListener('mouseleave', Swal.resumeTimer);
-    };
 
-    applySwalThemeVariables(theme);
+        const popup = toast.querySelector('.swal2-popup');
+        const container = toast.closest('.swal2-container');
+
+        if (container) {
+            container.style.position = 'fixed';
+            container.style.top = '20px';
+            container.style.right = '20px';
+            container.style.left = 'auto';
+            container.style.bottom = 'auto';
+            container.style.padding = '0';
+            container.style.margin = '0';
+            container.style.background = 'transparent';
+            container.style.pointerEvents = 'auto';
+            container.style.zIndex = '99999';
+            container.style.alignItems = 'flex-start';
+            container.style.justifyContent = 'flex-end';
+        }
+
+        if (popup) {
+            popup.style.margin = '0';
+            popup.style.maxWidth = 'min(92vw, 360px)';
+            popup.style.width = 'min(92vw, 360px)';
+            popup.style.overflow = 'visible';
+            popup.style.position = 'relative';
+            popup.style.zIndex = '99999';
+        }
+    };
 
     return Swal.fire({
         toast: true,
@@ -170,12 +206,23 @@ export function showSuccessToast(theme, {
         showCancelButton: false,
         timer,
         timerProgressBar: true,
+        backdrop: false,
+        grow: 'row',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown',
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp',
+        },
         didOpen: toastDidOpen,
         background: swalTheme.background,
         color: swalTheme.color,
         customClass: {
             popup: 'healing-swal-popup healing-swal-toast',
         },
+        position: 'top-end',
     });
 }
 

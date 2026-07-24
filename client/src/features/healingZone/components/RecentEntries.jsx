@@ -127,21 +127,13 @@ export default function RecentEntries({ max = 6 }) {
   };
 
   const promptToast = (icon, title, text) => {
-    if (icon === 'success') {
-      showSuccessToast(theme, {
-        icon,
-        title,
-        text,
-      });
-    } else {
-      showThemeAlert(theme, {
-        icon,
-        title,
-        text,
-        showConfirmButton: true,
-        showCancelButton: false,
-      });
-    }
+    showSuccessToast(theme, {
+      icon,
+      title,
+      text,
+      timer: 2200,
+      position: 'top-end',
+    });
   };
 
   const runConfirmAction = async ({ title, text, icon = 'question', confirmText = 'Yes', cancelText = 'Cancel', onConfirm }) => {

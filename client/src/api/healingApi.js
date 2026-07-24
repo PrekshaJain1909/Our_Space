@@ -81,6 +81,18 @@ const healingApi = {
   breakPromise: (id) =>
     axiosClient.patch(`/healing/promises/${id}/break`),
 
+  // Request a break request for a promise
+  requestBreakPromise: (id, reason) =>
+    axiosClient.patch(`/healing/promises/${id}/request-break`, { reason }),
+
+  // Creator agrees to break request
+  agreeBreakPromise: (id) =>
+    axiosClient.patch(`/healing/promises/${id}/agree-break`),
+
+  // Creator rejects break request
+  disagreeBreakPromise: (id) =>
+    axiosClient.patch(`/healing/promises/${id}/disagree-break`),
+
   // Delete a promise
   deletePromise: (id) =>
     axiosClient.delete(`/healing/promises/${id}`),
