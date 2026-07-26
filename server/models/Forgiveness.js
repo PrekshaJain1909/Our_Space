@@ -15,7 +15,7 @@ const ForgivenessSchema = new mongoose.Schema({
   receiverId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: false },
   forgivenessMessage: { type: String, default: '' },
   forgivenessType: { type: String, enum: ['linked', 'standalone'], default: 'linked' },
-  status: { type: String, enum: ['pending','forgiven'], default: 'forgiven' },
+  status: { type: String, enum: ['pending', 'accepted', 'rejected', 'forgiven'], default: 'pending' },
   forgivenAt: { type: Date, default: null },
 }, { timestamps: true });
 

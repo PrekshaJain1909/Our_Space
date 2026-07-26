@@ -19,9 +19,6 @@ const getBaseURL = () => {
 const axiosClient = axios.create({
   baseURL: getBaseURL(),
   withCredentials: false, // allow cookies if backend uses them
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 const isPublicRoute = (url) => {
@@ -60,6 +57,18 @@ axiosClient.interceptors.request.use(
 
     if (!token && isPublicRoute(url)) {
       return config;
+    }
+
+    const isFormData = typeof FormData !== "undefined" && config.data instanceof FormData;
+
+    if (isFormData && config.headers) {
+      if (typeof config.headers.set === "function") {
+        config.headers.delete("Content-Type");
+        config.headers.delete("content-type");
+      } else {
+        delete config.headers["Content-Type"];
+        delete config.headers["content-type"];
+      }
     }
 
     if (token) {

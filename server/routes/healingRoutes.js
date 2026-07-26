@@ -14,9 +14,18 @@ router.post('/entries', authenticateToken, healingController.createEntry);
 router.get('/entries', authenticateToken, healingController.getEntries);
 router.patch('/entries/:id/complete', authenticateToken, healingController.fulfillPromise);
 
+router.post('/promises/request', authenticateToken, healingController.createPromiseRequest);
 router.post('/promises', authenticateToken, healingController.createPromise);
 router.get('/promises', authenticateToken, healingController.getPromises);
+router.patch('/promises/:id/accept', authenticateToken, healingController.acceptPromise);
+router.patch('/promises/:id/decline', authenticateToken, healingController.declinePromise);
 router.patch('/promises/:id/fulfill', authenticateToken, healingController.fulfillPromise);
+router.patch('/promises/:id/break', authenticateToken, healingController.breakPromise);
+router.patch('/promises/:id/request-break', authenticateToken, healingController.requestBreakPromise);
+router.patch('/promises/:id/agree-break', authenticateToken, healingController.agreeBreakPromise);
+router.patch('/promises/:id/disagree-break', authenticateToken, healingController.disagreeBreakPromise);
+router.put('/promises/:id', authenticateToken, healingController.updateEntry);
+router.delete('/promises/:id', authenticateToken, healingController.deleteEntry);
 
 router.post('/forgiveness', authenticateToken, healingController.createForgiveness);
 router.get('/forgiveness', authenticateToken, healingController.getForgiveness);

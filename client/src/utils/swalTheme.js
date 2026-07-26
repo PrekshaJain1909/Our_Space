@@ -68,6 +68,61 @@ function applySwalThemeVariables(theme) {
     root.style.setProperty('--healing-swal-shadow', swalTheme.boxShadow);
 }
 
+function forceSwalInteractivity(popup) {
+    if (typeof document === 'undefined' || !popup) {
+        return;
+    }
+
+    const apply = () => {
+        const container = popup.closest('.swal2-container');
+        const actions = popup.querySelector('.swal2-actions');
+        const buttons = popup.querySelectorAll('.swal2-confirm, .swal2-cancel');
+
+        if (container) {
+            container.style.zIndex = '999999';
+            container.style.pointerEvents = 'auto';
+            container.style.position = 'fixed';
+            container.style.inset = '0';
+            container.style.display = 'flex';
+            container.style.alignItems = 'center';
+            container.style.justifyContent = 'center';
+            container.style.overflow = 'auto';
+        }
+
+        popup.style.pointerEvents = 'auto';
+        popup.style.position = 'relative';
+        popup.style.zIndex = '999999';
+        popup.style.overflow = 'visible';
+
+        if (actions) {
+            actions.style.pointerEvents = 'auto';
+            actions.style.display = 'flex';
+            actions.style.visibility = 'visible';
+            actions.style.opacity = '1';
+        }
+
+        buttons.forEach((button) => {
+            button.style.setProperty('display', 'inline-flex', 'important');
+            button.style.setProperty('visibility', 'visible', 'important');
+            button.style.setProperty('opacity', '1', 'important');
+            button.style.setProperty('pointer-events', 'auto', 'important');
+            button.style.setProperty('cursor', 'pointer', 'important');
+            button.style.setProperty('position', 'relative', 'important');
+            button.style.setProperty('z-index', '1', 'important');
+            button.style.setProperty('margin', '0', 'important');
+        });
+    };
+
+    apply();
+
+    if (typeof window !== 'undefined') {
+        window.requestAnimationFrame(() => {
+            apply();
+            window.setTimeout(apply, 50);
+        });
+    }
+}
+
 export function showThemeAlert(theme, {
     title,
     text,
@@ -87,6 +142,7 @@ export function showThemeAlert(theme, {
 
     const didOpen = rest.didOpen;
     const mergedDidOpen = (popup) => {
+        forceSwalInteractivity(popup);
         if (typeof didOpen === 'function') {
             didOpen(popup);
         }
@@ -146,11 +202,11 @@ export function showThemeAlert(theme, {
     });
 }
 
-export function showSuccessToast(theme, {
+export function showToast(theme, {
     title,
     text,
     icon = 'success',
-    timer = 2000,
+    timer = 3000,
     position = 'top-end',
 }) {
     const swalTheme = getSwalThemeConfig(theme);
@@ -193,6 +249,8 @@ export function showSuccessToast(theme, {
             popup.style.overflow = 'visible';
             popup.style.position = 'relative';
             popup.style.zIndex = '99999';
+            popup.style.pointerEvents = 'auto';
+            popup.classList.add('healing-swal-toast');
         }
     };
 
@@ -204,26 +262,36 @@ export function showSuccessToast(theme, {
         text,
         showConfirmButton: false,
         showCancelButton: false,
+        showCloseButton: false,
+        buttonsStyling: false,
         timer,
         timerProgressBar: true,
         backdrop: false,
-        grow: 'row',
-        allowOutsideClick: false,
-        allowEscapeKey: false,
-        showClass: {
-            popup: 'animate__animated animate__fadeInDown',
-        },
-        hideClass: {
-            popup: 'animate__animated animate__fadeOutUp',
-        },
+        allowOutsideClick: true,
+        allowEscapeKey: true,
+        allowEnterKey: false,
+        focusConfirm: false,
+        focusCancel: false,
+        focus: false,
         didOpen: toastDidOpen,
         background: swalTheme.background,
         color: swalTheme.color,
         customClass: {
             popup: 'healing-swal-popup healing-swal-toast',
         },
-        position: 'top-end',
     });
+}
+
+export function showSuccessToast(theme, options) {
+    return showToast(theme, { ...options, icon: options?.icon || 'success' });
+}
+
+export function showErrorToast(theme, options) {
+    return showToast(theme, { ...options, icon: 'error' });
+}
+
+export function showInfoToast(theme, options) {
+    return showToast(theme, { ...options, icon: 'info' });
 }
 
 export const showConfirm = showThemeAlert;

@@ -62,21 +62,10 @@ exports.createForgiveness = async (req, res, next) => {
         receiverId: forgivenTo,
         forgivenessMessage: (forgivenessMessage || '').toString().slice(0, 5000),
         forgivenessType,
-        status: 'forgiven',
-        forgivenAt: new Date(),
+        status: 'pending',
+        forgivenAt: null,
       });
       console.log('[forgiveness:create] created forgiveness id:', forgiveness._id);
-
-      // Update original entry (only if not already marked)
-      if (orig.status !== 'forgiven') {
-        orig.status = 'forgiven';
-        orig.metadata = orig.metadata || {};
-        orig.metadata.forgivenessMessage = forgiveness.forgivenessMessage;
-        orig.metadata.forgivenAt = forgiveness.forgivenAt;
-        await orig.save();
-      }
-
-      // Real-time channel disabled: no socket emits for forgiveness
 
       // Return created forgiveness plus refreshed list for the couple
       const list = await Forgiveness.find({ coupleId: user.coupleId }).sort({ forgivenAt: -1 }).limit(200).populate('forgivenBy', 'name').populate('forgivenTo', 'name').populate('originalEntryId').populate('linkedEntryId');
@@ -111,15 +100,13 @@ exports.createForgiveness = async (req, res, next) => {
       receiverId: forgivenToId,
       forgivenessMessage: (forgivenessMessage || '').toString().slice(0, 5000),
       forgivenessType: 'standalone',
-      status: 'forgiven',
-      forgivenAt: new Date(),
+      status: 'pending',
+      forgivenAt: null,
     });
     console.log('[forgiveness:create] created standalone forgiveness id:', standalone._id);
 
-    // Real-time channel disabled: no socket emits for standalone forgiveness
-
     const list = await Forgiveness.find({ coupleId: user.coupleId }).sort({ forgivenAt: -1 }).limit(200).populate('forgivenBy', 'name').populate('forgivenTo', 'name').populate('originalEntryId').populate('linkedEntryId');
-    return res.status(201).json({ success: true, message: 'Forgiveness created', data: standalone, list } );
+    return res.status(201).json({ success: true, message: 'Forgiveness created', data: standalone, list });
   } catch (err) {
     console.error('[forgiveness:create] error:', err && err.message);
     next(err);
@@ -148,7 +135,7 @@ exports.getForgiveness = async (req, res, next) => {
     if (!user || !user.coupleId) return sendError(res, 401, 'Unauthorized');
 
     const page = Math.max(1, parseInt(req.query.page || '1', 10));
-    const limit = Math.max(1, Math.min(100, parseInt(req.query.limit || '20', 10)));
+    const limit = Math.max(1, Math.min(100, parseInt(req.query.limit || '100', 10)));
 
     const filter = { coupleId: user.coupleId };
     const total = await Forgiveness.countDocuments(filter);
@@ -169,6 +156,71 @@ exports.getForgiveness = async (req, res, next) => {
 exports.getPendingEntries = async (req, res, next) => {
   // Pending entries endpoint removed — use Healing entries via /healing/entries instead
   return res.status(410).json({ success: false, message: 'Pending entries endpoint removed' });
+};
+
+exports.acceptForgiveness = async (req, res, next) => {
+  try {
+    const user = req.user;
+    if (!user || !user.coupleId) return sendError(res, 401, 'Unauthorized');
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) return sendError(res, 400, 'Invalid id');
+
+    const forgiveness = await Forgiveness.findOne({ _id: req.params.id, coupleId: user.coupleId });
+    if (!forgiveness) return sendError(res, 404, 'Forgiveness request not found');
+    if (String(forgiveness.receiverId) !== String(user._id)) return sendError(res, 403, 'Only the recipient can accept this request');
+    if (forgiveness.status !== 'pending') return sendError(res, 400, 'Forgiveness request is not pending');
+
+    forgiveness.status = 'accepted';
+    forgiveness.forgivenAt = new Date();
+    await forgiveness.save();
+
+    if (forgiveness.originalEntryId) {
+      const original = await Healing.findById(forgiveness.originalEntryId);
+      if (original && original.status !== 'forgiven') {
+        original.status = 'forgiven';
+        original.metadata = original.metadata || {};
+        original.metadata.forgivenessMessage = forgiveness.forgivenessMessage;
+        original.metadata.forgivenAt = forgiveness.forgivenAt;
+        await original.save();
+      }
+    }
+
+    return res.json({ success: true, message: 'Forgiveness accepted', data: forgiveness });
+  } catch (err) { next(err); }
+};
+
+exports.rejectForgiveness = async (req, res, next) => {
+  try {
+    const user = req.user;
+    if (!user || !user.coupleId) return sendError(res, 401, 'Unauthorized');
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) return sendError(res, 400, 'Invalid id');
+
+    const forgiveness = await Forgiveness.findOne({ _id: req.params.id, coupleId: user.coupleId });
+    if (!forgiveness) return sendError(res, 404, 'Forgiveness request not found');
+    if (String(forgiveness.receiverId) !== String(user._id)) return sendError(res, 403, 'Only the recipient can reject this request');
+    if (forgiveness.status !== 'pending') return sendError(res, 400, 'Forgiveness request is not pending');
+
+    forgiveness.status = 'rejected';
+    forgiveness.forgivenAt = null;
+    await forgiveness.save();
+
+    return res.json({ success: true, message: 'Forgiveness rejected', data: forgiveness });
+  } catch (err) { next(err); }
+};
+
+exports.deleteForgiveness = async (req, res, next) => {
+  try {
+    const user = req.user;
+    if (!user || !user.coupleId) return sendError(res, 401, 'Unauthorized');
+    if (!mongoose.Types.ObjectId.isValid(req.params.id)) return sendError(res, 400, 'Invalid id');
+
+    const forgiveness = await Forgiveness.findOne({ _id: req.params.id, coupleId: user.coupleId });
+    if (!forgiveness) return sendError(res, 404, 'Forgiveness record not found');
+    const canDelete = String(forgiveness.forgivenBy) === String(user._id) || String(forgiveness.receiverId) === String(user._id);
+    if (!canDelete) return sendError(res, 403, 'Forbidden');
+
+    await forgiveness.deleteOne();
+    return res.json({ success: true, message: 'Forgiveness record deleted' });
+  } catch (err) { next(err); }
 };
 
 exports.getStats = async (req, res, next) => {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { registerPartnerA, registerPartnerB, resendOtp } from "../services/authApi";
-import { showThemeAlert } from "../../../utils/swalTheme";
+import { showThemeAlert, showToast } from "../../../utils/swalTheme";
 import { useTheme } from "../../../hooks/useTheme";
 import AuthPageShell from "../components/AuthPageShell";
 import AuthField from "../components/AuthField";
@@ -132,13 +132,11 @@ export default function RegisterPage() {
     setResendLoading(true);
     try {
       await resendOtp(resendEmail.trim());
-      showThemeAlert(theme, {
+      showToast(theme, {
         icon: "success",
         title: "OTP sent 💌",
         text: "Check your email for the new code.",
         timer: 2500,
-        showConfirmButton: false,
-        confirmColor: 'success',
       });
       const email = resendEmail.trim();
       setPendingOtpEmail(email);

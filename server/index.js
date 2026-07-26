@@ -2,6 +2,7 @@ require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const compression = require("compression");
 const http = require('http');
 let IOServer = null;
 try {
@@ -22,7 +23,9 @@ const tasksRoutes = require("./routes/tasksRoutes");
 const coupleRoutes = require("./routes/coupleRoutes");
 const analyticsRoutes = require("./routes/analyticsRoutes");
 const bucketRoutes = require("./routes/bucketRoutes");
+const memoryRoutes = require("./routes/memoryRoutes");
 const { verifyTransporter } = require("./service/mailService");
+const { cleanupExpiredDeletedMemories } = require("./services/memoryService");
 const tokenService = require('./service/tokenService');
 const User = require('./models/User');
 const app = express();
@@ -49,6 +52,14 @@ app.use(cors({
   credentials: true
 }));
 
+app.use(compression());
+app.use((req, res, next) => {
+  if (req.method === "GET" && req.path.startsWith("/api/memories")) {
+    res.set("Cache-Control", "private, max-age=15, stale-while-revalidate=60");
+  }
+  next();
+});
+
 app.use(express.json());
 
 console.log('[server] allowed CORS origins:', allowedOrigins.join(', '));
@@ -64,6 +75,7 @@ app.use("/api/healing/stats", statsRoutes);
 app.use("/api/couple", coupleRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/bucket", bucketRoutes);
+app.use("/api/memories", memoryRoutes);
 // New tasks endpoints (shared todo-like Healing tasks)
 app.use("/api/healing/tasks", tasksRoutes);
 
@@ -113,6 +125,11 @@ async function startServer() {
       connectTimeoutMS: 10000
     });
     console.log("✓ MongoDB Connected\n");
+
+    await cleanupExpiredDeletedMemories();
+    setInterval(() => {
+      cleanupExpiredDeletedMemories().catch((error) => console.warn("Cleanup failed:", error.message));
+    }, 60 * 60 * 1000);
 
     // Verify email service after MongoDB
     console.log('🔄 Verifying email service...');

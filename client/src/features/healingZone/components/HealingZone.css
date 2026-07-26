@@ -1808,7 +1808,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1200;
+  z-index: 999998;
+  pointer-events: auto;
 }
 
 .hz-modal {
@@ -1820,6 +1821,7 @@
   color: #fff;
   transform: translateY(-8px);
   animation: hz-modal-in 180ms ease-out forwards;
+  pointer-events: auto;
 }
 
 .hz-modal-title {

@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useCallback } from "react";
 import useTheme from "../../hooks/useTheme";
-import { showSuccessToast } from "../../utils/swalTheme";
+import { showToast } from "../../utils/swalTheme";
 
 const ToastContext = createContext();
 
@@ -15,7 +15,7 @@ export function ToastProvider({ children }) {
       info: 'info',
     };
 
-    return showSuccessToast(theme, {
+    return showToast(theme, {
       icon: iconMap[type] || 'info',
       title: message,
       text: options.text,

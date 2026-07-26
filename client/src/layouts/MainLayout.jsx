@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { Analytics } from "@vercel/analytics/react";
-import { showThemeAlert } from "../utils/swalTheme";
+import { showThemeAlert, showToast } from "../utils/swalTheme";
 import { useTheme } from "../hooks/useTheme";
 import Sidebar from "../components/Sidebar/Sidebar";
 import ThemeToggle from "../components/ui/ThemeToggle";
@@ -122,14 +122,10 @@ ${user.name} 🤍`,
         });
 
       } else {
-        showThemeAlert(theme, {
+        showToast(theme, {
           icon: "success",
           title: "Invite Link Copied 💌",
           text: "The invite link has been copied to your clipboard.",
-          confirmText: "Okay",
-          cancelText: "",
-          showCancelButton: false,
-          confirmColor: 'success',
         });
       }
     } catch (err) {
