@@ -5032,7 +5032,7 @@
 
 .hz-promise-champion-card {
   overflow: hidden;
-  min-height: 270px;
+  /* min-height: 270px; */
   background: var(--promise-panel-bg);
 }
 

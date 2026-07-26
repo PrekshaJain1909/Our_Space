@@ -71,13 +71,16 @@ export default function DashboardPage() {
       <div className="dashboard-overlay" />
 
       <div className="dashboard-inner">
-        <span className="dashboard-badge">Dashboard</span>
-        <header className="dashboard-header floating-note">
-          
-          <h1 className="dashboard-title">Welcome back, {displayName} ✨</h1>
+
+
+        <header className="memory-hero">
+          <div className="memory-hero-copy">
+            <p className="memory-badge">Dashboard</p>
+            <h1>Welcome back, {displayName} ✨</h1>
+          </div>
           <p className="dashboard-subtitle">
             {user
-              ? "Your space is ready — create, edit, and share memories together ✨" 
+              ? "Your space is ready — create, edit, and share memories together ✨"
               : "Browse everything in guest mode. Login or register when you are ready to edit."}
           </p>
         </header>

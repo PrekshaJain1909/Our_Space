@@ -29,15 +29,14 @@ export default function MoodPage() {
       <div className="mood-overlay" />
 
       <div className="mood-inner">
-        {/* Header */}
-         <p className="mood-badge">Mood & Upset Space</p>
-         <br/>
-        <header className="mood-header floating-note">
-         
-          <h1 className="mood-title">How Are We Really Doing?</h1>
-          <p className="mood-subtitle">
-            Two moods, two perspectives, one journey of understanding ✨
-          </p>
+
+
+        <header className="memory-hero">
+          <div className="memory-hero-copy">
+            <p className="memory-badge">Mood & Upset Space</p>
+            <h1>How Are We Really Doing?</h1>
+            <p className="memory-subtitle">Two moods, two perspectives, one journey of understanding ✨</p>
+          </div>
         </header>
 
         <section className="mood-column">

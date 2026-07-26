@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const WeddingVision = require('../models/WeddingVision');
+const Couple = require('../models/Couple');
 const { sanitizeText } = require('../utils/sanitize');
 const mongoose = require('mongoose');
 
@@ -33,9 +34,27 @@ exports.createVisionItem = async (req, res, next) => {
         const coupleId = getValidObjectId(user.coupleId);
         if (!coupleId) return sendError(res, 400, 'Invalid couple reference.');
 
+        const couple = await Couple.findById(coupleId).select('partnerA partnerB');
+        if (!couple) return sendError(res, 400, 'Associated couple not found.');
+
+        // determine the partner id (the other member of the couple)
+        let partnerId = null;
+        try {
+            const uid = getValidObjectId(user._id);
+            if (couple.partnerA && couple.partnerB) {
+                partnerId = couple.partnerA.toString() === uid.toString() ? couple.partnerB : couple.partnerA;
+            } else {
+                partnerId = couple.partnerA || couple.partnerB || null;
+            }
+        } catch (e) {
+            partnerId = null;
+        }
+
         const item = await WeddingVision.create({
             userId: getValidObjectId(user._id),
-
+            partnerId: getValidObjectId(partnerId),
+            coupleId: coupleId,
+            type: sanitizeText(type),
             title: sanitizeText(title),
             description: description ? sanitizeText(description) : '',
             image: sanitizeText(image),

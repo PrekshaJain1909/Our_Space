@@ -57,13 +57,25 @@ export default function MemoryGrid({ memories = [], onOpenMemory, onToggleFavori
               <div className="memory-card-badges">
                 <span className="memory-badge-pill">{memory.mood || "memory"}</span>
               </div>
-              {memory.imageUrl ? (
-                <img src={memory.imageUrl} alt={memory.title} className="memory-card-image" />
-              ) : (
-                <div className="memory-card-image memory-card-image-placeholder">
+              <>
+                <img
+                  src={memory.imageUrl || ''}
+                  alt={memory.title}
+                  className="memory-card-image"
+                  onError={(e) => {
+                    try {
+                      e.target.onerror = null;
+                      e.target.style.display = 'none';
+                      const placeholder = e.target.parentElement.querySelector('.memory-card-image-placeholder');
+                      if (placeholder) placeholder.style.display = 'flex';
+                    } catch (err) { /* ignore */ }
+                  }}
+                  style={{ display: memory.imageUrl ? 'block' : 'none' }}
+                />
+                <div className="memory-card-image memory-card-image-placeholder" style={{ display: memory.imageUrl ? 'none' : 'flex' }}>
                   <span>No photo yet</span>
                 </div>
-              )}
+              </>
             </div>
 
             <div className="memory-card-content">

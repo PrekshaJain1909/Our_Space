@@ -396,6 +396,32 @@ export default function PromiseSection() {
 
   return (
     <div className="hz-promise-dashboard-root">
+      <section className="hz-promise-panel hz-promise-champion-card">
+        <div className="hz-promise-champion-body">
+          {/* <div className="hz-promise-floating-hearts" aria-hidden="true">♥ ♡ ♥</div> */}
+          {/* <Trophy className="hz-promise-champion-trophy" size={52} aria-hidden="true" /> */}
+          <span className="hz-badge">🏆 Promise Champion</span>
+          {activeCreatedByA === activeCreatedByB ? (
+            <div className="hz-promise-champion-draw">
+              <h2>🤝 It's a Draw</h2>
+              <p>Both partners have kept the same number of promises.</p>
+            </div>
+          ) : (
+            <div className="hz-promise-champion-winner">
+              {(() => {
+                const winnerName = activeCreatedByA > activeCreatedByB ? partnerAName : partnerBName;
+                return (
+                  <>
+                    {/* <span className="hz-promise-champion-avatar">{getInitials(winnerName)}</span> */}
+                    <span className="hz-champion-label">👑 {winnerName}</span>
+                    <span className="hz-champion-count">{Math.max(activeCreatedByA, activeCreatedByB)} Active Promises</span>
+                  </>
+                );
+              })()}
+            </div>
+          )}
+        </div>
+      </section>
       <section className="hz-promise-panel hz-promise-form-card">
         <div className="hz-promise-panel-header">
 
@@ -451,32 +477,7 @@ export default function PromiseSection() {
         </form>
       </section>
 
-      <section className="hz-promise-panel hz-promise-champion-card">
-        <div className="hz-promise-champion-body">
-          {/* <div className="hz-promise-floating-hearts" aria-hidden="true">♥ ♡ ♥</div> */}
-          {/* <Trophy className="hz-promise-champion-trophy" size={52} aria-hidden="true" /> */}
-          <span className="hz-badge">🏆 Promise Champion</span>
-          {activeCreatedByA === activeCreatedByB ? (
-            <div className="hz-promise-champion-draw">
-              <h2>🤝 It's a Draw</h2>
-              <p>Both partners have kept the same number of promises.</p>
-            </div>
-          ) : (
-            <div className="hz-promise-champion-winner">
-              {(() => {
-                const winnerName = activeCreatedByA > activeCreatedByB ? partnerAName : partnerBName;
-                return (
-                  <>
-                    {/* <span className="hz-promise-champion-avatar">{getInitials(winnerName)}</span> */}
-                    <span className="hz-champion-label">👑 {winnerName}</span>
-                    <span className="hz-champion-count">{Math.max(activeCreatedByA, activeCreatedByB)} Active Promises</span>
-                  </>
-                );
-              })()}
-            </div>
-          )}
-        </div>
-      </section>
+
 
       <section className="hz-promise-stats-grid">
         <div className="hz-promise-stat-card">

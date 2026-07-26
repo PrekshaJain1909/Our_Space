@@ -84,72 +84,73 @@ export default function LoveNoteForm({
   };
 
   return (
-    <div className="ln-card">
-
-      <div className="ln-header">
-        <div className="ln-badge">Add Love Note</div>
-        <div className="ln-subtitle">
-          Write a little note of love to re-read on sad days 💖
+    <>
+      <header className="memory-hero">
+        <div className="memory-hero-copy">
+          <p className="memory-badge">Add Love Note</p>
+          <h1>Write a little note of love to re-read on sad days 💖</h1>
         </div>
+      </header>
+      <div className="ln-card">
+
+        <form className="ln-form" onSubmit={handleSubmit}>
+          {!isAuthenticated && (
+            <div className="ln-subtitle" style={{ marginBottom: 12 }}>
+              Guest mode: this form is visible but locked until you login or register.
+            </div>
+          )}
+
+          <div className="ln-form-row">
+
+            <div className="ln-field">
+              <label>From</label>
+              <select value={fromIndex} onChange={handleFromChange} disabled={disabledSelects}>
+                {partners.map((p, i) => (
+                  <option key={p + i} value={i}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="ln-field">
+              <label>To</label>
+              <select value={toIndex} onChange={handleToChange} disabled={disabledSelects}>
+                {partners.map((p, i) => (
+                  <option key={p + i} value={i} disabled={i === fromIndex}>
+                    {p}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+          </div>
+
+          <div className="ln-field">
+            <input
+              placeholder="e.g. Reasons I love you..."
+              value={title}
+              disabled={!isAuthenticated}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </div>
+
+          <div className="ln-field">
+            <textarea
+              rows="4"
+              placeholder="Write your heart out…"
+              value={content}
+              disabled={!isAuthenticated}
+              onChange={(e) => setContent(e.target.value)}
+            />
+          </div>
+
+          <button className="ln-primary-btn" disabled={!isAuthenticated}>
+            {isAuthenticated ? "Save Love Note" : "Save Love Note (Login Required)"}
+          </button>
+
+        </form>
       </div>
-
-      <form className="ln-form" onSubmit={handleSubmit}>
-        {!isAuthenticated && (
-          <div className="ln-subtitle" style={{ marginBottom: 12 }}>
-            Guest mode: this form is visible but locked until you login or register.
-          </div>
-        )}
-
-        <div className="ln-form-row">
-
-          <div className="ln-field">
-            <label>From</label>
-            <select value={fromIndex} onChange={handleFromChange} disabled={disabledSelects}>
-              {partners.map((p, i) => (
-                <option key={p + i} value={i}>
-                  {p}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="ln-field">
-            <label>To</label>
-            <select value={toIndex} onChange={handleToChange} disabled={disabledSelects}>
-              {partners.map((p, i) => (
-                <option key={p + i} value={i} disabled={i === fromIndex}>
-                  {p}
-                </option>
-              ))}
-            </select>
-          </div>
-
-        </div>
-
-        <div className="ln-field">
-          <input
-            placeholder="e.g. Reasons I love you..."
-            value={title}
-            disabled={!isAuthenticated}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </div>
-
-        <div className="ln-field">
-          <textarea
-            rows="4"
-            placeholder="Write your heart out…"
-            value={content}
-            disabled={!isAuthenticated}
-            onChange={(e) => setContent(e.target.value)}
-          />
-        </div>
-
-        <button className="ln-primary-btn" disabled={!isAuthenticated}>
-          {isAuthenticated ? "Save Love Note" : "Save Love Note (Login Required)"}
-        </button>
-
-      </form>
-    </div>
+    </>
   );
 }

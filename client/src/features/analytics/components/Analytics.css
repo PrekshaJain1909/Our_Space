@@ -4,21 +4,34 @@
   position: relative;
   min-height: 100vh;
   width: 100%;
+  background-color: var(--bg-primary);
   background-image: var(--bg-couple-moon);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  color: #ffe9ff;
+  color: var(--text-primary);
   display: flex;
   justify-content: center;
+}
+
+:root:not(.dark) .analytics-wrapper {
+  background-image: none;
 }
 
 .analytics-overlay {
   position: absolute;
   inset: 0;
   background: radial-gradient(circle at bottom,
-      rgba(255, 140, 140, 0.5),
+      rgba(255, 140, 140, 0.14),
+      transparent 55%),
+    linear-gradient(to top, rgba(255, 255, 255, 0.65), rgba(245, 229, 255, 0.7));
+  mix-blend-mode: normal;
+}
+
+:root.dark .analytics-overlay {
+  background: radial-gradient(circle at bottom,
+      rgba(255, 88, 210, 0.3),
       transparent 55%),
     linear-gradient(to top, rgba(4, 0, 24, 0.9), rgba(21, 5, 51, 0.85));
   mix-blend-mode: multiply;
@@ -46,9 +59,9 @@
   gap: 10px;
   border-radius: 999px;
   padding: 12px 24px;
-  border: 1px solid rgba(255, 255, 255, 0.16);
-  background: linear-gradient(135deg, rgba(179, 31, 91, 0.18), rgba(139, 92, 246, 0.14));
-  color: #ffffff;
+  border: 1px solid var(--card-border);
+  background: var(--surface-hover);
+  color: var(--text-primary);
   box-shadow: 0 0 0 rgba(0, 0, 0, 0);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
@@ -60,9 +73,9 @@
 .memory-modal-back-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 18px 40px rgba(139, 92, 246, 0.24);
-  background: linear-gradient(135deg, rgba(179, 31, 91, 0.28), rgba(139, 92, 246, 0.26));
-  border-color: rgba(255, 255, 255, 0.22);
-  color: #ffffff;
+  background: var(--surface);
+  border-color: var(--accent-secondary);
+  color: var(--text-primary);
 }
 
 .memory-modal-back-btn:active {
@@ -123,12 +136,14 @@
 .analytics-title {
   font-size: 26px;
   margin-bottom: 4px;
-  text-shadow: 0 0 18px rgba(255, 182, 255, 0.35);
+  color: var(--text-primary);
+  text-shadow: 0 0 18px rgba(179, 31, 91, 0.12);
 }
 
 .analytics-subtitle {
   font-size: 13px;
   opacity: 0.9;
+  color: var(--text-secondary);
 }
 
 /* ===== TABS ===== */
@@ -142,13 +157,13 @@
 
 .analytics-tab-btn {
   border-radius: 999px;
-  border: 1px solid rgba(255, 196, 255, 0.5);
-  background: rgba(8, 0, 30, 0.75);
-  color: #ffe2ff;
+  border: 1px solid var(--card-border);
+  background: var(--surface-hover);
+  color: var(--text-secondary);
   font-size: 12px;
   padding: 6px 12px;
   cursor: pointer;
-  transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease;
+  transition: background 0.18s ease, box-shadow 0.18s ease, transform 0.18s ease, color 0.18s ease, border-color 0.18s ease;
 }
 
 .analytics-tab-btn-active {
@@ -159,6 +174,7 @@
 
 .analytics-tab-btn:hover {
   transform: translateY(-1px);
+  background: var(--surface);
 }
 
 /* ===== TAB CONTENT LAYOUT ===== */
@@ -181,19 +197,18 @@
 /* ===== BASE CARD ===== */
 
 .an-card {
-  background: rgba(15, 6, 40, 0.9);
+  background: var(--surface);
   border-radius: 22px;
   padding: 18px 18px 16px;
-  border: 1px solid rgba(255, 177, 244, 0.4);
+  border: 1px solid var(--card-border);
   backdrop-filter: blur(18px);
-  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
-  color: #ffe9ff;
+  box-shadow: var(--shadow-lg);
+  color: var(--text-primary);
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-/* Light mode: make cards white with pink borders and small shadow */
 :root:not(.dark) .an-card {
   background: #ffffff;
   border: 1px solid #fde7f2;
@@ -218,12 +233,13 @@
   letter-spacing: 0.06em;
   background: rgba(255, 183, 255, 0.16);
   border: 1px solid rgba(255, 208, 255, 0.8);
-  color: #ffdfff;
+  color: var(--accent-primary);
 }
 
 .an-subtitle {
   font-size: 12px;
   opacity: 0.85;
+  color: var(--text-secondary);
 }
 
 /* ===== FORMS ===== */
@@ -249,16 +265,16 @@
 .an-field label {
   font-size: 13px;
   margin-bottom: 4px;
-  color: #ffd4ff;
+  color: var(--text-secondary);
 }
 
 .an-field input,
 .an-field textarea,
 .an-field select {
   border-radius: 12px;
-  border: 1px solid rgba(255, 184, 255, 0.4);
-  background: rgba(7, 0, 31, 0.8);
-  color: #fff;
+  border: 1px solid var(--card-border);
+  background: var(--surface-hover);
+  color: var(--text-primary);
   padding: 9px 12px;
   font-size: 14px;
   outline: none;
@@ -272,13 +288,13 @@
 
 .an-field input::placeholder,
 .an-field textarea::placeholder {
-  color: rgba(255, 220, 255, 0.6);
+  color: var(--text-tertiary);
 }
 
 .an-field input:focus,
 .an-field textarea:focus,
 .an-field select:focus {
-  background: rgba(18, 5, 55, 0.95);
+  background: var(--surface);
   border-color: var(--accent-primary);
   box-shadow: 0 0 0 1px var(--accent-glow);
 }
@@ -318,10 +334,9 @@
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
-  background-image: linear-gradient(90deg, #ec4899, #fb7185);
-  /* pink gradient */
+  background-image: var(--gradient-primary);
   color: #fff;
-  box-shadow: 0 8px 22px rgba(236, 72, 153, 0.12);
+  box-shadow: var(--shadow-sm);
   transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
 }
 
@@ -333,7 +348,7 @@
 
 .an-primary-btn:active {
   transform: translateY(1px) scale(0.99);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 /* ===== EMPTY STATE ===== */
@@ -364,7 +379,7 @@
   flex: 1;
   width: 100%;
   border-radius: 999px;
-  background: rgba(255, 218, 255, 0.13);
+  background: var(--surface-hover);
   display: flex;
   align-items: flex-end;
   overflow: hidden;
@@ -410,8 +425,8 @@
   display: inline-flex;
   padding: 2px;
   border-radius: 999px;
-  background: rgba(8, 0, 30, 0.85);
-  border: 1px solid rgba(255, 196, 255, 0.4);
+  background: var(--surface-hover);
+  border: 1px solid var(--card-border);
 }
 
 .an-range-btn {
@@ -420,7 +435,7 @@
   padding: 4px 12px;
   font-size: 11px;
   cursor: pointer;
-  color: #ffdfff;
+  color: var(--text-secondary);
   border-radius: 999px;
 }
 
@@ -461,14 +476,14 @@
 .an-rel-track {
   height: 16px;
   border-radius: 999px;
-  background: rgba(255, 218, 255, 0.15);
+  background: var(--surface-hover);
   overflow: hidden;
 }
 
 .an-rel-fill {
   height: 100%;
   border-radius: 999px;
-  box-shadow: 0 0 10px rgba(255, 140, 215, 0.9);
+  box-shadow: 0 0 10px var(--accent-glow);
 }
 
 .an-rel-kiss {
@@ -504,9 +519,9 @@
   overflow: hidden;
   border-radius: 24px;
   padding: 34px 28px;
-  background: linear-gradient(135deg, rgba(72, 16, 120, 0.96), rgba(148, 46, 215, 0.95));
-  box-shadow: 0 30px 80px rgba(51, 17, 88, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--card-bg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--card-border);
   backdrop-filter: blur(24px);
   margin-bottom: 28px;
 }
@@ -514,7 +529,7 @@
 .smoking-hero-glow {
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at top right, rgba(255, 88, 210, 0.3), transparent 40%);
+  background: radial-gradient(circle at top right, var(--accent-glow), transparent 40%);
   pointer-events: none;
 }
 
@@ -533,7 +548,7 @@
   padding: 8px 14px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.12);
-  color: #ffe9ff;
+  color: var(--accent-primary);
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -543,12 +558,12 @@
   font-size: clamp(2rem, 3vw, 3.3rem);
   line-height: 1.03;
   margin: 18px 0 10px;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .smoking-hero-copy {
   max-width: 620px;
-  color: rgba(255, 255, 255, 0.88);
+  color: var(--text-secondary);
   font-size: 15px;
   line-height: 1.75;
 }
@@ -564,17 +579,17 @@
   gap: 6px;
   padding: 16px 18px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: var(--surface-hover);
+  border: 1px solid var(--card-border);
 }
 
 .smoking-hero-meta-item span {
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
   font-size: 12px;
 }
 
 .smoking-hero-meta-item strong {
-  color: #fff;
+  color: var(--text-primary);
   font-size: 16px;
 }
 
@@ -609,9 +624,9 @@
   gap: 18px;
   padding: 22px 24px;
   border-radius: 24px;
-  background: rgba(15, 6, 40, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 16px 40px rgba(8, 5, 22, 0.25);
+  background: var(--surface);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-md);
 }
 
 .smoking-panel-label {
@@ -619,12 +634,12 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: #f9f5ff;
+  color: var(--accent-secondary);
 }
 
 .smoking-panel-copy {
   margin-top: 6px;
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--text-secondary);
   font-size: 13px;
   max-width: 560px;
 }
@@ -640,8 +655,8 @@
   gap: 8px;
   padding: 8px 12px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  color: #fff;
+  background: var(--surface-hover);
+  color: var(--text-primary);
   font-size: 12px;
 }
 
@@ -671,9 +686,9 @@
 .smoking-calendar-panel {
   border-radius: 24px;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(11, 5, 32, 0.9);
-  box-shadow: 0 18px 40px rgba(12, 10, 28, 0.45);
+  border: 1px solid var(--card-border);
+  background: var(--surface);
+  box-shadow: var(--shadow-md);
 }
 
 .calendar-weekdays {
@@ -681,7 +696,7 @@
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 8px;
   padding: 18px 20px 0;
-  color: rgba(255, 255, 255, 0.55);
+  color: var(--text-secondary);
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.12em;
@@ -692,27 +707,27 @@
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 12px;
   padding: 20px;
-  background: linear-gradient(180deg, rgba(24, 8, 50, 0.95), rgba(14, 6, 37, 0.99));
+  background: var(--surface-hover);
 }
 
 .calendar-cell {
   min-height: 104px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface);
+  border: 1px solid var(--card-border);
   padding: 12px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   gap: 10px;
   transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
-  color: rgba(255, 255, 255, 0.92);
+  color: var(--text-primary);
 }
 
 .calendar-cell:hover {
   transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--accent-secondary);
+  background: var(--surface-hover);
 }
 
 .calendar-cell.empty {
@@ -737,12 +752,12 @@
 
 .calendar-cell-count {
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.85);
+  color: var(--text-secondary);
 }
 
 .calendar-cell-note {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.65);
+  color: var(--text-tertiary);
   min-height: 32px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -750,9 +765,9 @@
 
 .smoking-summary-card {
   border-radius: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 18px 40px rgba(6, 3, 22, 0.28);
-  background: rgba(14, 5, 41, 0.92);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-md);
+  background: var(--surface);
   padding: 24px;
 }
 
@@ -782,8 +797,8 @@
   align-items: center;
   padding: 18px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-hover);
+  border: 1px solid var(--card-border);
 }
 
 .smoking-metric-icon {
@@ -793,7 +808,7 @@
   display: grid;
   place-items: center;
   background: linear-gradient(135deg, rgba(236, 72, 153, 0.22), rgba(139, 92, 246, 0.22));
-  color: #fff;
+  color: var(--accent-primary);
   font-size: 18px;
 }
 
@@ -801,20 +816,20 @@
   font-size: 12px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.72);
+  color: var(--text-secondary);
 }
 
 .smoking-metric-value {
   font-size: 20px;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .smoking-trend-panel {
   padding: 20px;
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-hover);
+  border: 1px solid var(--card-border);
 }
 
 .smoking-trend-chart {
@@ -829,7 +844,7 @@
 }
 
 .smoking-chart-empty {
-  color: rgba(255, 255, 255, 0.68);
+  color: var(--text-secondary);
   text-align: center;
   font-size: 13px;
 }
@@ -839,7 +854,7 @@
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 12px;
   margin-top: 14px;
-  color: rgba(255, 255, 255, 0.65);
+  color: var(--text-secondary);
   font-size: 11px;
 }
 
@@ -856,12 +871,12 @@
 .smoking-achievement-card {
   padding: 18px;
   border-radius: 20px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-hover);
+  border: 1px solid var(--card-border);
 }
 
 .smoking-achievement-title {
-  color: rgba(255, 255, 255, 0.75);
+  color: var(--text-secondary);
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -871,26 +886,26 @@
 .smoking-achievement-value {
   font-size: 28px;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
 }
 
 .smoking-achievement-note {
   margin-top: 10px;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.68);
+  color: var(--text-secondary);
 }
 
 .smoking-activity-card {
   border-radius: 24px;
-  background: rgba(14, 5, 41, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface);
+  border: 1px solid var(--card-border);
   padding: 24px;
 }
 
 .smoking-activity-title {
   font-size: 16px;
   font-weight: 700;
-  color: #fff;
+  color: var(--text-primary);
   margin-bottom: 18px;
 }
 
@@ -906,13 +921,13 @@
   align-items: center;
   padding: 18px;
   border-radius: 18px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--surface-hover);
+  border: 1px solid var(--card-border);
 }
 
 .smoking-timeline-badge {
   font-size: 12px;
-  color: rgba(255, 255, 255, 0.7);
+  color: var(--text-secondary);
 }
 
 .smoking-timeline-main {
@@ -923,17 +938,17 @@
 
 .smoking-timeline-status {
   font-size: 14px;
-  color: #fff;
+  color: var(--text-primary);
   font-weight: 600;
 }
 
 .smoking-timeline-note {
-  color: rgba(255, 255, 255, 0.66);
+  color: var(--text-secondary);
   font-size: 12px;
 }
 
 .smoking-timeline-meta {
-  color: rgba(255, 255, 255, 0.68);
+  color: var(--text-tertiary);
   font-size: 12px;
 }
 
@@ -942,9 +957,9 @@
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
-  color: #fff;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  background: var(--surface-hover);
+  border: 1px solid var(--card-border);
 }
 
 .smoking-timeline-pill.status-good {
@@ -960,7 +975,7 @@
 }
 
 .smoking-timeline-pill.status-unknown {
-  background: rgba(255, 255, 255, 0.08);
+  background: var(--surface-hover);
 }
 
 @media (max-width: 980px) {

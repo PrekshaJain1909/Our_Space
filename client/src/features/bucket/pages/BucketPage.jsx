@@ -8,7 +8,7 @@ import BucketProgressBar from "../../../components/bucket/BucketProgressBar";
 import BucketConfirmModal from "../../../components/bucket/BucketConfirmModal";
 import bucketApi from '../../../api/bucketApi';
 import WeddingVisionForm from "../components/WeddingVisionForm";
-import WeddingVisionGallery from "../components/WeddingVisionGallery";
+import WeddingVisionGrid from "../components/WeddingVisionGrid";
 import Modal from '../../../components/ui/Modal.jsx';
 
 export default function BucketPage() {
@@ -120,6 +120,7 @@ export default function BucketPage() {
   }, []);
 
   const [partners, setPartners] = React.useState([]);
+  const [weddingFilter, setWeddingFilter] = React.useState('all');
 
   const reload = async () => {
     try {
@@ -330,7 +331,33 @@ export default function BucketPage() {
               </div>
 
               <div className="bucket-block">
-                <WeddingVisionGallery items={weddingItems} onDelete={handleDeleteWeddingItem} />
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
+                  <div style={{ fontSize: 13, color: 'var(--text-secondary)', marginRight: 6 }}>Type:</div>
+                  {['all', 'venue', 'dress', 'decoration', 'cake', 'invitation', 'jewelry', 'photography', 'makeup', 'honeymoon', 'food', 'music', 'others'].map((t) => (
+                    <button
+                      key={t}
+                      type="button"
+                      className={`tag small ${weddingFilter === t ? 'default' : ''}`}
+                      onClick={() => setWeddingFilter(t)}
+                    >{t === 'all' ? 'All' : t.charAt(0).toUpperCase() + t.slice(1)}</button>
+                  ))}
+                </div>
+
+                <WeddingVisionGrid
+                  items={weddingItems.filter(it => weddingFilter === 'all' ? true : (it.type || '').toLowerCase() === weddingFilter)}
+                  onDelete={handleDeleteWeddingItem}
+                  onToggleFavorite={async (id) => {
+                    try {
+                      const item = weddingItems.find(i => (i._id || i.id) === id);
+                      if (!item) return;
+                      const res = await bucketApi.updateVisionItem(id, { favorite: !Boolean(item.favorite) });
+                      const updated = res.data?.data || res.data;
+                      setWeddingItems(prev => prev.map(p => (p._id === id || p.id === id) ? updated : p));
+                    } catch (e) { console.warn('Toggle favorite failed', e); }
+                  }}
+                  onShare={(mem) => { /* optional: implement share */ }}
+                  onAddFirst={() => { /* focus form or scroll to form */ window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                />
               </div>
             </div>
           )}

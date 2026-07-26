@@ -6,7 +6,7 @@ import "./Bucket.css";
 
 export default function WeddingVisionForm({ onAdd }) {
   const theme = useTheme();
-  const [type, setType] = useState("location");
+  const [type, setType] = useState("venue");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [referenceLink, setReferenceLink] = useState("");
@@ -109,11 +109,18 @@ export default function WeddingVisionForm({ onAdd }) {
           <div className="bk-field">
             <label>Type</label>
             <select value={type} onChange={(e) => setType(e.target.value)}>
-              <option value="location">Location</option>
-              <option value="dress">Dress / Outfit</option>
-              <option value="decor">Decor</option>
-              <option value="playlist">Playlist / Song</option>
-              <option value="idea">Idea / Vibe</option>
+              <option value="venue">Venue</option>
+              <option value="dress">Dress</option>
+              <option value="decoration">Decoration</option>
+              <option value="cake">Cake</option>
+              <option value="invitation">Invitation</option>
+              <option value="jewelry">Jewelry</option>
+              <option value="photography">Photography</option>
+              <option value="makeup">Makeup</option>
+              <option value="honeymoon">Honeymoon</option>
+              <option value="food">Food</option>
+              <option value="music">Music</option>
+              <option value="others">Others</option>
             </select>
           </div>
 
