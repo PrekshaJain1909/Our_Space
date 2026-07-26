@@ -197,12 +197,10 @@
   font-weight: 600;
   cursor: pointer;
   color: #fff;
-  background-image: linear-gradient(
-    90deg,
-    var(--accent-primary),
-    color-mix(in srgb, var(--accent-primary) 72%, var(--accent-secondary) 28%),
-    var(--accent-secondary)
-  );
+  background-image: linear-gradient(90deg,
+      var(--accent-primary),
+      color-mix(in srgb, var(--accent-primary) 72%, var(--accent-secondary) 28%),
+      var(--accent-secondary));
   box-shadow: var(--shadow-sm);
   transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
 }
@@ -222,6 +220,22 @@
   max-height: 340px;
   overflow-y: auto;
   padding-right: 4px;
+}
+
+.ln-filters-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.ln-word-list {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--text-primary);
+}
+
+.ln-filters {
+  margin-top: 6px;
 }
 
 .ln-empty {
@@ -313,6 +327,7 @@
 
 /* Responsive */
 @media (max-width: 700px) {
+
   .ln-form-row,
   .ln-filters {
     flex-direction: column;

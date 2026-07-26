@@ -619,6 +619,26 @@ exports.getAlbumById = asyncHandler(async (req, res) => {
     res.status(200).json({ success: true, data: { album, memories } });
 });
 
+exports.getAlbumPhotos = asyncHandler(async (req, res) => {
+    const { albumId } = req.params;
+    if (!Types.ObjectId.isValid(albumId)) {
+        return res.status(400).json({ success: false, message: "Invalid album id format." });
+    }
+
+    const coupleId = getCoupleIdOrThrow(req);
+    const sortParam = String(req.query.sort || "newest").toLowerCase();
+    const sortCriteria = sortParam === "oldest" ? { createdAt: 1 } : { createdAt: -1 };
+
+    const album = await Album.findOne({ _id: albumId, coupleId, deleted: false }).lean();
+    if (!album) {
+        return res.status(404).json({ success: false, message: "Album not found." });
+    }
+
+    const photos = await buildLeanMemoryQuery(Memory.find({ coupleId, albumId, deleted: false, photos: { $ne: [] } }).sort(sortCriteria)).lean();
+
+    res.status(200).json({ success: true, data: photos });
+});
+
 exports.createAlbum = asyncHandler(async (req, res) => {
     const coupleId = getCoupleIdOrThrow(req);
     const { name, description, coverImage } = req.body;

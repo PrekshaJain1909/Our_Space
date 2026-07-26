@@ -3,6 +3,7 @@ const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const compression = require("compression");
+const path = require('path');
 const http = require('http');
 let IOServer = null;
 try {
@@ -75,9 +76,11 @@ app.use("/api/healing/stats", statsRoutes);
 app.use("/api/couple", coupleRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/bucket", bucketRoutes);
+app.use("/api/wedding-vision", require("./routes/weddingVisionRoutes"));
 app.use("/api/memories", memoryRoutes);
 // New tasks endpoints (shared todo-like Healing tasks)
 app.use("/api/healing/tasks", tasksRoutes);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Register global error handler (must come after route definitions)
 const { errorHandler } = require("./middleware/errorMiddleware");

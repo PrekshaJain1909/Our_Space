@@ -12,6 +12,7 @@ const memoryApi = {
   deleteForever: (id) => axiosClient.delete(`/memories/permanent/${id}`),
   getFolders: () => axiosClient.get("/memories/folders"),
   getAlbums: () => axiosClient.get("/memories/albums"),
+  getAlbumPhotos: (albumId, params = {}) => axiosClient.get(`/memories/albums/${albumId}/photos`, { params }),
   createAlbum: (payload) => axiosClient.post("/memories/albums", payload),
   updateAlbum: (id, payload) => axiosClient.patch(`/memories/albums/${id}`, payload),
   createAlbumDeleteRequest: (id) => axiosClient.post(`/memories/albums/${id}/delete-request`),

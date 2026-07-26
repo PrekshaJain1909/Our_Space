@@ -1,6 +1,6 @@
 import React from "react";
 
-export default function MonthlySummary(){
+export default function MonthlySummary() {
   return (
     <div className="p-4 rounded-lg bg-gradient-to-r from-indigo-900/5 to-violet-800/5">
       <h3 className="font-semibold">Monthly Details</h3>

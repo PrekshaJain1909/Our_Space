@@ -13,6 +13,8 @@ import {
   Upload,
   Undo2,
   X,
+  ChevronDown,
+  Check,
 } from "lucide-react";
 import "../MemoryBox.css";
 
@@ -224,6 +226,65 @@ const matchesFolder = (memory, folderId) => {
   }
 };
 
+function MemorySortDropdown({ value = "newest", onChange = () => { }, disabled = false }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+
+  const theme = useTheme();
+  const isDark = theme?.palette?.mode === "dark";
+
+  useEffect(() => {
+    const onDocClick = (e) => {
+      if (!ref.current) return;
+      if (!ref.current.contains(e.target)) setOpen(false);
+    };
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, []);
+
+  const label = value === "oldest" ? "Oldest First" : "Newest First";
+
+  return (
+    <div className={`memory-sort-dropdown ${open ? "is-open" : ""} ${disabled ? "is-disabled" : ""} ${isDark ? "is-dark" : "is-light"}`} ref={ref}>
+      <button
+        type="button"
+        className="memory-sort-btn"
+        onClick={() => !disabled && setOpen((v) => !v)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        disabled={disabled}
+      >
+        <span className="memory-sort-label-inline">Sort By</span>
+        <span className="memory-sort-current">{label}</span>
+        <ChevronDown size={16} />
+      </button>
+
+      <ul className={`memory-sort-menu ${open ? "is-open" : ""}`} role="listbox" aria-activedescendant={`sort-${value}`} tabIndex={-1}>
+        <li
+          id="sort-newest"
+          role="option"
+          aria-selected={value === "newest"}
+          className={`memory-sort-item ${value === "newest" ? "is-active" : ""}`}
+          onClick={() => { onChange("newest"); setOpen(false); }}
+        >
+          <span>Newest First</span>
+          {value === "newest" ? <Check size={14} className="memory-sort-check" /> : null}
+        </li>
+        <li
+          id="sort-oldest"
+          role="option"
+          aria-selected={value === "oldest"}
+          className={`memory-sort-item ${value === "oldest" ? "is-active" : ""}`}
+          onClick={() => { onChange("oldest"); setOpen(false); }}
+        >
+          <span>Oldest First</span>
+          {value === "oldest" ? <Check size={14} className="memory-sort-check" /> : null}
+        </li>
+      </ul>
+    </div>
+  );
+}
+
 export default function MemoryBoxPage() {
   const theme = useTheme();
   const isDark = theme.palette.mode === "dark";
@@ -248,6 +309,9 @@ export default function MemoryBoxPage() {
   const [showUploadComposer, setShowUploadComposer] = useState(false);
   const [deleteRequests, setDeleteRequests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [albumSort, setAlbumSort] = useState(() => (typeof window !== "undefined" ? localStorage.getItem("albumSort") || "newest" : "newest"));
+  const [albumPhotos, setAlbumPhotos] = useState(() => ({ albumId: null, photos: null }));
+  const [isSorting, setIsSorting] = useState(false);
 
   const normalizeDeleteRequest = (request) => {
     if (!request) return request;
@@ -391,7 +455,10 @@ export default function MemoryBoxPage() {
     formData.append("tags", (metadata.tags || []).join(","));
     formData.append("partner", metadata.createdBy || "You");
     formData.append("favorite", String(parseBooleanValue(metadata.isFavorite)));
-    formData.append("albumId", albumId || "");
+    // Only include albumId when it looks like a valid ObjectId to avoid server-side validation errors
+    if (isValidAlbumId(albumId)) {
+      formData.append("albumId", albumId);
+    }
     files.forEach((file) => formData.append("photos", file));
 
     const previousMemories = memories;
@@ -610,6 +677,7 @@ export default function MemoryBoxPage() {
         updateAlbumCounts(next);
         return next;
       });
+      setAlbumPhotos((prev) => (prev && prev.photos ? { ...prev, photos: prev.photos.map((m) => (m.id === memoryId ? { ...m, isFavorite: nextValue } : m)) } : prev));
       showSuccessToast(theme, {
         title: nextValue ? "Added to Favorites" : "Removed from Favorites",
         text: nextValue ? "The memory is now in your favorites." : "The memory was removed from favorites.",
@@ -929,6 +997,31 @@ export default function MemoryBoxPage() {
 
   const selectedAlbum = useMemo(() => albums.find((album) => album.id === selectedAlbumId) || null, [albums, selectedAlbumId]);
 
+  useEffect(() => {
+    if (!selectedAlbumId) return;
+
+    const fetchPhotos = async () => {
+      try {
+        setIsSorting(true);
+        const response = await memoryApi.getAlbumPhotos(selectedAlbumId, { sort: albumSort }).catch(() => ({ data: { data: [] } }));
+        const photos = (response?.data?.data || []).map(normalizeMemory);
+        setAlbumPhotos({ albumId: selectedAlbumId, photos });
+      } catch (error) {
+        console.error("Failed to fetch album photos", error);
+      } finally {
+        // keep a short animation window
+        setTimeout(() => setIsSorting(false), 220);
+      }
+    };
+
+    // Only fetch for real albums (not system folders like favorites)
+    if (selectedAlbum && selectedAlbum.id !== "favorites" && selectedAlbum.id !== "recently-deleted") {
+      fetchPhotos();
+    } else {
+      setAlbumPhotos({ albumId: null, photos: null });
+    }
+  }, [selectedAlbumId, albumSort]);
+
   const albumMemories = useMemo(() => {
     if (!selectedAlbum) return [];
 
@@ -938,6 +1031,11 @@ export default function MemoryBoxPage() {
 
     if (selectedAlbum.id === "recently-deleted") {
       return memories.filter((memory) => memory.isDeleted && (!memory.deletedAt || Date.now() - new Date(memory.deletedAt) < 30 * 24 * 60 * 60 * 1000));
+    }
+
+    // If we have fetched album-specific photos for this album (with sort), use them
+    if (albumPhotos && albumPhotos.albumId === selectedAlbum.id && Array.isArray(albumPhotos.photos)) {
+      return albumPhotos.photos;
     }
 
     return memories.filter((memory) => memory.albumId === selectedAlbum.id && !memory.isDeleted);
@@ -1138,7 +1236,7 @@ export default function MemoryBoxPage() {
                   <p className="memory-section-tag">🗂 Albums</p>
                   <h2>Open a scrapbook and walk through the story</h2>
                 </div>
-                <p className="memory-section-copy">Albums keep every chapter together so your memories feel like a real collection.</p>
+                <p className="memory-section-copy">Albums keep every chapter together in a cohesive collection.</p>
               </div>
 
               {visibleAlbums.length === 0 ? (
@@ -1182,8 +1280,8 @@ export default function MemoryBoxPage() {
 
                   <div className="memory-album-page-center">
                     <div className="memory-album-page-title">
-                      <p className="memory-section-tag">📁 Album</p>
-                      <h2>{selectedAlbum.name}</h2>
+                      {/* <p className="memory-section-tag"> Album</p> */}
+                      <h2>📁 {selectedAlbum.name}</h2>
                       <span className="memory-album-page-meta">
                         {albumMemories.length} Photos • {new Date(selectedAlbum.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
                       </span>
@@ -1192,6 +1290,16 @@ export default function MemoryBoxPage() {
 
                   <div className="memory-album-page-right">
                     <div className="memory-album-page-actions">
+                      <div className="memory-sort-wrap">
+                        <MemorySortDropdown
+                          value={albumSort}
+                          onChange={(next) => {
+                            setAlbumSort(next);
+                            try { localStorage.setItem("albumSort", next); } catch (err) { /* ignore */ }
+                          }}
+                          disabled={Boolean((selectedAlbum?.photoCount || albumMemories.length) === 0)}
+                        />
+                      </div>
                       <button type="button" className="memory-album-action-btn memory-album-add-btn" onClick={() => setShowUploadComposer(true)}>
                         <Upload size={14} /> Add Photos
                       </button>
@@ -1256,14 +1364,17 @@ export default function MemoryBoxPage() {
                     </div>
                     <p className="memory-section-copy">Your memories appear here in a polished photo-library layout, ready to revisit anytime.</p>
                   </div>
-                  <MemoryGrid
-                    memories={albumMemories}
-                    onOpenMemory={openMemory}
-                    onToggleFavorite={handleToggleFavorite}
-                    onShare={handleShareMemory}
-                    onDelete={selectedAlbum.id === "recently-deleted" ? (memory) => handleDeleteForever(memory.id) : handleDeleteMemoryRequest}
-                    onAddFirstMemory={() => setShowUploadComposer(true)}
-                  />
+                  <div className={`memory-grid-shell ${isSorting ? "is-sorting" : ""}`}>
+                    <MemoryGrid
+                      memories={albumMemories}
+                      onOpenMemory={openMemory}
+                      onToggleFavorite={handleToggleFavorite}
+                      onShare={handleShareMemory}
+                      onDelete={selectedAlbum.id === "recently-deleted" ? (memory) => handleDeleteForever(memory.id) : handleDeleteMemoryRequest}
+                      onAddFirstMemory={() => setShowUploadComposer(true)}
+                    />
+                  </div>
+
                 </section>
               )}
             </>

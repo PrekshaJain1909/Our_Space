@@ -70,8 +70,8 @@ const bucketApi = {
       type: "dress" | "decor" | "location" | "playlist" | "other",
       title,
       description?,
-      referenceUrl?,    // pinterest, instagram, etc.
-      imageUrl?         // if you store already uploaded image url
+      referenceLink?,    // pinterest, instagram, etc.
+      image            // full uploaded image URL from /wedding-vision/upload
     }
   */
 

@@ -1,13 +1,9 @@
-export default function LoveNotesStats({ notes }) {
+export default function LoveNotesStats({ notes, longest, topWords }) {
   const safeNotes = Array.isArray(notes) ? notes : [];
 
   const total = safeNotes.length;
-
-  const longest =
-    safeNotes.reduce(
-      (max, n) => Math.max(max, n.content?.length || 0),
-      0
-    ) || 0;
+  const longestNote = typeof longest === "number" ? longest : safeNotes.reduce((max, n) => Math.max(max, n.content?.length || 0), 0);
+  const wordList = Array.isArray(topWords) && topWords.length ? topWords : [];
 
   return (
     <div className="ln-stats-grid">
@@ -20,13 +16,18 @@ export default function LoveNotesStats({ notes }) {
 
       <div className="ln-stat-box">
         <div className="ln-stat-label">LONGEST NOTE</div>
-        <div className="ln-stat-value">{longest}</div>
+        <div className="ln-stat-value">{longestNote}</div>
         <div className="ln-stat-sub">Characters of pure affection</div>
       </div>
 
       <div className="ln-stat-box">
         <div className="ln-stat-label">ROMANTIC WORDS</div>
-        <div className="ln-stat-value">Love • Jaan • Soulmate</div>
+        <div className="ln-stat-value ln-word-list">
+          {wordList.length
+            ? wordList.map((item) => `${item.word} ${item.count}`).join(" • ")
+            : "None yet"}
+        </div>
+        <div className="ln-stat-sub">Top romantic terms across all notes</div>
       </div>
 
     </div>

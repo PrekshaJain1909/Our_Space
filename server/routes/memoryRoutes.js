@@ -23,6 +23,7 @@ router.get("/folders", authenticateToken, memoryController.getFolders);
 router.get("/albums", authenticateToken, memoryController.getAlbums);
 router.get("/albums/delete-requests", authenticateToken, memoryController.getAlbumDeleteRequests);
 router.get("/albums/:id", authenticateToken, ensureObjectId("id"), memoryController.getAlbumById);
+router.get("/albums/:albumId/photos", authenticateToken, ensureObjectId("albumId"), memoryController.getAlbumPhotos);
 router.post("/albums", authenticateToken, memoryController.createAlbum);
 router.post("/albums/:albumId/photos", authenticateToken, ensureObjectId("albumId"), upload.array("photos", 100), memoryController.uploadPhotosToAlbum);
 router.post("/albums/:id/delete-request", authenticateToken, ensureObjectId("id"), memoryController.createAlbumDeleteRequest);

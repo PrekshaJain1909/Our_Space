@@ -10,9 +10,11 @@ export default function MemoryModal({ memory, onClose, onToggleFavorite, onShare
   return (
     <div className="memory-modal-backdrop" onClick={onClose}>
       <div className="memory-modal" onClick={(event) => event.stopPropagation()}>
-        <button type="button" className="memory-modal-close" onClick={onClose}>
-          ✕
-        </button>
+        <div className="memory-modal-topbar">
+          <button type="button" className="memory-album-action-btn memory-album-back-btn memory-modal-back-btn" onClick={onClose}>
+            <ArrowLeft size={16} /> Back to Album
+          </button>
+        </div>
 
         <div className="memory-modal-content" key={memory.id}>
           <div className="memory-modal-image-section">
@@ -25,6 +27,51 @@ export default function MemoryModal({ memory, onClose, onToggleFavorite, onShare
                 <span>No image uploaded</span>
               </div>
             )}
+          </div>
+
+          <div className="memory-modal-toolbar">
+            <button type="button" className="memory-action-btn" onClick={(event) => {
+              event.stopPropagation();
+              onPrevious && onPrevious();
+            }} disabled={!hasPrevious}>
+              <ArrowLeft size={16} />
+            </button>
+            <button type="button" className="memory-action-btn" onClick={(event) => {
+              event.stopPropagation();
+              onNext && onNext();
+            }} disabled={!hasNext}>
+              <ArrowRight size={16} />
+            </button>
+            <button type="button" className={`memory-heart-btn ${isFavorite ? "is-favorite" : ""}`} onClick={(event) => {
+              event.stopPropagation();
+              onToggleFavorite && onToggleFavorite(memory.id);
+            }} aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}>
+              <Heart
+                size={16}
+                className="memory-heart-icon"
+                fill={isFavorite ? "currentColor" : "none"}
+                stroke="currentColor"
+                strokeWidth={isFavorite ? 2 : 2}
+              />
+            </button>
+            <button type="button" className="memory-action-btn" onClick={(event) => {
+              event.stopPropagation();
+              onShare && onShare(memory);
+            }}>
+              <Share2 size={16} />
+            </button>
+            <button type="button" className="memory-action-btn" onClick={(event) => {
+              event.stopPropagation();
+              onEdit && onEdit(memory);
+            }}>
+              <PencilLine size={16} />
+            </button>
+            <button type="button" className="memory-action-btn" onClick={(event) => {
+              event.stopPropagation();
+              onDelete && onDelete(memory);
+            }}>
+              <Trash2 size={16} />
+            </button>
           </div>
 
           <div className="memory-modal-info">
@@ -55,54 +102,6 @@ export default function MemoryModal({ memory, onClose, onToggleFavorite, onShare
                 <p className="memory-modal-desc">{memory.description}</p>
               </>
             ) : null}
-
-            <div className="memory-modal-actions">
-              <button type="button" className="memory-action-btn" onClick={(event) => {
-                event.stopPropagation();
-                onPrevious && onPrevious();
-              }} disabled={!hasPrevious}>
-                <ArrowLeft size={15} />
-              </button>
-              <button type="button" className="memory-action-btn" onClick={(event) => {
-                event.stopPropagation();
-                onNext && onNext();
-              }} disabled={!hasNext}>
-                <ArrowRight size={15} />
-              </button>
-              <button type="button" className={`memory-heart-btn ${isFavorite ? "is-favorite" : ""}`} onClick={(event) => {
-                event.stopPropagation();
-                onToggleFavorite && onToggleFavorite(memory.id);
-              }} aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}>
-                <Heart
-                  size={15}
-                  className="memory-heart-icon"
-                  fill={isFavorite ? "#ef4444" : "none"}
-                  stroke={isFavorite ? "#ef4444" : "currentColor"}
-                  strokeWidth={isFavorite ? 1.8 : 2}
-                />
-              </button>
-              <button type="button" className="memory-action-btn" onClick={(event) => {
-                event.stopPropagation();
-                onShare && onShare(memory);
-              }}>
-                <Share2 size={15} />
-              </button>
-              <button type="button" className="memory-action-btn" onClick={(event) => {
-                event.stopPropagation();
-                onEdit && onEdit(memory);
-              }}>
-                <PencilLine size={15} />
-              </button>
-              <button type="button" className="memory-action-btn" onClick={(event) => {
-                event.stopPropagation();
-                onDelete && onDelete(memory);
-              }}>
-                <Trash2 size={15} />
-              </button>
-              <button type="button" className="memory-link-btn" onClick={onClose}>
-                <Sparkles size={15} /> Close Memory
-              </button>
-            </div>
           </div>
         </div>
       </div>

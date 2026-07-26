@@ -1,39 +1,52 @@
 import React, { useEffect, useMemo, useState, useContext } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { ArrowLeft } from "lucide-react";
 import HabitCalendar from "../components/HabitCalendar";
 import HabitSummary from "../components/HabitSummary";
 import HabitHistoryTimeline from "../components/HabitHistoryTimeline";
 import CoupleContext from "../../../context/CoupleContext";
 
-export default function HabitDetailPage(){
+export default function HabitDetailPage() {
   const { habitId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const [habits, setHabits] = useState(() => {
-    try{ return JSON.parse(localStorage.getItem('customHabits:v1')||'[]'); }catch(e){return []}
+    try { return JSON.parse(localStorage.getItem('customHabits:v1') || '[]'); } catch (e) { return [] }
   });
 
-  useEffect(()=>{
-    const onStorage = ()=>{
-      try{ setHabits(JSON.parse(localStorage.getItem('customHabits:v1')||'[]')); }catch(e){}
-    };
-    window.addEventListener('storage', onStorage);
-    return ()=>window.removeEventListener('storage', onStorage);
-  },[]);
-
-  const habit = useMemo(()=> habits.find(h=>h.id===habitId), [habits, habitId]);
-
-  const saveHabit = (updated) => {
-    const next = habits.map(h=> h.id===habitId ? { ...h, ...updated } : h);
-    setHabits(next);
-    try{ localStorage.setItem('customHabits:v1', JSON.stringify(next)); }catch(e){}
+  const handleBack = () => {
+    if (location.state?.fromAnalytics) {
+      navigate('/analytics');
+    } else {
+      navigate(-1);
+    }
   };
 
-  if(!habit) return (
+  useEffect(() => {
+    const onStorage = () => {
+      try { setHabits(JSON.parse(localStorage.getItem('customHabits:v1') || '[]')); } catch (e) { }
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
+
+  const habit = useMemo(() => habits.find(h => h.id === habitId), [habits, habitId]);
+
+  const saveHabit = (updated) => {
+    const next = habits.map(h => h.id === habitId ? { ...h, ...updated } : h);
+    setHabits(next);
+    try { localStorage.setItem('customHabits:v1', JSON.stringify(next)); } catch (e) { }
+  };
+
+  if (!habit) return (
     <div className="p-6">
       <div className="mb-4">
-        <button onClick={()=>navigate(-1)} className="text-pink-500 hover:text-pink-600 font-medium transition-colors dark:text-inherit">Back</button>
+        <button type="button" onClick={handleBack} className="memory-modal-back-btn">
+          <ArrowLeft size={16} />
+          <span>Back</span>
+        </button>
       </div>
-      <div className="text-gray-400">Habit not found. Return to <span onClick={()=>navigate('/analytics')} className="underline cursor-pointer">Analytics</span>.</div>
+      <div className="text-gray-400">Habit not found. Return to <span onClick={() => navigate('/analytics')} className="underline cursor-pointer">Analytics</span>.</div>
     </div>
   );
 
@@ -48,29 +61,56 @@ export default function HabitDetailPage(){
   }
 
   return (
-    <div style={{padding:24}}>
-      <div style={{display:'flex', alignItems:'center', gap:12, marginBottom:8}}>
-        <button onClick={()=>navigate(-1)} className="text-pink-500 hover:text-pink-600 font-medium transition-colors an-range-btn">Back</button>
-        <h1 style={{fontSize:20, fontWeight:700}}>{habit.name} Analytics</h1>
-      </div>
-      <div style={{marginBottom:20}}>
-        <div className="an-subtitle">{habit.category}</div>
-        {habit.ownerName && (
-          <div className="mt-2">
-            <div className="text-sm">Tracked for: {habit.ownerName}</div>
-            <div className="text-sm">Can be updated by: {updaterName || 'Your partner'}</div>
-          </div>
-        )}
-      </div>
+    <div className="analytics-wrapper smoking-page">
+      <div className="analytics-overlay" />
+      <div className="analytics-inner smoking-inner">
 
-      <div style={{display:'grid', gridTemplateColumns:'2fr 1fr', gap:20}}>
-        <div>
-          <HabitCalendar habit={habit} onSave={(updatedHistory)=> saveHabit({ history: updatedHistory })} />
-          <HabitHistoryTimeline habit={habit} />
+        <div className="analytics-back-row">
+          <button type="button" onClick={handleBack} className="memory-modal-back-btn">
+            <ArrowLeft size={18} />
+            <span>Back</span>
+          </button>
         </div>
-        <div>
-          <HabitSummary habit={habit} />
+
+        <header className="healing-hero-card">
+          <div className="healing-hero-glow" />
+
+          <p className="healing-badge">
+            {habit.name} Progress
+          </p>
+
+          <p className="healing-subtitle">
+            Tracked For{" "}
+            {updaterName ? (
+              <strong>{habit.ownerName || "You"}</strong>
+            ) : (
+              "You"
+            )}
+          </p>
+
+          <p className="healing-subtitle">
+            {updaterName
+              ? `Last updated by ${updaterName}`
+              : "You are the only one tracking this habit."}
+          </p>
+        </header>
+
+
+        <div className="smoking-dashboard-grid">
+          <div className="smoking-main-panel">
+
+
+            <div className="smoking-calendar-panel">
+              <HabitCalendar habit={habit} onSave={(updatedHistory) => saveHabit({ history: updatedHistory })} />
+            </div>
+          </div>
+
+          <aside className="smoking-summary-panel">
+            <HabitSummary habit={habit} />
+          </aside>
         </div>
+
+        <HabitHistoryTimeline habit={habit} />
       </div>
     </div>
   );

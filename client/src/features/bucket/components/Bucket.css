@@ -78,13 +78,16 @@
 }
 
 /* Themed custom select for 'For' field */
-.bk-select-wrapper { position: relative; }
+.bk-select-wrapper {
+  position: relative;
+}
+
 .bk-select {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
   background: #ffffff;
-  border: 1px solid rgba(236,72,153,0.25);
+  border: 1px solid rgba(236, 72, 153, 0.25);
   border-radius: 16px;
   padding: 10px 40px 10px 12px;
   color: #6d28d9;
@@ -93,10 +96,24 @@
   box-sizing: border-box;
   transition: box-shadow 180ms ease, background 180ms ease, color 180ms ease;
 }
-.bk-select:hover { background: #fff7fb; }
-.bk-select:focus { outline: none; box-shadow: 0 0 0 4px rgba(236,72,153,0.12); }
-.bk-select.has-value { background: linear-gradient(90deg,#ec4899,#a855f7); color: #fff; }
-.bk-select option[disabled] { color: #9ca3af; }
+
+.bk-select:hover {
+  background: #fff7fb;
+}
+
+.bk-select:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(236, 72, 153, 0.12);
+}
+
+.bk-select.has-value {
+  background: linear-gradient(90deg, #ec4899, #a855f7);
+  color: #fff;
+}
+
+.bk-select option[disabled] {
+  color: #9ca3af;
+}
 
 /* Custom arrow */
 .bk-select-wrapper::after {
@@ -161,25 +178,40 @@
 }
 
 /* New pill styles for BucketFilters */
-.bucket-filters { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:12px; }
+.bucket-filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
 .bucket-pill {
   padding: 8px 14px;
   border-radius: 999px;
   cursor: pointer;
   font-weight: 700;
-  border: 1px solid rgba(168,85,247,0.18);
+  border: 1px solid rgba(168, 85, 247, 0.18);
   background: transparent;
-  color: #9333ea; /* inactive text */
+  color: #9333ea;
+  /* inactive text */
   transition: all 160ms ease;
 }
-.bucket-pill.inactive:hover { background: rgba(236,72,153,0.12); }
+
+.bucket-pill.inactive:hover {
+  background: rgba(236, 72, 153, 0.12);
+}
+
 .bucket-pill.active {
-  background: linear-gradient(90deg,#ec4899,#a855f7);
+  background: linear-gradient(90deg, #ec4899, #a855f7);
   color: #fff;
   border-color: transparent;
-  box-shadow: 0 10px 28px rgba(168,85,247,0.14);
+  box-shadow: 0 10px 28px rgba(168, 85, 247, 0.14);
 }
-.bucket-pill:focus { outline: none; box-shadow: 0 6px 18px rgba(168,85,247,0.1); }
+
+.bucket-pill:focus {
+  outline: none;
+  box-shadow: 0 6px 18px rgba(168, 85, 247, 0.1);
+}
 
 .bk-filter-field label {
   font-size: 12px;
@@ -244,12 +276,29 @@
   background: rgba(185, 131, 255, 0.25);
 }
 
-.bk-chip-cat-travel { background: rgba(14, 165, 233, 0.3); }
-.bk-chip-cat-food { background: rgba(234, 88, 12, 0.3); }
-.bk-chip-cat-adventure { background: rgba(34, 197, 94, 0.3); }
-.bk-chip-cat-date { background: rgba(255, 111, 163, 0.3); }
-.bk-chip-cat-learning { background: rgba(168, 85, 247, 0.3); }
-.bk-chip-cat-random { background: rgba(148, 163, 184, 0.3); }
+.bk-chip-cat-travel {
+  background: rgba(14, 165, 233, 0.3);
+}
+
+.bk-chip-cat-food {
+  background: rgba(234, 88, 12, 0.3);
+}
+
+.bk-chip-cat-adventure {
+  background: rgba(34, 197, 94, 0.3);
+}
+
+.bk-chip-cat-date {
+  background: rgba(255, 111, 163, 0.3);
+}
+
+.bk-chip-cat-learning {
+  background: rgba(168, 85, 247, 0.3);
+}
+
+.bk-chip-cat-random {
+  background: rgba(148, 163, 184, 0.3);
+}
 
 /* ---------- Status Button ---------- */
 .bk-status-btn {
@@ -301,10 +350,8 @@
 }
 
 .bk-progress-ring-fill {
-  background: conic-gradient(
-    var(--pink) calc(var(--bk-progress) * 1%),
-    transparent 0
-  );
+  background: conic-gradient(var(--pink) calc(var(--bk-progress) * 1%),
+      transparent 0);
 }
 
 .bk-progress-center {
@@ -401,6 +448,67 @@
   text-decoration: none;
 }
 
+.bk-vision-delete-btn {
+  margin-top: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #ffd6e8;
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.bk-vision-delete-btn:hover {
+  background: rgba(255, 111, 163, 0.22);
+  transform: translateY(-1px);
+}
+
+.bk-upload-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 170px;
+  border: 2px dashed rgba(255, 111, 163, 0.45);
+  border-radius: 18px;
+  padding: 18px;
+  text-align: center;
+  cursor: pointer;
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.bk-upload-dropzone:hover {
+  border-color: rgba(255, 111, 163, 0.75);
+  background: rgba(255, 111, 163, 0.06);
+}
+
+.bk-upload-dropzone p {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.bk-upload-dropzone small {
+  color: var(--text-muted);
+}
+
+.bk-upload-preview {
+  width: 100%;
+  max-height: 240px;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+.bk-upload-error {
+  color: #ffccd5;
+  font-size: 13px;
+  margin: 0;
+}
+
 /* ---------- Page sections layout (Bucket List & Wedding Vision) ---------- */
 .bucket-sections {
   display: grid;
@@ -418,7 +526,7 @@
 
 .bucket-tab-btn {
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.08);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   color: var(--text-muted);
   padding: 8px 14px;
   border-radius: 999px;
@@ -430,7 +538,7 @@
   background: linear-gradient(135deg, var(--pink), var(--purple));
   color: white;
   border-color: transparent;
-  box-shadow: 0 10px 24px rgba(185,131,255,0.12);
+  box-shadow: 0 10px 24px rgba(185, 131, 255, 0.12);
 }
 
 .bucket-section {
@@ -474,9 +582,9 @@
   gap: 12px;
   padding: 10px 14px;
   border-radius: 12px;
-  background: linear-gradient(135deg, rgba(255,111,163,0.09), rgba(185,131,255,0.06));
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 10px 30px rgba(11,10,17,0.28);
+  background: linear-gradient(135deg, rgba(255, 111, 163, 0.09), rgba(185, 131, 255, 0.06));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 30px rgba(11, 10, 17, 0.28);
   color: var(--text-main);
   backdrop-filter: blur(6px) saturate(120%);
   -webkit-backdrop-filter: blur(6px) saturate(120%);
@@ -488,7 +596,7 @@
 
 .section-header:hover {
   transform: translateY(-10px) scale(1.01);
-  box-shadow: 0 18px 44px rgba(11,10,17,0.36);
+  box-shadow: 0 18px 44px rgba(11, 10, 17, 0.36);
 }
 
 .section-header::before {
@@ -519,7 +627,7 @@
   .section-header {
     transform: translateY(0);
     width: 100%;
-    box-shadow: 0 8px 24px rgba(11,10,17,0.22);
+    box-shadow: 0 8px 24px rgba(11, 10, 17, 0.22);
   }
 
   .section-header::before {
@@ -529,10 +637,12 @@
 
 /* Larger screens: two-column layout */
 @media (min-width: 992px) {
+
   /* Only enable two-column layout when explicitly requested (class `two-col`).
      This prevents reserving sidebar space when using tabbed single-section views. */
   .bucket-sections.two-col {
-    grid-template-columns: 1fr 420px; /* main list + sidebar for wedding vision */
+    grid-template-columns: 1fr 420px;
+    /* main list + sidebar for wedding vision */
     align-items: start;
   }
 
