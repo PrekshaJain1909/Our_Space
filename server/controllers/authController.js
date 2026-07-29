@@ -14,75 +14,211 @@ exports.registerPartnerA = asyncHandler(async (req, res) => {
   const { coupleName, name, email, password } = req.body;
   const normalizedEmail = otpService.normalizeOtpEmail(email);
 
-  // 1️⃣ Check if user already exists
-  const existingUser = await User.findOne({ email: normalizedEmail });
+  console.log("[OTP][Controller] registerPartnerA request", {
+    coupleName: coupleName?.trim(),
+    name: name?.trim(),
+    email: normalizedEmail,
+    hasPassword: Boolean(password),
+  });
 
-  if (existingUser) {
-    if (!existingUser.isVerified) {
-      // Resend OTP — enforce cooldown and resend limits
-      const otp = otpService.generateOTP();
-      const saveResult = await otpService.saveOTP(normalizedEmail, otp, true);
+  if (!coupleName || !String(coupleName).trim()) {
+    console.log("[OTP][Controller] Validation failed: coupleName missing");
+    return res.status(400).json({ message: "Couple name is required." });
+  }
+  if (!name || !String(name).trim()) {
+    console.log("[OTP][Controller] Validation failed: name missing");
+    return res.status(400).json({ message: "Your name is required." });
+  }
+  if (!normalizedEmail) {
+    console.log("[OTP][Controller] Validation failed: invalid email", { email });
+    return res.status(400).json({ message: "A valid email address is required." });
+  }
+  if (!password || !String(password).trim()) {
+    console.log("[OTP][Controller] Validation failed: password missing");
+    return res.status(400).json({ message: "A password is required." });
+  }
 
-      if (!saveResult.success) {
-        const status = saveResult.waitSeconds ? 429 : 400;
-        return res.status(status).json({
-          message: saveResult.message,
-          ...(saveResult.waitSeconds && { waitSeconds: saveResult.waitSeconds }),
+  try {
+    // 1️⃣ Check if user already exists
+    console.log("[OTP][Controller] Looking up existing user", { email: normalizedEmail });
+    const existingUser = await User.findOne({ email: normalizedEmail });
+
+    if (existingUser) {
+      console.log("[OTP][Controller] Existing user found", {
+        email: normalizedEmail,
+        isVerified: existingUser.isVerified,
+      });
+
+      if (!existingUser.isVerified) {
+        console.log("[OTP][Controller] Resending OTP for unverified user");
+        const otp = otpService.generateOTP();
+        const saveResult = await otpService.saveOTP(normalizedEmail, otp, true);
+
+        if (!saveResult.success) {
+          console.error("[OTP][Controller] saveOTP failed during resend", {
+            email: normalizedEmail,
+            message: saveResult.message,
+            waitSeconds: saveResult.waitSeconds,
+          });
+          const status = saveResult.waitSeconds ? 429 : 400;
+          return res.status(status).json({
+            message: saveResult.message,
+            ...(saveResult.waitSeconds && { waitSeconds: saveResult.waitSeconds }),
+          });
+        }
+
+        console.log("[OTP][Controller] OTP saved for resend", { email: normalizedEmail, otp });
+        try {
+          await mailService.sendOTPEmail(normalizedEmail, otp);
+          console.log("[OTP][Controller] Resend email sent", { email: normalizedEmail });
+        } catch (err) {
+          console.error("[OTP][Controller] resend OTP email failed", {
+            email: normalizedEmail,
+            message: err.message,
+            statusCode: err.response?.status || err.status,
+            response: err.response?.data,
+            stack: err.stack,
+          });
+
+          if (err.isEmailError) {
+            return res.status(502).json({ message: "Unable to resend OTP email. Please try again later." });
+          }
+          throw err;
+        }
+
+        return res.status(200).json({
+          success: true,
+          message: "User already registered but not verified. OTP resent.",
         });
       }
 
-      await mailService.sendOTPEmail(normalizedEmail, otp);
+      console.log("[OTP][Controller] Registration aborted: user already exists", { email: normalizedEmail });
+      return res.status(400).json({ success: false, message: "User already exists" });
+    }
 
-      return res.status(200).json({
-        message: "User already registered but not verified. OTP resent.",
+    // 2️⃣ Hash password
+    console.log("[OTP][Controller] Hashing user password");
+    const hashedPassword = await passwordService.hashPassword(password);
+
+    // 3️⃣ Create Partner A
+    console.log("[OTP][Controller] Creating Partner A user");
+    const userA = await User.create({
+      name,
+      email: normalizedEmail,
+      password: hashedPassword,
+      role: "partnerA",
+      isVerified: false,
+    });
+    console.log("[OTP][Controller] Partner A created", { userId: String(userA._id) });
+
+    // 4️⃣ Generate invite token
+    const inviteToken = tokenService.generateInviteToken();
+    const inviteExpires = tokenService.getInviteExpiry();
+
+    // 5️⃣ Create couple
+    console.log("[OTP][Controller] Creating couple record", {
+      coupleName,
+      partnerA: String(userA._id),
+    });
+    const couple = await Couple.create({
+      coupleName,
+      partnerA: userA._id,
+      inviteToken,
+      inviteExpires,
+      isActive: false,
+    });
+    console.log("[OTP][Controller] Couple created", { coupleId: String(couple._id) });
+
+    // 6️⃣ Attach coupleId to user
+    userA.coupleId = couple._id;
+    await userA.save();
+    console.log("[OTP][Controller] User updated with coupleId", {
+      userId: String(userA._id),
+      coupleId: String(couple._id),
+    });
+
+    // 7️⃣ Generate & Save OTP
+    console.log("[OTP][Controller] Generating OTP");
+    const otp = otpService.generateOTP();
+    const saveResult = await otpService.saveOTP(normalizedEmail, otp);
+
+    if (!saveResult.success) {
+      console.error("[OTP][Controller] saveOTP failed", {
+        email: normalizedEmail,
+        message: saveResult.message,
+      });
+      return res.status(500).json({ message: "Unable to generate OTP. Please try again." });
+    }
+
+    console.log("[OTP][Controller] OTP saved", {
+      email: normalizedEmail,
+      otp,
+      expiresAt: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+    });
+
+    // 8️⃣ Send Emails
+    const inviteLink = tokenService.buildInviteLink(inviteToken);
+    const isLocalHost = ["localhost", "127.0.0.1", "0.0.0.0"].includes(req.hostname);
+
+    console.log("[OTP][Controller] sending OTP email", {
+      email: normalizedEmail,
+      isLocalHost,
+      inviteLink,
+    });
+
+    try {
+      await mailService.sendOTPEmail(normalizedEmail, otp);
+      console.log("[OTP][Controller] OTP email sent successfully", { email: normalizedEmail });
+    } catch (err) {
+      console.error("[OTP][Controller] OTP email failed", {
+        email: normalizedEmail,
+        isLocalHost,
+        message: err.message,
+        statusCode: err.response?.status || err.status,
+        response: err.response?.data,
+        stack: err.stack,
+      });
+
+      if (err.isEmailError) {
+        if (process.env.NODE_ENV !== "production" || isLocalHost) {
+          console.warn("[auth] OTP email failed on local request, continuing registration:", err.message);
+        } else {
+          return res.status(502).json({ message: "Unable to send OTP email. Please try again later." });
+        }
+      } else {
+        console.error("[OTP][Controller] Unexpected error during OTP send", { email: normalizedEmail });
+        throw err;
+      }
+    }
+
+    console.log("[OTP][Controller] Registration complete", {
+      email: normalizedEmail,
+      userId: String(userA._id),
+      coupleId: String(couple._id),
+    });
+
+    return res.status(201).json({
+      success: true,
+      message: "Partner A registered. Verify OTP.",
+      inviteLink,
+    });
+  } catch (err) {
+    console.error("[OTP][Controller] registerPartnerA unexpected error", {
+      email: normalizedEmail,
+      message: err.message,
+      stack: err.stack,
+    });
+
+    if (err.isEmailError) {
+      return res.status(503).json({
+        success: false,
+        message: err.message,
+        ...(process.env.NODE_ENV === "development" ? { stack: err.stack } : {}),
       });
     }
 
-    return res.status(400).json({ message: "User already exists" });
+    throw err;
   }
-
-  // 2️⃣ Hash password
-  const hashedPassword = await passwordService.hashPassword(password);
-
-  // 3️⃣ Create Partner A
-  const userA = await User.create({
-    name,
-    email: normalizedEmail,
-    password: hashedPassword,
-    role: "partnerA",
-    isVerified: false,
-  });
-
-  // 4️⃣ Generate invite token
-  const inviteToken = tokenService.generateInviteToken();
-  const inviteExpires = tokenService.getInviteExpiry();
-
-  // 5️⃣ Create couple
-  const couple = await Couple.create({
-    coupleName,
-    partnerA: userA._id,
-    inviteToken,
-    inviteExpires,
-    isActive: false,
-  });
-
-  // 6️⃣ Attach coupleId to user
-  userA.coupleId = couple._id;
-  await userA.save();
-
-  // 7️⃣ Generate & Save OTP
-  const otp = otpService.generateOTP();
-  await otpService.saveOTP(normalizedEmail, otp);
-
-  // 8️⃣ Send Emails
-  const inviteLink = tokenService.buildInviteLink(inviteToken);
-
-  await mailService.sendOTPEmail(normalizedEmail, otp);
-
-  res.status(201).json({
-    message: "Partner A registered. Verify OTP.",
-    inviteLink,
-  });
 });
 
 exports.login = asyncHandler(async (req, res) => {
@@ -209,6 +345,7 @@ exports.resendOtp = asyncHandler(async (req, res) => {
   if (!result.success) {
     const status = result.waitSeconds ? 429 : 400;
     return res.status(status).json({
+      success: false,
       message: result.message,
       ...(result.waitSeconds && { waitSeconds: result.waitSeconds }),
     });
@@ -216,5 +353,5 @@ exports.resendOtp = asyncHandler(async (req, res) => {
 
   await mailService.sendOTPEmail(targetEmail, otp);
 
-  res.json({ message: "A new OTP has been sent to your email." });
+  res.json({ success: true, message: "A new OTP has been sent to your email." });
 });

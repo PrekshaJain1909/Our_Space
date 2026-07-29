@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import healingApi from '../../../api/healingApi';
 import useToast from '../../../hooks/useToast';
+import useAuth from '../../../hooks/useAuth';
 import { connectSocket, joinRoom, leaveRoom, onEvent } from '../../../lib/socket';
 import CoupleContext from '../../../context/CoupleContext';
 
@@ -64,6 +65,7 @@ export function HealingProvider({ children }) {
     const [loading, setLoading] = useState(true);
     const { error: showError } = useToast();
     const { couple } = React.useContext(CoupleContext);
+    const { isAuthenticated } = useAuth();
 
     const dedupeById = (arr) => {
         const seen = new Map();
@@ -126,12 +128,21 @@ export function HealingProvider({ children }) {
             }
         }
 
+        if (!isAuthenticated) {
+            setLoading(false);
+            setEntries([]);
+            setPromises([]);
+            return () => {
+                mounted = false;
+            };
+        }
+
         fetchData();
 
         return () => {
             mounted = false;
         };
-    }, []);
+    }, [isAuthenticated]);
 
     useEffect(() => {
         if (!couple || !couple._id) return undefined;

@@ -125,7 +125,7 @@ exports.getStats = async (req, res, next) => {
     const total = notes.length;
 
     const words = {};
-    const stopWords = new Set(["a","an","and","the","to","for","with","of","in","on","at","by","is","it","this","that"]);
+    const stopWords = new Set(["a", "an", "and", "the", "to", "for", "with", "of", "in", "on", "at", "by", "is", "it", "this", "that"]);
     let longestNoteLength = 0;
     let latestDate = null;
     let totalLength = 0;
@@ -176,7 +176,8 @@ exports.getNoteById = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) return sendError(res, 400, 'Invalid id');
     if (!userId) return sendError(res, 401, 'Unauthorized');
 
-    const note = await LoveNote.findById(id);
+    const userObjectId = getValidObjectId(userId);
+    const note = await LoveNote.findOne({ _id: id, userId: userObjectId });
     if (!note) return sendError(res, 404, 'Love note not found');
     if (note.userId.toString() !== userId.toString()) return sendError(res, 403, 'Forbidden');
 
@@ -196,7 +197,8 @@ exports.updateNote = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) return sendError(res, 400, 'Invalid id');
     if (!userId) return sendError(res, 401, 'Unauthorized');
 
-    const note = await LoveNote.findById(id);
+    const userObjectId = getValidObjectId(userId);
+    const note = await LoveNote.findOne({ _id: id, userId: userObjectId });
     if (!note) return sendError(res, 404, 'Love note not found');
     if (note.userId.toString() !== userId.toString()) return sendError(res, 403, 'Forbidden');
 
@@ -235,7 +237,8 @@ exports.deleteNote = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) return sendError(res, 400, 'Invalid id');
     if (!userId) return sendError(res, 401, 'Unauthorized');
 
-    const note = await LoveNote.findById(id);
+    const userObjectId = getValidObjectId(userId);
+    const note = await LoveNote.findOne({ _id: id, userId: userObjectId });
     if (!note) return sendError(res, 404, 'Love note not found');
     if (note.userId.toString() !== userId.toString()) return sendError(res, 403, 'Forbidden');
 

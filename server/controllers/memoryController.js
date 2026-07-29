@@ -472,7 +472,7 @@ exports.deleteComment = asyncHandler(async (req, res) => {
     }
 
     const coupleId = getCoupleIdOrThrow(req);
-    const memory = await Memory.findOne({ comments: { $elemMatch: { _id: id } } });
+    const memory = await Memory.findOne({ coupleId, comments: { $elemMatch: { _id: id } } });
     if (!memory) {
         return res.status(404).json({ success: false, message: "Comment not found." });
     }

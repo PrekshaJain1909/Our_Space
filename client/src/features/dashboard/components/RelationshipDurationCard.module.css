@@ -1,0 +1,42 @@
+.card {
+    background: var(--card);
+    padding: 16px;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.head {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.photo {
+    width: 68px;
+    height: 68px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+    color: white;
+    font-size: 36px;
+}
+
+.counts {
+    display: flex;
+    gap: 12px;
+    margin-left: auto;
+}
+
+.counts div {
+    text-align: center;
+}
+
+.counts span {
+    display: block;
+    font-size: 12px;
+    color: var(--muted);
+}

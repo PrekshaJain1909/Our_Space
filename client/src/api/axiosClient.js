@@ -48,6 +48,11 @@ axiosClient.interceptors.request.use(
     try {
       // eslint-disable-next-line no-console
       console.log("API CALL:", url, "Token present:", Boolean(token));
+      if (import.meta.env.DEV) {
+        // Log payloads for debugging OTP and auth flows
+        const data = config.data ? JSON.parse(JSON.stringify(config.data)) : null;
+        console.log("API CALL PAYLOAD:", data);
+      }
     } catch (e) { }
 
     if (!token && !isPublicRoute(url)) {

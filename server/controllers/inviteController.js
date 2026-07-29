@@ -67,6 +67,16 @@ exports.registerPartnerB = asyncHandler(async (req, res) => {
       .json({ message: "Invalid invite: No token or coupleId provided" });
   }
 
+  if (!name || !String(name).trim()) {
+    return res.status(400).json({ message: "Your name is required." });
+  }
+  if (!normalizedEmail) {
+    return res.status(400).json({ message: "A valid email address is required." });
+  }
+  if (!password || !String(password).trim()) {
+    return res.status(400).json({ message: "A password is required." });
+  }
+
   const couple = await resolveCoupleFromInvite({ token, coupleId });
 
   if (!couple) {
@@ -97,13 +107,39 @@ exports.registerPartnerB = asyncHandler(async (req, res) => {
 
       if (!saveResult.success) {
         const status = saveResult.waitSeconds ? 429 : 400;
+        console.error("[invite] saveOTP resend failed", {
+          email: normalizedEmail,
+          message: saveResult.message,
+          waitSeconds: saveResult.waitSeconds,
+        });
         return res.status(status).json({
           message: saveResult.message,
           ...(saveResult.waitSeconds && { waitSeconds: saveResult.waitSeconds }),
         });
       }
 
-      await mailService.sendOTPEmail(normalizedEmail, otp);
+      try {
+        console.log("[invite] Resend OTP sending email", {
+          email: normalizedEmail,
+          otp,
+        });
+        await mailService.sendOTPEmail(normalizedEmail, otp);
+        console.log("[invite] Resend OTP email sent", { email: normalizedEmail });
+      } catch (err) {
+        console.error("[invite] Resend OTP email failed", {
+          email: normalizedEmail,
+          message: err.message,
+          statusCode: err.response?.status || err.status,
+          response: err.response?.data,
+          stack: err.stack,
+        });
+
+        if (err.isEmailError) {
+          return res.status(502).json({ message: "Unable to resend OTP email. Please try again later." });
+        }
+
+        throw err;
+      }
 
       return res.status(200).json({
         message: "User already registered but not verified. OTP resent.",
@@ -132,12 +168,50 @@ exports.registerPartnerB = asyncHandler(async (req, res) => {
 
   // Generate & Save OTP
   const otp = otpService.generateOTP();
-  await otpService.saveOTP(normalizedEmail, otp);
+  const saveResult = await otpService.saveOTP(normalizedEmail, otp);
+
+  if (!saveResult.success) {
+    console.error("[OTP][Controller] saveOTP failed for partnerB", {
+      email: normalizedEmail,
+      message: saveResult.message,
+    });
+    return res.status(500).json({ message: "Unable to generate OTP. Please try again." });
+  }
 
   // Send OTP Email
-  await mailService.sendOTPEmail(normalizedEmail, otp);
+  const localHosts = ["localhost", "127.0.0.1", "0.0.0.0", "::1", "::ffff:127.0.0.1"];
+  const isLocalHost = localHosts.includes(req.hostname) || localHosts.includes(req.ip);
+  console.log("[OTP][Controller] sending OTP email for partnerB", {
+    email: normalizedEmail,
+    isLocalHost,
+    reqHostname: req.hostname,
+    reqIp: req.ip,
+  });
+
+  try {
+    await mailService.sendOTPEmail(normalizedEmail, otp);
+  } catch (err) {
+    console.error("[OTP][Controller] OTP email failed for partnerB", {
+      email: normalizedEmail,
+      isLocalHost,
+      message: err.message,
+      statusCode: err.response?.status || err.status,
+      response: err.response?.data,
+    });
+
+    if (err.isEmailError) {
+      if (process.env.NODE_ENV !== "production" || isLocalHost) {
+        console.warn("[invite] OTP email failed on local request, continuing registration:", err.message);
+      } else {
+        return res.status(502).json({ message: "Unable to send OTP email. Please try again later." });
+      }
+    } else {
+      throw err;
+    }
+  }
 
   res.status(201).json({
+    success: true,
     message: "Partner B registered. Verify OTP.",
   });
 });

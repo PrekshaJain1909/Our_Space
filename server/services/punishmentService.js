@@ -2,7 +2,7 @@ const PunishmentTemplate = require('../models/PunishmentTemplate');
 const PunishmentHistory = require('../models/PunishmentHistory');
 
 const DEFAULT_TEMPLATES = [
-  { name: 'Sweet chore', text: 'Give your partner a 15-minute loving massage 💆‍♂️', difficulty: 'low', tags: ['physical','cute'] },
+  { name: 'Sweet chore', text: 'Give your partner a 15-minute loving massage 💆‍♂️', difficulty: 'low', tags: ['physical', 'cute'] },
   { name: 'Cuddle time', text: '30 minutes of uninterrupted cuddle time and compliments ❤️', difficulty: 'low', tags: ['affection'] },
   { name: 'Breakfast in bed', text: 'Make your partner breakfast in bed 🥞', difficulty: 'medium', tags: ['service'] },
   { name: 'Fun dare', text: 'Do a silly dance and send a video to your partner 💃', difficulty: 'low', tags: ['fun'] },
@@ -14,7 +14,7 @@ function pickRandom(arr) {
 
 async function generate({ coupleId, generatedBy, mood = 'cute', level = 'low', tags = [] } = {}) {
   // Try to pick from user-defined templates first
-  const query = { difficulty: level };
+  const query = { coupleId, difficulty: level };
   if (tags.length) query.tags = { $in: tags };
 
   let templates = await PunishmentTemplate.find(query).lean().limit(50);

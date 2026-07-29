@@ -33,12 +33,7 @@ export default function MoodTodayForm({ onSaveMood }) {
 
   return (
     <div className="md-card">
-      <div className="md-header">
-        <span className="md-badge">Today’s Mood</span>
-        <p className="md-subtitle">
-          Log today’s mood with a tiny note. This will instantly show in the calendar. 📅
-        </p>
-      </div>
+
 
       <form className="md-form" onSubmit={handleSubmit}>
         <div className="md-row">

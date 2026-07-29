@@ -43,9 +43,9 @@ exports.history = async (req, res, next) => {
 
     const filter = { coupleId };
     const total = await PunishmentHistory.countDocuments(filter);
-    const items = await PunishmentHistory.find(filter).sort({ createdAt: -1 }).skip((page-1)*limit).limit(limit).lean();
+    const items = await PunishmentHistory.find(filter).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean();
 
-    return res.json({ success: true, data: items, meta: { total, page, limit, pages: Math.ceil(total/limit) } });
+    return res.json({ success: true, data: items, meta: { total, page, limit, pages: Math.ceil(total / limit) } });
   } catch (err) { next(err); }
 };
 
@@ -53,8 +53,9 @@ exports.history = async (req, res, next) => {
 exports.getTemplates = async (req, res, next) => {
   try {
     const coupleId = req.user && req.user.coupleId;
-    // return templates for couple (or global ones if none)
-    const templates = await PunishmentTemplate.find({}).sort({ createdAt: -1 }).lean();
+    if (!coupleId) return res.status(401).json({ success: false, message: 'Unauthorized' });
+
+    const templates = await PunishmentTemplate.find({ coupleId }).sort({ createdAt: -1 }).lean();
     return res.json({ success: true, data: templates });
   } catch (err) { next(err); }
 };
@@ -70,7 +71,8 @@ exports.addTemplate = async (req, res, next) => {
       name: name || text.slice(0, 40),
       text: text.toString().trim(),
       difficulty: difficulty || 'low',
-      tags: Array.isArray(tags) ? tags : (tags ? String(tags).split(',').map(s=>s.trim()).filter(Boolean) : []),
+      tags: Array.isArray(tags) ? tags : (tags ? String(tags).split(',').map(s => s.trim()).filter(Boolean) : []),
+      coupleId: user.coupleId,
       createdBy: user._id,
     });
 
@@ -84,11 +86,10 @@ exports.deleteTemplate = async (req, res, next) => {
     if (!user) return res.status(401).json({ success: false, message: 'Unauthorized' });
     const { id } = req.params;
     if (!id) return res.status(400).json({ success: false, message: 'Invalid id' });
-    const tpl = await PunishmentTemplate.findById(id);
+    const tpl = await PunishmentTemplate.findOne({ _id: id, coupleId: user.coupleId });
     if (!tpl) return res.status(404).json({ success: false, message: 'Not found' });
     // allow delete by creator or admins; for now allow if createdBy equals user
     if (tpl.createdBy && tpl.createdBy.toString() !== user._id.toString()) {
-      // still allow deletion for safety? deny
       return res.status(403).json({ success: false, message: 'Forbidden' });
     }
     await tpl.remove();

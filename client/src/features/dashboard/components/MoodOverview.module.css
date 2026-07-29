@@ -1,0 +1,33 @@
+.card {
+    background: var(--card);
+    padding: 12px;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+}
+
+.inner {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.legend {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.legendRow {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    color: var(--muted);
+}
+
+.dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+    background: #61d24d;
+    display: inline-block;
+}

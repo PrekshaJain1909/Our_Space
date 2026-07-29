@@ -15,7 +15,7 @@ import VerifyOtpPage from "../features/auth/pages/VerifyOtpPage.jsx";
 import JoinPage from "../features/auth/pages/JoinPage.jsx";
 
 // Main feature pages
-import DashboardPage from "../features/dashboard/pages/DashboardPage.jsx";
+import Dashboard from "../features/dashboard/Dashboard.jsx";
 import CoupleProfilePage from "../features/coupleProfile/pages/CoupleProfilePage.jsx";
 import LoveNotesPage from "../features/loveNotes/pages/LoveNotesPage.jsx";
 import HealingZonePage from "../features/healingZone/pages/HealingZonePage.jsx";
@@ -95,7 +95,7 @@ export default function AppRoutes() {
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <DashboardPage />
+              <Dashboard />
             </ProtectedRoute>
           }
         />

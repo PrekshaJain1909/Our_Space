@@ -35,6 +35,7 @@ exports.verifyOTP = asyncHandler(async (req, res) => {
     ? await User.findById(userId)
     : await User.findOne({ email: normalizedEmail });
   if (!user) {
+    console.error("[OTP][Controller] verify failed: user not found", { normalizedEmail, userId });
     return res.status(404).json({ message: "User not found" });
   }
 
@@ -59,6 +60,7 @@ exports.verifyOTP = asyncHandler(async (req, res) => {
 
     const status = result.locked ? 423 : 400;
     return res.status(status).json({
+      success: false,
       message: result.message,
       ...(result.attemptsLeft !== undefined && { attemptsLeft: result.attemptsLeft }),
       ...(result.locked && { locked: true }),
@@ -145,14 +147,37 @@ exports.resendOTP = asyncHandler(async (req, res) => {
 
   if (!result.success) {
     const status = result.waitSeconds ? 429 : 400;
+    console.error("[OTP][Controller] resend saveOTP failed", {
+      email: targetEmail,
+      message: result.message,
+      waitSeconds: result.waitSeconds,
+    });
     return res.status(status).json({
       message: result.message,
       ...(result.waitSeconds && { waitSeconds: result.waitSeconds }),
     });
   }
 
-  await mailService.sendOTPEmail(targetEmail, otp);
+  try {
+    console.log("[OTP][Controller] Resend OTP sending email", { email: targetEmail, otp });
+    await mailService.sendOTPEmail(targetEmail, otp);
+    console.log("[OTP][Controller] Resend OTP email sent", { email: targetEmail });
+  } catch (err) {
+    console.error("[OTP][Controller] Resend OTP email failed", {
+      email: targetEmail,
+      message: err.message,
+      statusCode: err.response?.status || err.status,
+      response: err.response?.data,
+      stack: err.stack,
+    });
 
-  res.json({ message: "A new OTP has been sent to your email." });
+    if (err.isEmailError) {
+      return res.status(502).json({ message: "Unable to resend OTP email. Please try again later." });
+    }
+
+    throw err;
+  }
+
+  res.json({ success: true, message: "A new OTP has been sent to your email." });
 });
 

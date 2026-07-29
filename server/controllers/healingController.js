@@ -356,7 +356,7 @@ exports.getEntryById = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) return sendError(res, 400, 'Invalid id');
     if (!userId) return sendError(res, 401, 'Unauthorized');
 
-    const entry = await Healing.findById(id);
+    const entry = await Healing.findOne({ _id: id, coupleId: req.user?.coupleId });
     if (!entry) return sendError(res, 404, 'Healing entry not found');
     if (entry.userId.toString() !== userId.toString()) return sendError(res, 403, 'Forbidden');
 
@@ -383,7 +383,7 @@ exports.updateEntry = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) return sendError(res, 400, 'Invalid id');
     if (!userId) return sendError(res, 401, 'Unauthorized');
 
-    const entry = await Healing.findById(id);
+    const entry = await Healing.findOne({ _id: id, coupleId: req.user?.coupleId });
     if (!entry) return sendError(res, 404, 'Healing entry not found');
     if (entry.userId.toString() !== userId.toString()) return sendError(res, 403, 'Forbidden');
 
@@ -483,7 +483,7 @@ exports.deleteEntry = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) return sendError(res, 400, 'Invalid id');
     if (!userId) return sendError(res, 401, 'Unauthorized');
 
-    const entry = await Healing.findById(id);
+    const entry = await Healing.findOne({ _id: id, coupleId: req.user?.coupleId });
     if (!entry) return sendError(res, 404, 'Healing entry not found');
     if (entry.userId.toString() !== userId.toString()) return sendError(res, 403, 'Forbidden');
 
@@ -563,7 +563,7 @@ exports.acceptPromise = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) return sendError(res, 400, 'Invalid promise id');
     if (!userId) return sendError(res, 401, 'Unauthorized');
 
-    const entry = await Healing.findById(id);
+    const entry = await Healing.findOne({ _id: id, coupleId: req.user?.coupleId });
     if (!entry) return sendError(res, 404, 'Promise request not found');
     if (entry.type !== 'promise') return sendError(res, 400, 'Not a promise request');
     if (entry.status !== 'pending') return sendError(res, 400, 'Promise request is not pending');
@@ -587,7 +587,7 @@ exports.declinePromise = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) return sendError(res, 400, 'Invalid promise id');
     if (!userId) return sendError(res, 401, 'Unauthorized');
 
-    const entry = await Healing.findById(id);
+    const entry = await Healing.findOne({ _id: id, coupleId: req.user?.coupleId });
     if (!entry) return sendError(res, 404, 'Promise request not found');
     if (entry.type !== 'promise') return sendError(res, 400, 'Not a promise request');
     if (entry.status !== 'pending') return sendError(res, 400, 'Promise request is not pending');
@@ -610,7 +610,7 @@ exports.breakPromise = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) return sendError(res, 400, 'Invalid promise id');
     if (!userId) return sendError(res, 401, 'Unauthorized');
 
-    const entry = await Healing.findById(id);
+    const entry = await Healing.findOne({ _id: id, coupleId: req.user?.coupleId });
     if (!entry) return sendError(res, 404, 'Promise not found');
     if (entry.type !== 'promise') return sendError(res, 400, 'Not a promise');
     if (entry.status !== 'active') return sendError(res, 400, 'Only active promises can be broken');
@@ -634,7 +634,7 @@ exports.requestBreakPromise = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) return sendError(res, 400, 'Invalid promise id');
     if (!userId) return sendError(res, 401, 'Unauthorized');
 
-    const entry = await Healing.findById(id);
+    const entry = await Healing.findOne({ _id: id, coupleId: req.user?.coupleId });
     if (!entry) return sendError(res, 404, 'Promise not found');
     if (entry.type !== 'promise') return sendError(res, 400, 'Not a promise');
     if (entry.status !== 'active') return sendError(res, 400, 'Only active promises can be broken');
@@ -657,7 +657,7 @@ exports.agreeBreakPromise = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) return sendError(res, 400, 'Invalid promise id');
     if (!userId) return sendError(res, 401, 'Unauthorized');
 
-    const entry = await Healing.findById(id);
+    const entry = await Healing.findOne({ _id: id, coupleId: req.user?.coupleId });
     if (!entry) return sendError(res, 404, 'Promise not found');
     if (entry.type !== 'promise') return sendError(res, 400, 'Not a promise');
     if (entry.status !== 'break_requested') return sendError(res, 400, 'Break was not requested for this promise');
@@ -680,7 +680,7 @@ exports.disagreeBreakPromise = async (req, res, next) => {
     if (!mongoose.Types.ObjectId.isValid(id)) return sendError(res, 400, 'Invalid promise id');
     if (!userId) return sendError(res, 401, 'Unauthorized');
 
-    const entry = await Healing.findById(id);
+    const entry = await Healing.findOne({ _id: id, coupleId: req.user?.coupleId });
     if (!entry) return sendError(res, 404, 'Promise not found');
     if (entry.type !== 'promise') return sendError(res, 400, 'Not a promise');
     if (entry.status !== 'break_requested') return sendError(res, 400, 'Break was not requested for this promise');
@@ -706,7 +706,7 @@ exports.fulfillPromise = async (req, res, next) => {
     const { id } = req.params;
     if (!mongoose.Types.ObjectId.isValid(id)) return sendError(res, 400, 'Invalid id');
 
-    const entry = await Healing.findById(id);
+    const entry = await Healing.findOne({ _id: id, coupleId: req.user?.coupleId });
     if (!entry) return sendError(res, 404, 'Promise not found');
     if (entry.coupleId && req.user.coupleId && entry.coupleId.toString() !== req.user.coupleId.toString()) return sendError(res, 403, 'Forbidden');
 
@@ -746,7 +746,7 @@ exports.createForgiveness = async (req, res, next) => {
 
     // If originalEntryId provided, update its status
     if (originalEntryId && mongoose.Types.ObjectId.isValid(originalEntryId)) {
-      const orig = await Healing.findById(originalEntryId);
+      const orig = await Healing.findOne({ _id: originalEntryId, coupleId: req.user?.coupleId });
       if (orig && orig.coupleId && req.user.coupleId && orig.coupleId.toString() === req.user.coupleId.toString()) {
         orig.status = 'forgiven';
         orig.metadata = orig.metadata || {};

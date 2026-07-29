@@ -1,26 +1,50 @@
 import axiosClient from "../../../api/axiosClient";
 
+const logApi = (label, payload) => {
+  if (import.meta.env.DEV) {
+    console.log(`[authApi] ${label}`, payload);
+  }
+};
+
 // ✅ Login (by couple name + either partner's password)
 export const login = async (data) => {
+  logApi("login request", data);
   const response = await axiosClient.post("/auth/login", data);
+  logApi("login response", { status: response.status, data: response.data });
   return response;
 };
 
 // ✅ Register Partner A
 export const registerPartnerA = async (data) => {
-  const response = await axiosClient.post("/auth/register", data);
-  return response.data;
+  logApi("registerPartnerA request", data);
+  try {
+    const response = await axiosClient.post("/auth/register", data);
+    logApi("registerPartnerA response", { status: response.status, data: response.data });
+    return response.data;
+  } catch (error) {
+    logApi("registerPartnerA error", {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data,
+      url: error.config?.url,
+    });
+    throw error;
+  }
 };
 
 // ✅ Register Partner B
 export const registerPartnerB = async (data) => {
+  logApi("registerPartnerB request", data);
   const response = await axiosClient.post("/invite/register-partnerB", data);
+  logApi("registerPartnerB response", { status: response.status, data: response.data });
   return response.data;
 };
 
 // ✅ Verify OTP
 export const verifyOtp = async (data) => {
+  logApi("verifyOtp request", data);
   const response = await axiosClient.post("/otp/verify", data);
+  logApi("verifyOtp response", { status: response.status, data: response.data });
 
   if (response.data.token) {
     localStorage.setItem("token", response.data.token);
@@ -36,7 +60,9 @@ export const resendOtp = async (email) => {
       ? { email }
       : (email || {});
 
+  logApi("resendOtp request", payload);
   const response = await axiosClient.post("/otp/resend", payload);
+  logApi("resendOtp response", { status: response.status, data: response.data });
   return response.data;
 };
 

@@ -78,6 +78,9 @@ app.use("/api/analytics", analyticsRoutes);
 app.use("/api/bucket", bucketRoutes);
 app.use("/api/wedding-vision", require("./routes/weddingVisionRoutes"));
 app.use("/api/memories", memoryRoutes);
+app.use("/api/moods", require("./routes/mood.routes"));
+// Backwards-compatible alias for older clients expecting singular path
+app.use("/api/mood", require("./routes/mood.routes"));
 // New tasks endpoints (shared todo-like Healing tasks)
 app.use("/api/healing/tasks", tasksRoutes);
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));

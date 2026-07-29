@@ -33,7 +33,7 @@ exports.createForgiveness = async (req, res, next) => {
       if (!orig.coupleId || !user.coupleId || orig.coupleId.toString() !== user.coupleId.toString()) return sendError(res, 403, 'Forbidden');
 
       // Prevent creating duplicate forgiveness for the same original entry
-      const alreadyForgiven = await Forgiveness.findOne({ $or: [{ originalEntryId: orig._id }, { linkedEntryId: orig._id }] });
+      const alreadyForgiven = await Forgiveness.findOne({ coupleId: user.coupleId, $or: [{ originalEntryId: orig._id }, { linkedEntryId: orig._id }] });
       if (alreadyForgiven) return sendError(res, 409, 'This entry has already been forgiven');
 
       // Determine partner id (forgivenTo)
@@ -243,7 +243,7 @@ exports.markForgivenessDone = async (req, res, next) => {
     const id = req.params.id;
     if (!id || !mongoose.Types.ObjectId.isValid(id)) return sendError(res, 400, 'Invalid id');
 
-    const forgiveness = await Forgiveness.findById(id);
+    const forgiveness = await Forgiveness.findOne({ _id: id, coupleId: user.coupleId });
     if (!forgiveness) return sendError(res, 404, 'Forgiveness entry not found');
     if (forgiveness.coupleId.toString() !== user.coupleId.toString()) return sendError(res, 403, 'Forbidden');
 

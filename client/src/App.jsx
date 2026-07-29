@@ -6,7 +6,7 @@ import MainLayout from "./layouts/MainLayout.jsx";
 import AuthLayout from "./layouts/AuthLayout.jsx";
 import LoginPage from "./features/auth/pages/LoginPage.jsx";
 import RegisterPage from "./features/auth/pages/RegisterPage.jsx";
-import DashboardPage from "./features/dashboard/pages/DashboardPage.jsx";
+import Dashboard from "./features/dashboard/Dashboard.jsx";
 import CoupleProfilePage from "./features/coupleProfile/pages/CoupleProfilePage.jsx";
 import LoveNotesPage from "./features/loveNotes/pages/LoveNotesPage.jsx";
 import HealingZonePage from "./features/healingZone/pages/HealingZonePage.jsx";
@@ -54,7 +54,7 @@ export default function App() {
         {/* Main app routes: always show MainLayout, never redirect to login */}
         <Route element={<MainLayout />}>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/couple" element={<CoupleProfilePage />} />
           <Route path="/love-notes" element={<LoveNotesPage />} />
           <Route path="/healing-zone" element={<HealingZonePage />} />

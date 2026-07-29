@@ -5,6 +5,14 @@ import QuickLinksGrid from "../components/QuickLinksGrid";
 import NextPromiseCard from "../components/NextPromiseCard";
 import BucketProgressCard from "../components/BucketProgressCard";
 import PunishmentSummaryCard from "../components/PunishmentSummaryCard";
+import AnalyticsPreview from "../components/AnalyticsPreview";
+import MoodOverview from "../components/MoodOverview";
+import LoveActivityChart from "../components/LoveActivityChart";
+import AISummaryCard from "../components/AISummaryCard";
+import RecentMemories from "../components/RecentMemories";
+import RecentLoveNotes from "../components/RecentLoveNotes";
+import Footer from "../components/Footer";
+import useDashboardData from "../hooks/useDashboardData";
 import "./DashboardPage.css";
 
 export default function DashboardPage() {
@@ -66,6 +74,7 @@ export default function DashboardPage() {
   );
 
   const displayName = user?.name || "Guest";
+  const { data, loading, error, refresh } = useDashboardData();
   return (
     <div className="dashboard-wrapper">
       <div className="dashboard-overlay" />
@@ -131,6 +140,34 @@ export default function DashboardPage() {
               femaleCompleted={0}
               onViewClick={() => navigate("/healing-zone")}
             />
+          </div>
+
+          <div className="dashboard-block">
+            {loading ? (
+              <div style={{ padding: 12 }}>Loading dashboard…</div>
+            ) : (
+              <div className="dashboard-grid">
+                <div className="grid-item grid-span-2">
+                  <AnalyticsPreview stats={data?.analytics} />
+                  <div style={{ height: 12 }} />
+                  <LoveActivityChart series={data?.activitySeries} />
+                </div>
+
+                <div className="grid-item">
+                  <AISummaryCard summary={data?.aiSummary} updatedAt={data?.aiUpdatedAt} onRefresh={refresh} />
+                  <div style={{ height: 12 }} />
+                  <MoodOverview distribution={data?.moodDistribution} />
+                  <div style={{ height: 12 }} />
+                  <RecentMemories items={data?.recentMemories} />
+                  <div style={{ height: 12 }} />
+                  <RecentLoveNotes items={data?.recentNotes} />
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="dashboard-block">
+            <Footer />
           </div>
         </section>
       </div>

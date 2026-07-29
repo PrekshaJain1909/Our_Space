@@ -10,6 +10,8 @@ export default function WeddingVisionForm({ onAdd }) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [referenceLink, setReferenceLink] = useState("");
+  const [date, setDate] = useState("");
+  const [location, setLocation] = useState("");
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState(null);
   const [error, setError] = useState(null);
@@ -73,6 +75,8 @@ export default function WeddingVisionForm({ onAdd }) {
         description: description.trim(),
         image: imageUrl,
         referenceLink: referenceLink.trim() || null,
+        date: date || null,
+        location: location?.trim() || null,
       };
 
       const createRes = await bucketApi.addVisionItem(payload);
@@ -80,10 +84,12 @@ export default function WeddingVisionForm({ onAdd }) {
       onAdd?.(item);
       showSuccessToast(theme, { title: "Wedding vision added!", timer: 2200, position: "top-end" });
 
-      setType("location");
+      setType("venue");
       setTitle("");
       setDescription("");
       setReferenceLink("");
+      setDate("");
+      setLocation("");
       setImageFile(null);
       setPreview(null);
     } catch (err) {
@@ -96,100 +102,119 @@ export default function WeddingVisionForm({ onAdd }) {
   };
 
   return (
-    <div className="bk-card">
+    <div className="bk-card wedding-form-card">
       <div className="bk-header">
         <span className="bk-badge">Wedding Vision</span>
-        <p className="bk-subtitle">
-          Pin your dream decor, dresses, locations and playlists. 💍
-        </p>
+        <p className="bk-subtitle">Pin your dream decor, dresses, locations and playlists. 💍</p>
       </div>
 
-      <form className="bk-form" onSubmit={handleSubmit}>
-        <div className="bk-row">
-          <div className="bk-field">
-            <label>Type</label>
-            <select value={type} onChange={(e) => setType(e.target.value)}>
-              <option value="venue">Venue</option>
-              <option value="dress">Dress</option>
-              <option value="decoration">Decoration</option>
-              <option value="cake">Cake</option>
-              <option value="invitation">Invitation</option>
-              <option value="jewelry">Jewelry</option>
-              <option value="photography">Photography</option>
-              <option value="makeup">Makeup</option>
-              <option value="honeymoon">Honeymoon</option>
-              <option value="food">Food</option>
-              <option value="music">Music</option>
-              <option value="others">Others</option>
-            </select>
+      <form className="bk-form wedding-bk-form" onSubmit={handleSubmit}>
+        <div className="wvf-grid">
+          <div className="wvf-upload">
+            <div
+              className="bk-upload-dropzone compact"
+              onDrop={handleDrop}
+              onDragOver={(e) => e.preventDefault()}
+              onDragEnter={(e) => e.preventDefault()}
+              onDragLeave={(e) => e.preventDefault()}
+              onClick={handleBrowseClick}
+              role="button"
+              tabIndex={0}
+              onKeyPress={(e) => { if (e.key === 'Enter') handleBrowseClick(); }}
+            >
+              {preview ? (
+                <img src={preview} alt="Wedding vision preview" className="bk-upload-preview" />
+              ) : (
+                <>
+                  <p>Click or drop an image</p>
+                  <small>JPG, PNG, WEBP • up to 5MB</small>
+                </>
+              )}
+              <input
+                ref={inputRef}
+                type="file"
+                accept="image/png,image/jpeg,image/jpg,image/webp"
+                className="bk-upload-input"
+                onChange={(e) => handleFileChange(e.target.files?.[0])}
+                hidden
+              />
+            </div>
           </div>
 
-          <div className="bk-field">
-            <label>Title</label>
-            <input
-              type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. Beach sunset mandap, pastel lehenga…"
-              required
-            />
+          <div className="wvf-fields">
+            <div className="bk-row">
+              <div className="bk-field">
+                <label>Title</label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Beach sunset mandap, pastel lehenga…"
+                  required
+                />
+              </div>
+
+              <div className="bk-field">
+                <label>Type</label>
+                <select value={type} onChange={(e) => setType(e.target.value)} className="bk-select">
+                  <option value="venue">Venue</option>
+                  <option value="dress">Dress</option>
+                  <option value="decoration">Decoration</option>
+                  <option value="cake">Cake</option>
+                  <option value="invitation">Invitation</option>
+                  <option value="jewelry">Jewelry</option>
+                  <option value="photography">Photography</option>
+                  <option value="makeup">Makeup</option>
+                  <option value="honeymoon">Honeymoon</option>
+                  <option value="food">Food</option>
+                  <option value="music">Music</option>
+                  <option value="others">Others</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="bk-row">
+              <div className="bk-field">
+                <label>Date (optional)</label>
+                <input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+              </div>
+              <div className="bk-field">
+                <label>Location (optional)</label>
+                <input type="text" value={location} onChange={(e) => setLocation(e.target.value)} placeholder="Venue, city…" />
+              </div>
+            </div>
+
+            <div className="bk-field">
+              <label>Description (optional)</label>
+              <textarea
+                rows={2}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Colors, mood, details you both imagine…"
+              />
+            </div>
+
+            <div className="bk-row">
+              <div className="bk-field" style={{ flex: 1 }}>
+                <label>Reference link (optional)</label>
+                <input
+                  type="url"
+                  value={referenceLink}
+                  onChange={(e) => setReferenceLink(e.target.value)}
+                  placeholder="Song link, venue page, vendor reference…"
+                />
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'flex-end', marginLeft: 8 }}>
+                <button type="submit" className="bk-primary-btn" disabled={isSubmitting}>
+                  {isSubmitting ? 'Uploading…' : 'Add to wedding vision'}
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-
-        <div className="bk-field">
-          <label>Description (optional)</label>
-          <textarea
-            rows={2}
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            placeholder="Colors, mood, details you both imagine…"
-          />
-        </div>
-
-        <div
-          className="bk-upload-dropzone"
-          onDrop={handleDrop}
-          onDragOver={(e) => e.preventDefault()}
-          onDragEnter={(e) => e.preventDefault()}
-          onDragLeave={(e) => e.preventDefault()}
-          onClick={handleBrowseClick}
-          role="button"
-          tabIndex={0}
-          onKeyPress={(e) => { if (e.key === 'Enter') handleBrowseClick(); }}
-        >
-          {preview ? (
-            <img src={preview} alt="Wedding vision preview" className="bk-upload-preview" />
-          ) : (
-            <>
-              <p>Drag & drop an image here, or click to browse</p>
-              <small>Accepted: JPG, PNG, WEBP up to 5MB.</small>
-            </>
-          )}
-          <input
-            ref={inputRef}
-            type="file"
-            accept="image/png,image/jpeg,image/jpg,image/webp"
-            className="bk-upload-input"
-            onChange={(e) => handleFileChange(e.target.files?.[0])}
-            hidden
-          />
-        </div>
-
-        <div className="bk-field">
-          <label>Reference link (optional)</label>
-          <input
-            type="url"
-            value={referenceLink}
-            onChange={(e) => setReferenceLink(e.target.value)}
-            placeholder="Song link, venue page, vendor reference…"
-          />
         </div>
 
         {error && <p className="bk-upload-error">{error}</p>}
-
-        <button type="submit" className="bk-primary-btn" disabled={isSubmitting}>
-          {isSubmitting ? 'Uploading…' : 'Add to wedding vision'}
-        </button>
       </form>
     </div>
   );

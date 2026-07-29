@@ -129,7 +129,7 @@ function HealingZoneInner() {
     { id: "promise", label: "Promises", subtitle: "Keep your promises", icon: <FaHandsHelping /> },
     { id: "forgive", label: "Forgiveness", subtitle: "Celebrate forgiveness", icon: <FaRegHeart /> },
     { id: "generator", label: "Punishment Generator", subtitle: "Generate cute punishments", icon: <FaDice /> },
-    { id: "list", label: "Entries", subtitle: "View healing history", icon: <FaListUl /> },
+    // { id: "list", label: "Entries", subtitle: "View healing history", icon: <FaListUl /> },
     { id: "stats", label: "Statistics", subtitle: "Relationship insights", icon: <FaChartBar /> },
   ];
 

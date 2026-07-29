@@ -337,7 +337,7 @@ export default function BucketPage() {
                     <button
                       key={t}
                       type="button"
-                      className={`tag small ${weddingFilter === t ? 'default' : ''}`}
+                      className={`wv-filter-pill ${weddingFilter === t ? 'active' : ''}`}
                       onClick={() => setWeddingFilter(t)}
                     >{t === 'all' ? 'All' : t.charAt(0).toUpperCase() + t.slice(1)}</button>
                   ))}

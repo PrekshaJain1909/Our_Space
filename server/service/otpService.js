@@ -4,7 +4,7 @@ const crypto = require("crypto");
 
 const OTP_EXPIRY_MINUTES = 5;
 const MAX_VERIFY_ATTEMPTS = 5;   // failed attempts before OTP is invalidated
-const MAX_RESEND_COUNT    = 5;   // how many times a new OTP can be requested per session
+const MAX_RESEND_COUNT = 5;   // how many times a new OTP can be requested per session
 const RESEND_COOLDOWN_SEC = 60;  // seconds to wait between resend requests
 
 const OTP_DEBUG_PREFIX = "[OTP]";
@@ -48,8 +48,11 @@ const safeOtpMeta = (otp) => {
 
 exports.generateOTP = () => {
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
+  const shouldDebugOtp =
+    process.env.NODE_ENV !== "production" ||
+    process.env.OTP_DEBUG === "true";
 
-  if (process.env.NODE_ENV !== "production") {
+  if (shouldDebugOtp) {
     console.log(`${OTP_DEBUG_PREFIX} generateOTP`, {
       otp,
       createdAt: new Date().toISOString(),
@@ -97,7 +100,7 @@ exports.saveOTP = async (email, otp, isResend = false) => {
     });
   }
 
-  let resendCount  = 0;
+  let resendCount = 0;
   let lastResentAt = null;
 
   if (isResend) {
@@ -125,7 +128,7 @@ exports.saveOTP = async (email, otp, isResend = false) => {
       }
     }
 
-    resendCount  = baseResendCount + 1;
+    resendCount = baseResendCount + 1;
     lastResentAt = new Date();
   }
 
