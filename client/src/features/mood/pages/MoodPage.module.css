@@ -1,0 +1,859 @@
+.page {
+    position: relative;
+    min-height: 100vh;
+    padding: 32px 24px 48px;
+    background: radial-gradient(circle at top left, rgba(232, 84, 184, 0.14), transparent 26%),
+        radial-gradient(circle at 80% 10%, rgba(138, 92, 246, 0.12), transparent 24%),
+        var(--background);
+    color: var(--text);
+    transition: background 300ms ease, color 300ms ease;
+}
+
+.inner {
+    width: min(1360px, 100%);
+    margin: 0 auto;
+    display: grid;
+    gap: 28px;
+}
+
+.hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+    gap: 24px;
+    padding: 32px;
+    border-radius: 32px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.45));
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(24px);
+    box-shadow: 0 28px 60px rgba(19, 10, 45, 0.14);
+}
+
+.heroDark {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.04));
+}
+
+.heroContent {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 18px;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    background: rgba(255, 255, 255, 0.24);
+    color: var(--primary);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.title {
+    font-size: clamp(2rem, 3vw, 3.35rem);
+    line-height: 1.02;
+    margin: 0;
+    letter-spacing: -0.04em;
+    color: var(--text);
+}
+
+.subtitle {
+    max-width: 560px;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: var(--muted);
+}
+
+.heroVisual {
+    position: relative;
+    min-height: 260px;
+    display: grid;
+    place-items: center;
+    border-radius: 32px;
+    overflow: hidden;
+    background: radial-gradient(circle at center, rgba(248, 84, 211, 0.18), transparent 42%),
+        radial-gradient(circle at 80% 20%, rgba(90, 215, 255, 0.16), transparent 30%),
+        rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.heroGlow {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: radial-gradient(circle at 20% 25%, rgba(232, 84, 184, 0.16), transparent 25%),
+        radial-gradient(circle at 80% 35%, rgba(90, 215, 255, 0.18), transparent 22%);
+}
+
+.particles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}
+
+.particle {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.72);
+    filter: blur(0.5px);
+    box-shadow: 0 0 22px rgba(255, 255, 255, 0.16);
+}
+
+.heroIllustration {
+    position: relative;
+    width: min(100%, 240px);
+    height: min(100%, 240px);
+    aspect-ratio: 1 / 1;
+    border-radius: 28px;
+    background: linear-gradient(135deg, rgba(232, 84, 184, 0.35), rgba(138, 92, 246, 0.28));
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+}
+
+.heartBubble {
+    position: absolute;
+    width: 68px;
+    height: 68px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.25);
+    filter: blur(0.25px);
+}
+
+.heartCenter {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.35);
+    display: grid;
+    place-items: center;
+    box-shadow: 0 20px 50px rgba(232, 84, 184, 0.18);
+}
+
+.heartSymbol {
+    font-size: 4rem;
+    color: var(--primary);
+    text-shadow: 0 0 18px rgba(232, 84, 184, 0.6);
+}
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.statCard {
+    position: relative;
+    overflow: hidden;
+    padding: 24px;
+    border-radius: 24px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: 0 24px 40px rgba(10, 10, 15, 0.08);
+    transition: transform 300ms ease, border-color 300ms ease, box-shadow 300ms ease;
+}
+
+.statCard:hover {
+    transform: translateY(-6px);
+    border-color: rgba(232, 84, 184, 0.35);
+    box-shadow: 0 32px 60px rgba(10, 10, 15, 0.14);
+}
+
+.statIcon {
+    width: 48px;
+    height: 48px;
+    border-radius: 18px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 14px;
+    color: #fff;
+    background: linear-gradient(135deg, rgba(232, 84, 184, 0.95), rgba(138, 92, 246, 0.95));
+    box-shadow: 0 10px 20px rgba(232, 84, 184, 0.22);
+}
+
+.statLabel {
+    font-size: 0.87rem;
+    color: var(--muted);
+    margin-bottom: 8px;
+}
+
+.statValue {
+    font-size: 1.95rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: var(--text);
+}
+
+.grid2x1 {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: 18px;
+}
+
+.panel {
+    border-radius: 28px;
+    border: 1px solid var(--card-border);
+    background: var(--card-bg);
+    box-shadow: 0 24px 48px rgba(10, 10, 15, 0.08);
+    backdrop-filter: blur(18px);
+    overflow: hidden;
+}
+
+.panelHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 24px;
+}
+
+.panelTitle {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text);
+}
+
+.panelSubtitle {
+    margin: 6px 0 0;
+    color: var(--muted);
+    font-size: 0.95rem;
+}
+
+.segmentRow {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    padding: 0 24px 22px;
+}
+
+.segmentButton {
+    padding: 12px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--card-border);
+    background: var(--background);
+    color: var(--text);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 250ms ease;
+}
+
+.segmentButtonActive {
+    background: linear-gradient(135deg, rgba(232, 84, 184, 0.12), rgba(138, 92, 246, 0.14));
+    border-color: rgba(232, 84, 184, 0.35);
+    box-shadow: 0 12px 24px rgba(138, 92, 246, 0.1);
+}
+
+.calendarWrapper {
+    padding: 0 24px 24px;
+}
+
+.calendarHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-bottom: 4px;
+}
+
+.calendarTitle {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+}
+
+.calendarActions {
+    display: flex;
+    gap: 10px;
+}
+
+.controlButton {
+    border-radius: 999px;
+    border: 1px solid var(--card-border);
+    background: transparent;
+    color: var(--text);
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+    transition: all 250ms ease;
+}
+
+.controlButton:hover {
+    border-color: rgba(232, 84, 184, 0.35);
+    transform: translateY(-1px);
+}
+
+.calendarGrid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 12px;
+    padding: 18px 0 0;
+}
+
+.dayLabel {
+    font-size: 0.75rem;
+    text-align: center;
+    color: var(--muted);
+}
+
+.dayCell {
+    min-height: 94px;
+    border-radius: 22px;
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    transition: transform 250ms ease, border-color 250ms ease, background 250ms ease;
+    cursor: pointer;
+}
+
+.dayCell:hover {
+    transform: translateY(-2px);
+    border-color: rgba(232, 84, 184, 0.3);
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.dayCellSelected {
+    outline: 2px solid rgba(232, 84, 184, 0.65);
+    outline-offset: 2px;
+}
+
+.dayCellToday {
+    box-shadow: inset 0 0 0 1px rgba(90, 215, 255, 0.55);
+}
+
+.dayTop {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.dayNumber {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text);
+}
+
+.moodIndicator {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.14);
+}
+
+.dayEmoji {
+    font-size: 1.65rem;
+    display: grid;
+    place-items: center;
+}
+
+.detailsPanel {
+    position: relative;
+    border-radius: 28px;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    min-height: 720px;
+}
+
+.detailsContent {
+    padding: 24px;
+    display: grid;
+    gap: 20px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.08));
+    border: 1px solid var(--card-border);
+    backdrop-filter: blur(20px);
+}
+
+.previewCard {
+    border-radius: 26px;
+    padding: 24px;
+    background: rgba(255, 255, 255, 0.18);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.previewEmoji {
+    font-size: 4rem;
+    line-height: 1;
+}
+
+.previewHeading {
+    margin: 14px 0 4px;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.previewMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.previewTag {
+    padding: 6px 12px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.formPanel {
+    display: grid;
+    gap: 18px;
+}
+
+.formTitle {
+    font-size: 1.05rem;
+    margin: 0;
+    color: var(--text);
+}
+
+.emojiGrid {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.emojiButton {
+    border-radius: 18px;
+    border: 1px solid var(--card-border);
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--text);
+    min-height: 58px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: transform 250ms ease, border-color 250ms ease, box-shadow 250ms ease, background 250ms ease;
+}
+
+.emojiButton:hover {
+    transform: translateY(-2px);
+    border-color: rgba(232, 84, 184, 0.35);
+    background: rgba(255, 255, 255, 0.22);
+}
+
+.emojiButtonActive {
+    background: linear-gradient(135deg, rgba(232, 84, 184, 0.18), rgba(138, 92, 246, 0.18));
+    border-color: rgba(232, 84, 184, 0.55);
+    box-shadow: 0 12px 24px rgba(232, 84, 184, 0.14);
+}
+
+.descriptionField {
+    display: grid;
+    gap: 10px;
+}
+
+.descriptionField label {
+    font-size: 0.95rem;
+    color: var(--muted);
+}
+
+.descriptionField textarea {
+    width: 100%;
+    min-height: 120px;
+    resize: vertical;
+    padding: 14px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--card-border);
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--text);
+    font-size: 0.95rem;
+    line-height: 1.65;
+    outline: none;
+}
+
+.descriptionField textarea::placeholder {
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.formFooter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.charCount {
+    color: var(--muted);
+    font-size: 0.88rem;
+}
+
+.buttonRow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.buttonPrimary,
+.buttonOutline,
+.buttonDanger,
+.buttonGhost {
+    min-width: 120px;
+    border-radius: 999px;
+    border: none;
+    padding: 12px 18px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 200ms ease, box-shadow 200ms ease, background 200ms ease;
+}
+
+.buttonPrimary {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+}
+
+.buttonOutline {
+    background: transparent;
+    border: 1px solid var(--card-border);
+    color: var(--text);
+}
+
+.buttonDanger {
+    background: rgba(239, 68, 68, 0.12);
+    color: #fda4af;
+}
+
+.buttonGhost {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text);
+}
+
+.buttonPrimary:hover,
+.buttonOutline:hover,
+.buttonDanger:hover,
+.buttonGhost:hover {
+    transform: translateY(-1px);
+}
+
+.legendGrid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    padding: 18px 24px 24px;
+}
+
+.legendChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text);
+    font-size: 0.92rem;
+}
+
+.aiCard,
+.analyticsCard,
+.summaryGrid,
+.trendCard,
+.distributionCard,
+.timelineCard,
+.suggestionsCard {
+    border-radius: 28px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: 0 24px 40px rgba(10, 10, 15, 0.08);
+    backdrop-filter: blur(18px);
+}
+
+.panelPadding {
+    padding: 24px;
+}
+
+.cardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.cardTitle {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.cardText {
+    margin: 0;
+    color: var(--muted);
+    line-height: 1.65;
+}
+
+.aiSummary {
+    display: grid;
+    gap: 12px;
+    font-size: 0.95rem;
+    line-height: 1.8;
+    min-height: 110px;
+    color: var(--text);
+}
+
+.analyticsCta {
+    margin-top: 18px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--primary);
+    font-weight: 700;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.summaryGrid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    padding: 24px;
+}
+
+.summaryCard {
+    border-radius: 24px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.summaryLabel {
+    font-size: 0.88rem;
+    color: var(--muted);
+}
+
+.summaryValue {
+    font-size: 1.7rem;
+    font-weight: 700;
+    margin: 10px 0 0;
+}
+
+.chartSvg {
+    width: 100%;
+    height: 240px;
+}
+
+.chartLegend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.chartLegendItem {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.legendDot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.donutWrapper {
+    display: grid;
+    place-items: center;
+    padding: 24px;
+}
+
+.donutLegend {
+    display: grid;
+    gap: 10px;
+    padding: 0 24px 24px;
+}
+
+.donutLegendItem {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    align-items: center;
+    color: var(--muted);
+    font-size: 0.95rem;
+}
+
+.timelineList {
+    display: grid;
+    gap: 14px;
+}
+
+.timelineItem {
+    border-radius: 22px;
+    border: 1px solid var(--card-border);
+    padding: 18px;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.timelineItemHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.timelineItemTitle {
+    margin: 0;
+    font-size: 0.96rem;
+    font-weight: 700;
+}
+
+.timelineMeta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: var(--muted);
+    font-size: 0.89rem;
+}
+
+.suggestionsList {
+    display: grid;
+    gap: 10px;
+}
+
+.suggestionLine {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    color: var(--text);
+}
+
+.suggestionBullet {
+    margin-top: 4px;
+    font-size: 1rem;
+}
+
+.emptyState {
+    display: grid;
+    place-items: center;
+    text-align: center;
+    padding: 58px 24px;
+}
+
+.emptyTitle {
+    font-size: 1.55rem;
+    margin: 0 0 12px;
+}
+
+.emptyText {
+    color: var(--muted);
+    margin: 0 0 22px;
+    max-width: 420px;
+}
+
+.emptyButton {
+    padding: 14px 24px;
+    border-radius: 999px;
+    border: none;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+@media (max-width: 1180px) {
+
+    .hero,
+    .grid2x1 {
+        grid-template-columns: 1fr;
+    }
+
+    .statsGrid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .summaryGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 860px) {
+    .page {
+        padding: 24px 16px 32px;
+    }
+
+    .hero {
+        padding: 28px;
+    }
+
+    .statsGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .calendarGrid {
+        gap: 10px;
+    }
+}
+
+@media (max-width: 700px) {
+    .hero {
+        grid-template-columns: 1fr;
+    }
+
+    .statsGrid {
+        grid-template-columns: 1fr;
+    }
+
+    .segmentRow {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .calendarGrid {
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+
+    .detailsPanel {
+        min-height: auto;
+    }
+
+    .heroVisual {
+        min-height: 220px;
+    }
+}
+
+@media (max-width: 560px) {
+    .calendarGrid {
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .dayCell {
+        min-height: 82px;
+        padding: 12px 10px;
+    }
+
+    .hero {
+        padding: 22px;
+    }
+
+    .segmentRow {
+        grid-template-columns: 1fr;
+    }
+
+    .legendGrid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .summaryGrid {
+        grid-template-columns: 1fr;
+    }
+}

@@ -1,0 +1,31 @@
+.card {
+    background: var(--card);
+    padding: 12px;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.note {
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), transparent);
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.note p {
+    margin: 0 0 6px 0;
+}
+
+.note footer {
+    font-size: 12px;
+    color: var(--muted);
+}
+
+.empty {
+    color: var(--muted);
+}

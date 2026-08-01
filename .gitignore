@@ -1,0 +1,72 @@
+# Node modules
+node_modules/
+
+# Build outputs
+dist/
+build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.*
+
+# IDE files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Coverage
+coverage/
+
+# Misc
+*.log
+*.tgz
+
+# Local data
+server/data/db.json
+
+# Ignore next.js/.next, Vite/.vite, etc.
+.next/
+.vite/
+
+# Ignore output from testing
+coverage/
+
+# Ignore Mac system files
+*.DS_Store
+
+# Ignore Windows system files
+Thumbs.db
+
+# Ignore package-lock and yarn lock if not used
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Ignore local environment settings
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Ignore server logs
+server.log
+
+# Ignore client and server build artifacts
+client/dist/
+server/dist/
+
+# Ignore client and server node_modules
+client/node_modules/
+server/node_modules/

@@ -1,0 +1,133 @@
+.dashboard-root {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 24px;
+    padding: 28px;
+    align-items: start;
+    min-height: 100vh;
+}
+
+.dash-sidebar {
+    background: linear-gradient(180deg, var(--glass), transparent);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: var(--shadow-soft);
+    height: calc(100vh - 56px);
+    position: sticky;
+    top: 28px;
+}
+
+.dash-main {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.dash-navbar {
+    position: sticky;
+    top: 16px;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: transparent;
+    padding: 8px 12px;
+}
+
+.greeting {
+    text-align: center;
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.subtitle {
+    text-align: center;
+    color: var(--muted);
+    margin: 2px 0 0 0;
+    font-size: 13px
+}
+
+.dash-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 18px;
+}
+
+.col-span-8 {
+    grid-column: span 8;
+}
+
+.col-span-4 {
+    grid-column: span 4;
+}
+
+.card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-xl);
+    padding: 18px;
+    box-shadow: var(--shadow-soft);
+    transition: transform var(--transition-fast) ease, box-shadow var(--transition-fast) ease;
+}
+
+.card:hover {
+    transform: translateY(-6px);
+}
+
+.hero-card {
+    display: flex;
+    gap: 18px;
+    align-items: center;
+}
+
+.hero-illustration {
+    width: 160px;
+    height: 120px;
+    object-fit: contain;
+}
+
+.hero-body {
+    flex: 1;
+}
+
+.together-counter {
+    display: flex;
+    align-items: center;
+    gap: 12px
+}
+
+.counter-number {
+    font-weight: 700;
+    font-size: 20px
+}
+
+@media (max-width: 1024px) {
+    .dashboard-root {
+        grid-template-columns: 1fr;
+        padding: 18px
+    }
+
+    .dash-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+
+    .col-span-8 {
+        grid-column: span 6;
+    }
+
+    .col-span-4 {
+        grid-column: span 6;
+    }
+}
+
+@media (max-width: 640px) {
+    .dash-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero-illustration {
+        display: none
+    }
+}

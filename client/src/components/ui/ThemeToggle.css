@@ -1,0 +1,199 @@
+/* ============================================
+   THEME TOGGLE COMPONENT STYLES
+   Animated sun/moon toggle with gaming aesthetic
+   ============================================ */
+
+.theme-toggle {
+  position: relative;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  color: #fff;
+  font-size: 1rem;
+  overflow: hidden;
+  z-index: 100;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 15px var(--accent-glow);
+}
+
+.theme-toggle:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 30px var(--accent-glow);
+}
+
+.theme-toggle:active {
+  transform: scale(0.95);
+}
+
+.dark .theme-toggle {
+  background: linear-gradient(135deg, var(--dark-neon-pink), var(--dark-neon-cyan));
+  box-shadow: 0 0 20px var(--dark-accent-glow), inset 0 0 10px rgba(0, 255, 255, 0.1);
+}
+
+.dark .theme-toggle:hover {
+  box-shadow: 0 0 40px rgba(255, 0, 255, 0.7), inset 0 0 15px rgba(0, 255, 255, 0.2);
+}
+
+/* ============================================
+   TOGGLE BACKGROUND ANIMATION
+   ============================================ */
+
+.theme-toggle-bg {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  border-radius: 50%;
+}
+
+.theme-toggle:hover .theme-toggle-bg {
+  opacity: 1;
+  animation: toggleGlow 1.5s ease-in-out infinite;
+}
+
+@keyframes toggleGlow {
+  0%, 100% {
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1) inset;
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3) inset;
+  }
+}
+
+/* ============================================
+   ICON STYLES
+   ============================================ */
+
+.theme-toggle-icon {
+  position: absolute;
+  width: 1rem;
+  height: 1rem;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+/* Sun Icon - Shown in Light Mode */
+.theme-toggle-sun {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+.dark .theme-toggle-sun {
+  opacity: 0;
+  transform: scale(0.8) rotate(-180deg);
+}
+
+/* Moon Icon - Shown in Dark Mode */
+.theme-toggle-moon {
+  opacity: 0;
+  transform: scale(0.8) rotate(180deg);
+}
+
+.dark .theme-toggle-moon {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+/* ============================================
+   ARCADE/GAMING EFFECTS
+   ============================================ */
+
+.theme-toggle:hover .theme-toggle-icon {
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.5));
+}
+
+.dark .theme-toggle:hover .theme-toggle-icon {
+  filter: drop-shadow(0 0 12px rgba(0, 255, 255, 0.8));
+}
+
+/* ============================================
+   PULSING ANIMATION ON HOVER
+   ============================================ */
+
+@keyframes togglePulse {
+  0%, 100% {
+    box-shadow: 0 0 10px var(--accent-glow);
+  }
+  50% {
+    box-shadow: 0 0 25px var(--accent-glow);
+  }
+}
+
+.theme-toggle:hover {
+  animation: togglePulse 1s ease-in-out infinite;
+}
+
+.dark .theme-toggle:hover {
+  animation: none;
+  box-shadow: 0 0 40px rgba(255, 0, 255, 0.7), inset 0 0 15px rgba(0, 255, 255, 0.2);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 768px) {
+  .theme-toggle {
+    width: 3rem;
+    height: 3rem;
+    font-size: 1.3rem;
+  }
+
+  .theme-toggle-icon {
+    width: 1.3rem;
+    height: 1.3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .theme-toggle {
+    width: 2.75rem;
+    height: 2.75rem;
+    font-size: 1.1rem;
+  }
+
+  .theme-toggle-icon {
+    width: 1.1rem;
+    height: 1.1rem;
+  }
+}
+
+/* ============================================
+   FOCUS STATE (KEYBOARD NAVIGATION)
+   ============================================ */
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--accent-primary);
+  outline-offset: 3px;
+}
+
+.dark .theme-toggle:focus-visible {
+  outline: 2px solid var(--dark-neon-cyan);
+  outline-offset: 3px;
+}
+
+/* ============================================
+   ACCESSIBILITY & DARK MODE TWEAKS
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  .theme-toggle,
+  .theme-toggle-icon,
+  .theme-toggle-bg {
+    transition: none;
+    animation: none;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .theme-toggle {
+    background: linear-gradient(135deg, var(--dark-neon-pink), var(--dark-neon-cyan));
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "ignore": [
+    "client/",
+    "client/**",
+    "node_modules/**",
+    ".git/**",
+    "**/__tests__/**",
+    "**/*.test.js",
+    "**/*~",
+    "**/~*",
+    "**/OneDrive/**"
+  ]
+}

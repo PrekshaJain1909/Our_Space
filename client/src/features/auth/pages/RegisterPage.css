@@ -1,0 +1,172 @@
+/* Verify OTP page (uses auth field tokens from AuthPage.css) */
+@import "../styles/AuthPage.css";
+
+.verify-email-block {
+  margin-bottom: 1rem;
+}
+
+.verify-email-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--auth-text, var(--text-primary));
+}
+
+.verify-required {
+  color: var(--auth-accent, var(--accent-primary));
+}
+
+.auth-field__input.form-input-error {
+  border-color: var(--color-danger) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-danger) 20%, transparent) !important;
+}
+
+.verify-error-text,
+.verify-warning-text {
+  color: var(--color-danger);
+  font-size: 0.75rem;
+  text-align: center;
+  margin-top: 0.4rem;
+}
+
+.verify-warning-text {
+  font-size: 0.8125rem;
+}
+
+.verify-resend-wrap {
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.verify-resend-btn {
+  background: none;
+  border: none;
+  color: var(--auth-accent, var(--accent-primary));
+  cursor: pointer;
+  font-size: 0.875rem;
+  text-decoration: underline;
+}
+
+.verify-resend-btn-disabled {
+  color: var(--auth-text-faint, var(--text-tertiary));
+  cursor: default;
+  text-decoration: none;
+}
+
+/* Legacy OTP layout on verify page */
+.romantic-page {
+  min-height: 100vh;
+  padding: clamp(1.5rem, 4vw, 3rem) 1.25rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: var(--text-primary);
+  background:
+    radial-gradient(ellipse 70% 45% at 50% 12%, color-mix(in srgb, var(--accent-primary) 14%, transparent), transparent 55%),
+    linear-gradient(180deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+}
+
+.romantic-hero {
+  text-align: center;
+  max-width: 36rem;
+  margin-bottom: 2rem;
+}
+
+.hero-title {
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.hero-title span {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero-subtitle {
+  margin-top: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.glass-card {
+  width: 100%;
+  max-width: 26rem;
+  padding: clamp(1.5rem, 4vw, 2.25rem);
+  border-radius: var(--radius-xl, 22px);
+  background: var(--surface);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--shadow-lg);
+}
+
+.dark .glass-card {
+  background: rgba(22, 0, 56, 0.92);
+}
+
+.otp-wrapper {
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem;
+  margin: 1.25rem 0;
+}
+
+.otp-wrapper input {
+  width: 2.75rem;
+  height: 3rem;
+  font-size: 1.2rem;
+  text-align: center;
+  border-radius: var(--radius-md, 10px);
+  border: 1px solid var(--card-border);
+  background: var(--surface);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.otp-wrapper input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 22%, transparent);
+}
+
+.primary-btn {
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.95rem;
+  border: none;
+  border-radius: var(--radius-md, 10px);
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+}
+
+.card-title {
+  text-align: center;
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.romantic-page .form-input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--surface);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-md, 10px);
+  outline: none;
+}
+
+.romantic-page .form-input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 22%, transparent);
+}
+
+.dark .romantic-page .form-input {
+  background: rgba(12, 0, 32, 0.85);
+}

@@ -1,0 +1,242 @@
+/* Wedding Vision theme-aware styles (Light & Dark)
+   Uses global CSS variables from variables.css so the page follows the app theme.
+*/
+
+.wedding-vision-section .memory-glass-card,
+.wedding-vision-section .memory-card,
+.wedding-vision-section .memory-glass-card.memory-empty-state-card {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius-xl);
+}
+
+/* Image container */
+.wedding-vision-section .memory-card-image-wrap {
+    border-radius: 18px;
+    overflow: hidden;
+    height: 230px;
+}
+
+.wedding-vision-section .memory-card-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 280ms ease;
+    display: block;
+}
+
+.wedding-vision-section .memory-card:hover .memory-card-image {
+    transform: scale(1.04);
+}
+
+/* Placeholder when image missing */
+.wedding-vision-section .memory-card-image-placeholder {
+    background: var(--gradient-card);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Badge pill styling per type (use theme accents) */
+.wedding-vision-section .memory-badge-pill {
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-weight: 700;
+    color: var(--text-primary);
+    font-size: 12px;
+    box-shadow: 0 6px 18px var(--accent-glow);
+}
+
+.wedding-vision-section .memory-card[data-mood="venue"] .memory-badge-pill,
+.wedding-vision-section .memory-card[data-mood="location"] .memory-badge-pill {
+    background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary));
+    color: #fff;
+}
+
+.wedding-vision-section .memory-card[data-mood="dress"] .memory-badge-pill {
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-tertiary));
+    color: #fff;
+}
+
+.wedding-vision-section .memory-card[data-mood="decoration"] .memory-badge-pill {
+    background: linear-gradient(90deg, var(--accent-tertiary), var(--accent-secondary));
+    color: #fff;
+}
+
+.wedding-vision-section .memory-card[data-mood="cake"] .memory-badge-pill {
+    background: linear-gradient(90deg, var(--accent-secondary), var(--accent-tertiary));
+    color: #fff;
+}
+
+.wedding-vision-section .memory-card[data-mood="photography"] .memory-badge-pill {
+    background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+    color: #fff;
+}
+
+.wedding-vision-section .memory-card[data-mood="honeymoon"] .memory-badge-pill {
+    background: linear-gradient(90deg, var(--accent-secondary), var(--accent-tertiary));
+    color: #fff;
+}
+
+.wedding-vision-section .memory-card[data-mood="jewelry"] .memory-badge-pill,
+.wedding-vision-section .memory-card[data-mood="others"] .memory-badge-pill {
+    background: linear-gradient(90deg, var(--accent-tertiary), var(--accent-primary));
+    color: var(--text-primary);
+}
+
+/* Card surface adjustments */
+.wedding-vision-section .memory-card {
+    border-radius: 20px;
+    overflow: hidden;
+    transition: transform 220ms ease, box-shadow 220ms ease;
+}
+
+.wedding-vision-section .memory-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Typography */
+.wedding-vision-section .memory-card-title {
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 18px;
+}
+
+.wedding-vision-section .memory-card-meta-pill {
+    background: rgba(0, 0, 0, 0.04);
+    color: var(--text-secondary);
+}
+
+/* Empty state */
+.wedding-vision-section .memory-empty-card {
+    background: transparent;
+    color: var(--text-secondary);
+}
+
+.wedding-vision-section .memory-submit-btn {
+    background: var(--gradient-primary);
+    color: #fff;
+    border: none;
+}
+
+/* Compact upload form styles */
+.wedding-form-card {
+    padding: 16px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    box-shadow: var(--shadow-md);
+}
+
+.wedding-bk-form .wvf-grid {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 16px;
+    align-items: start;
+}
+
+.wvf-upload .bk-upload-dropzone.compact {
+    min-height: 120px;
+    padding: 12px;
+    border-radius: 14px;
+    background: var(--surface);
+    border: 1px dashed var(--card-border);
+    color: var(--text-primary);
+}
+
+.wvf-upload .bk-upload-dropzone.compact:hover {
+    border-color: var(--accent-secondary);
+    box-shadow: var(--shadow-sm);
+}
+
+.wedding-bk-form .bk-row {
+    margin-bottom: 10px;
+}
+
+.wedding-bk-form .bk-field label {
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+/* Filter pills */
+.wv-filter-pill {
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: var(--card-bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--card-border);
+    margin-right: 6px;
+    cursor: pointer;
+    transition: transform var(--anim-fast) ease, box-shadow var(--anim-fast) ease, background var(--anim-fast) ease;
+}
+
+.wv-filter-pill:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
+}
+
+.wv-filter-pill.active {
+    background: var(--gradient-primary);
+    color: #fff;
+    box-shadow: var(--shadow-lg);
+    border-color: transparent;
+}
+
+/* Spacing improvements */
+.bucket-block {
+    margin-bottom: 24px;
+}
+
+.wedding-vision-section .memory-card-content {
+    padding: 14px 16px;
+}
+
+.wedding-vision-section .bk-header {
+    margin-bottom: 18px;
+}
+
+@media (max-width: 900px) {
+    .wedding-bk-form .wvf-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .wvf-upload {
+        order: -1;
+    }
+}
+
+/* Form input overrides (theme-aware) */
+.wedding-form-card input,
+.wedding-form-card select,
+.wedding-form-card textarea {
+    background: var(--surface);
+    color: var(--text-primary);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    transition: box-shadow var(--anim-fast) ease, border-color var(--anim-fast) ease;
+}
+
+.wedding-form-card input:focus,
+.wedding-form-card select:focus,
+.wedding-form-card textarea:focus {
+    outline: none;
+    border-color: var(--accent-secondary);
+    box-shadow: 0 4px 18px var(--accent-glow);
+}
+
+/* Primary button (form) */
+.wedding-form-card .bk-primary-btn {
+    background: var(--gradient-primary);
+    color: #fff;
+    border: none;
+    transition: transform var(--anim-fast) ease, box-shadow var(--anim-fast) ease;
+}
+
+.wedding-form-card .bk-primary-btn:hover {
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: var(--shadow-lg);
+}

@@ -1,0 +1,188 @@
+/* Main card */
+.npc-card {
+  background: rgba(15, 6, 40, 0.9);
+  border-radius: 22px;
+  padding: 18px 18px 14px;
+  border: 1px solid rgba(255, 177, 244, 0.4);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
+  color: #ffe9ff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Header */
+.npc-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.npc-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 11px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: rgba(255, 183, 255, 0.16);
+  border: 1px solid rgba(255, 208, 255, 0.8);
+  color: #ffdfff;
+}
+
+.npc-subtitle {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+/* Empty state */
+.npc-empty {
+  margin-top: 6px;
+  padding: 10px 10px 8px;
+  border-radius: 16px;
+  background: rgba(9, 1, 32, 0.9);
+  border: 1px dashed rgba(255, 191, 255, 0.6);
+  text-align: left;
+}
+
+.npc-empty-line {
+  font-size: 13px;
+  margin-bottom: 3px;
+}
+
+.npc-empty-sub {
+  font-size: 11px;
+  opacity: 0.8;
+}
+
+/* Main promise info */
+.npc-main {
+  margin-top: 6px;
+}
+
+.npc-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.npc-title {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0;
+  color: #ffb5f1;
+}
+
+.npc-fromto {
+  margin-top: 6px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  font-size: 11px;
+}
+
+/* Chips */
+.npc-chip {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(37, 16, 88, 0.9);
+  border: 1px solid rgba(255, 202, 255, 0.5);
+}
+
+.npc-chip-from {
+  color: #ffd3ff;
+}
+
+.npc-chip-to {
+  color: #ffecd7;
+}
+
+/* Status pill */
+.npc-status {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  border-width: 1px;
+  border-style: solid;
+}
+
+.npc-status-pending {
+  background: rgba(255, 196, 102, 0.15);
+  border-color: rgba(255, 196, 102, 0.7);
+  color: #ffd58a;
+}
+
+.npc-status-fulfilled {
+  background: rgba(125, 255, 160, 0.12);
+  border-color: rgba(170, 255, 197, 0.8);
+  color: #b8ffd0;
+}
+
+.npc-status-overdue {
+  background: rgba(255, 110, 140, 0.16);
+  border-color: rgba(255, 153, 172, 0.9);
+  color: #ffb8c4;
+}
+
+/* Meta row: due date & time left */
+.npc-meta-row {
+  margin-top: 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.npc-meta-block {
+  flex: 1;
+}
+
+.npc-meta-label {
+  font-size: 11px;
+  opacity: 0.8;
+  margin-bottom: 2px;
+}
+
+.npc-meta-value {
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* Footer */
+.npc-footer {
+  margin-top: 6px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.npc-view-btn {
+  border: none;
+  background: none;
+  font-size: 12px;
+  cursor: pointer;
+  color: #ffb0f2;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.npc-view-btn::after {
+  content: "↗";
+  font-size: 11px;
+}
+
+.npc-view-btn:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .npc-meta-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}

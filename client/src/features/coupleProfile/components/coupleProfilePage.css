@@ -1,0 +1,364 @@
+/* ===============================
+   COUPLE PHOTO CARD
+================================ */
+
+.couple-photo-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 18px;
+}
+
+/* Photo container */
+.couple-photo {
+  position: relative;
+  width: 100%;
+  background: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Romantic glow */
+.couple-photo-glow {
+  box-shadow: 0 0 45px rgba(236, 72, 153, 0.4);
+}
+
+.couple-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Emoji fallback */
+.couple-photo-emoji {
+  font-size: 48px;
+  opacity: 0.6;
+}
+
+/* Gradient overlay */
+.couple-photo-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.65),
+    rgba(0, 0, 0, 0.25),
+    transparent
+  );
+}
+
+/* ===============================
+   TEXT OVERLAY
+================================ */
+
+.couple-photo-text {
+  position: absolute;
+  bottom: 12px;
+  left: 16px;
+  right: 16px;
+  color: #ffffff;
+  z-index: 2;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+}
+
+.couple-photo-name {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  letter-spacing: 0.3px;
+}
+
+/* Caption tag tweak */
+.couple-photo-caption {
+  font-size: 11px;
+}
+/* ===============================
+   SPECIAL DATES LIST
+================================ */
+
+.special-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.special-item {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 14px 16px;
+  background: rgba(15, 23, 42, 0.55);
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 14px;
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.special-item:hover {
+  background: rgba(15, 23, 42, 0.75);
+  transform: translateY(-2px);
+}
+
+/* Left side */
+.special-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.special-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.special-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #f8fafc;
+}
+
+.special-meta {
+  font-size: 12px;
+  color: #cbd5f5;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.special-channels {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.special-notes {
+  font-size: 12px;
+  color: #e5e7eb;
+  margin-top: 2px;
+  line-height: 1.4;
+}
+
+/* Right side actions */
+.special-actions {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+/* Footer */
+.special-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.special-footer-text {
+  font-size: 11px;
+  color: #9ca3af;
+}
+
+/* Loading */
+.special-loading {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .special-item {
+    flex-direction: column;
+  }
+
+  .special-actions {
+    align-self: flex-end;
+  }
+}
+/* ===============================
+   HEADER CONTAINER
+================================ */
+
+.couple-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+  animation: fadeIn 0.4s ease;
+}
+
+/* ===============================
+   AVATAR
+================================ */
+
+.couple-header-avatar {
+  height: 56px;
+  width: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(236, 72, 153, 0.45);
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.couple-header-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.couple-avatar-emoji {
+  font-size: 22px;
+}
+
+/* ===============================
+   INFO
+================================ */
+
+.couple-header-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-top: -2px;
+}
+
+.couple-header-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #f8fafc;
+  letter-spacing: 0.2px;
+}
+
+/* ===============================
+   TAGS
+================================ */
+
+.couple-header-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+/* ===============================
+   ANIMATION
+================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* ===============================
+   COUPLE HEADER
+================================ */
+
+.couple-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 12px 0 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25);
+  animation: fadeIn 0.4s ease;
+}
+
+/* ===============================
+   AVATAR
+================================ */
+
+.couple-header-avatar {
+  height: 56px;
+  width: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(236, 72, 153, 0.45);
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.couple-header-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.couple-avatar-emoji {
+  font-size: 22px;
+}
+
+/* ===============================
+   INFO SECTION
+================================ */
+
+.couple-header-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-top: -2px;
+}
+
+.couple-header-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #f8fafc;
+  letter-spacing: 0.2px;
+}
+
+/* ===============================
+   TAGS ROW
+================================ */
+
+.couple-header-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+/* ===============================
+   ANIMATION
+================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===============================
+   RESPONSIVE
+================================ */
+
+@media (max-width: 600px) {
+  .couple-header {
+    gap: 12px;
+  }
+
+  .couple-header-name {
+    font-size: 16px;
+  }
+}

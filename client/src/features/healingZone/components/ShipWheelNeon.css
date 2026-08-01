@@ -1,0 +1,272 @@
+.sw-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.sw-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+  gap: 18px;
+  align-items: start;
+}
+
+/* Wheel area */
+.sw-wheel-area {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Pointer at top */
+.sw-pointer {
+  width: 0;
+  height: 0;
+  border-left: 12px solid transparent;
+  border-right: 12px solid transparent;
+  border-bottom: 18px solid #ffe6ff;
+  filter: drop-shadow(0 0 8px rgba(255, 206, 255, 0.9));
+  margin-bottom: 6px;
+}
+
+/* Wheel */
+.sw-wheel {
+  position: relative;
+  width: 240px;
+  height: 240px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 210, 255, 0.9);
+  box-shadow:
+    0 0 25px rgba(255, 121, 240, 0.8),
+    0 0 45px rgba(104, 92, 255, 0.7);
+  background: conic-gradient(
+    from 0deg,
+    #ff69b4,
+    #ffb86c,
+    #ffd3fc,
+    #9f7bff,
+    #ff69b4
+  );
+  overflow: hidden;
+  transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Spinning uses same transition, state handled in JS */
+.sw-wheel-spinning {
+  /* no extra CSS needed, but you can tweak if you like */
+}
+
+/* Center circle */
+.sw-center {
+  position: absolute;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at top,
+    rgba(255, 255, 255, 0.7),
+    rgba(255, 164, 227, 0.8),
+    rgba(113, 83, 255, 0.9)
+  );
+  box-shadow: 0 0 14px rgba(255, 167, 239, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sw-center-label {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* Segment labels (around wheel edge) */
+.sw-segment-text {
+  position: absolute;
+  width: 50%;
+  height: 20px;
+  left: 50%;
+  top: 50%;
+  transform-origin: 0% 0%;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.sw-segment-text span {
+  font-size: 9px;
+  max-width: 100px;
+  color: #fffafc;
+  text-shadow: 0 0 4px rgba(0, 0, 0, 0.8);
+}
+
+/* Spin button */
+.sw-spin-btn {
+  margin-top: 16px;
+  border-radius: 999px;
+  border: none;
+  padding: 9px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background-image: var(--gradient-primary);
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(255, 120, 200, 0.9);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+.sw-spin-btn:disabled {
+  cursor: default;
+  opacity: 0.7;
+  box-shadow: none;
+}
+
+.sw-spin-btn:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 26px rgba(255, 140, 215, 0.95);
+  filter: brightness(1.04);
+}
+
+.sw-spin-btn:not(:disabled):active {
+  transform: translateY(1px) scale(0.99);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+}
+
+/* Result */
+.sw-result {
+  margin-top: 10px;
+  text-align: center;
+}
+
+.sw-result-label {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.sw-result-text {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffeadf;
+}
+
+/* Small empty text under wheel */
+.sw-empty {
+  margin-top: 10px;
+  font-size: 11px;
+  opacity: 0.86;
+}
+
+/* Right side list & form */
+.sw-list-area {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sw-add-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sw-add-label {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.sw-add-row {
+  display: flex;
+  gap: 8px;
+}
+
+.sw-add-row input {
+  flex: 1;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 184, 255, 0.4);
+  background: var(--surface);
+  color: var(--text-primary);
+  padding: 7px 10px;
+  font-size: 13px;
+  outline: none;
+}
+
+.dark .sw-add-row input {
+  background: rgba(7, 0, 31, 0.88);
+  color: #fff;
+}
+
+.sw-add-row input::placeholder {
+  color: rgba(255, 220, 255, 0.6);
+}
+
+.sw-add-row input:focus {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 1px rgba(255, 144, 228, 0.7);
+}
+
+.sw-add-btn {
+  border-radius: 999px;
+  border: none;
+  padding: 7px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background-image: linear-gradient(to right, var(--accent-primary), var(--accent-secondary));
+  color: #fff;
+  box-shadow: 0 5px 16px rgba(255, 120, 200, 0.7);
+}
+
+.sw-list {
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 4px;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sw-empty-list {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.sw-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: rgba(18, 5, 55, 0.95);
+  border-radius: 999px;
+  border: 1px solid rgba(255, 174, 243, 0.4);
+  padding: 6px 8px;
+}
+
+.sw-item-text {
+  font-size: 12px;
+}
+
+.sw-remove-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 12px;
+  color: #ffc4ff;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sw-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sw-wheel {
+    width: 220px;
+    height: 220px;
+  }
+}

@@ -1,0 +1,154 @@
+/* Container card for Today's Mood widget */
+.tmw-card {
+  background: rgba(15, 6, 40, 0.9);
+  border-radius: 22px;
+  padding: 18px 18px 14px;
+  border: 1px solid rgba(255, 177, 244, 0.4);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
+  color: #ffe9ff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Header */
+.tmw-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.tmw-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 11px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: rgba(255, 183, 255, 0.16);
+  border: 1px solid rgba(255, 208, 255, 0.8);
+  color: #ffdfff;
+}
+
+.tmw-subtitle {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+/* Body: two pills side by side */
+.tmw-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+/* Mood pill */
+.tmw-pill {
+  border-radius: 16px;
+  padding: 10px 10px 8px;
+  background: radial-gradient(
+      circle at top,
+      rgba(255, 189, 255, 0.26),
+      transparent 60%
+    ),
+    rgba(9, 1, 32, 0.9);
+  border: 1px solid rgba(255, 185, 244, 0.45);
+  box-shadow: 0 0 12px rgba(255, 113, 211, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Slight variation for left/right if you want in future */
+.tmw-pill-left {}
+.tmw-pill-right {}
+
+/* Top row: emoji + labels */
+.tmw-pill-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tmw-emoji-bubble {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: radial-gradient(
+    circle at 30% 20%,
+    rgba(255, 255, 255, 0.45),
+    rgba(255, 140, 213, 0.4),
+    rgba(129, 87, 255, 0.6)
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 10px rgba(255, 156, 231, 0.8);
+}
+
+.tmw-emoji {
+  font-size: 22px;
+}
+
+.tmw-pill-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tmw-name {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.9;
+}
+
+.tmw-label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Note bottom text */
+.tmw-note {
+  margin-top: 3px;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+/* Footer: button */
+.tmw-footer {
+  margin-top: 2px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.tmw-update-btn {
+  border: none;
+  background: none;
+  font-size: 12px;
+  cursor: pointer;
+  color: #ffb0f2;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 0;
+}
+
+.tmw-update-btn::after {
+  content: "↗";
+  font-size: 11px;
+}
+
+.tmw-update-btn:hover {
+  text-decoration: underline;
+}
+
+/* Mobile tweaks */
+@media (max-width: 600px) {
+  .tmw-body {
+    grid-template-columns: 1fr;
+  }
+}

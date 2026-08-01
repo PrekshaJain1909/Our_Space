@@ -1,0 +1,1519 @@
+@import "./variables.css";
+@import "./animations.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* You can add global custom styles below */
+
+/* -------------------------------------------------------
+   Base Reset & Smooth UI
+-------------------------------------------------------- */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  margin: 0;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  transition: background-color 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow-x: hidden;
+}
+
+/* Ensure consistent box-sizing to avoid accidental overflow from padding/borders */
+html,
+body,
+#root {
+  box-sizing: border-box;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+/* Remove selection highlights on buttons + images */
+button,
+img {
+  user-select: none;
+}
+
+/* -------------------------------------------------------
+   Theme-Aware Backgrounds
+-------------------------------------------------------- */
+
+/* Light Theme: Dreamy Pastel Background */
+:root:not(.dark) {
+  background: linear-gradient(135deg, var(--light-bg-primary) 0%, var(--light-bg-secondary) 50%, var(--light-bg-accent) 100%);
+}
+
+/* Dark Theme: Arcade Valentine Background */
+:root.dark {
+  background: radial-gradient(circle at 20% 50%, rgba(255, 0, 127, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(0, 255, 255, 0.05) 0%, transparent 50%),
+    linear-gradient(135deg, var(--dark-bg-primary, #0a0015) 0%, var(--dark-bg-secondary, #150030) 50%, var(--dark-bg-accent, #1a0045) 100%);
+}
+
+/* -------------------------------------------------------
+   Force dark writing color in Light Mode
+   Ensures all readable text in light theme uses a dark color
+-------------------------------------------------------- */
+:root:not(.dark) {
+  --light-writing-color: var(--light-text-dark, #1f2937);
+}
+
+:root:not(.dark) body,
+:root:not(.dark) body h1,
+:root:not(.dark) body h2,
+:root:not(.dark) body h3,
+:root:not(.dark) body h4,
+:root:not(.dark) body h5,
+:root:not(.dark) p,
+:root:not(.dark) label,
+:root:not(.dark) span,
+:root:not(.dark) a,
+:root:not(.dark) li,
+:root:not(.dark) div,
+:root:not(.dark) input,
+:root:not(.dark) textarea,
+:root:not(.dark) select {
+  color: var(--light-writing-color) !important;
+}
+
+:root:not(.dark) ::placeholder {
+  color: rgba(31, 41, 55, 0.6) !important;
+  /* slightly softer dark placeholder */
+}
+
+/* -------------------------------------------------------
+   Scrollbar (Theme-Aware)
+-------------------------------------------------------- */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--accent-glow);
+  border-radius: 5px;
+  transition: background 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-primary);
+}
+
+.dark::-webkit-scrollbar-thumb {
+  background: rgba(255, 0, 255, 0.4);
+}
+
+.dark::-webkit-scrollbar-thumb:hover {
+  background: var(--dark-neon-pink);
+}
+
+/* -------------------------------------------------------
+   Typography helpers
+-------------------------------------------------------- */
+h1,
+h2,
+h3,
+h4,
+h5 {
+  @apply font-semibold tracking-tight;
+  color: var(--text-primary);
+  transition: color 0.3s ease;
+}
+
+.text-gradient {
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary), var(--accent-tertiary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-light {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-dark {
+  background: linear-gradient(90deg, #ff00ff, #00ffff, #ff1493);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* -------------------------------------------------------
+   Card Designs (Theme-Aware)
+-------------------------------------------------------- */
+.card {
+  background-color: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 16px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  box-shadow: var(--shadow-sm);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+/* Make common containers and cards take full available width
+   so form cards/components stretch correctly within parent layout. */
+.container,
+.card-wrapper,
+.bucket-card,
+.bk-card,
+.hz-card,
+.card {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+/* Ensure form controls expand to fill their parent card widths */
+input,
+select,
+textarea,
+.form-input,
+.input-field,
+.bk-field input,
+.bk-field select,
+.bk-field textarea,
+.ln-field input,
+.ln-field textarea,
+.mb-field input,
+.mb-field textarea {
+  width: 100%;
+  display: block;
+  box-sizing: border-box;
+}
+
+/* Generic floating note style for small dreamy section headers */
+.floating-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255, 111, 163, 0.06), rgba(185, 131, 255, 0.03));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 8px 18px rgba(11, 10, 17, 0.12);
+  color: var(--text-primary);
+  backdrop-filter: blur(6px) saturate(120%);
+  -webkit-backdrop-filter: blur(6px) saturate(120%);
+  margin-bottom: 8px;
+  transform: translateY(-6px) rotate(-0.2deg);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  max-width: 860px;
+}
+
+.floating-note:hover {
+  transform: translateY(-10px) scale(1.01);
+  box-shadow: 0 18px 44px rgba(11, 10, 17, 0.28);
+}
+
+.floating-note::before {
+  content: '';
+  width: 8px;
+  height: 40px;
+  border-radius: 8px;
+  background: linear-gradient(180deg, var(--pink), var(--purple));
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.floating-note::after {
+  content: "\2665";
+  /* small heart */
+  display: inline-block;
+  margin-left: 8px;
+  font-size: 14px;
+  color: var(--pink);
+  opacity: 0.95;
+}
+
+.floating-note h1,
+.floating-note h2,
+.floating-note p {
+  margin: 0;
+}
+
+@media (max-width: 991px) {
+  .floating-note {
+    transform: translateY(0);
+    width: 100%;
+    box-shadow: 0 8px 24px rgba(11, 10, 17, 0.14);
+  }
+
+  .floating-note::before {
+    height: 34px;
+  }
+}
+
+/* Modifier to stack title + subtitle vertically inside a floating-note */
+.floating-note.stacked {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+/* Hero / Glass Card */
+.glass {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.glass:hover {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.dark .glass {
+  background: rgba(255, 0, 255, 0.05);
+  border: 1px solid rgba(255, 0, 255, 0.2);
+  box-shadow: 0 0 20px rgba(255, 0, 255, 0.1);
+}
+
+.dark .glass:hover {
+  background: rgba(255, 0, 255, 0.1);
+  border: 1px solid rgba(255, 0, 255, 0.3);
+  box-shadow: 0 0 40px rgba(255, 0, 255, 0.2);
+}
+
+/* -------------------------------------------------------
+   Animation Helpers
+-------------------------------------------------------- */
+.fade-in {
+  animation: fadeIn 0.35s ease-out;
+}
+
+.scale-in {
+  animation: scaleIn 0.25s ease-out;
+}
+
+/* Page transition */
+.page-enter {
+  animation: fadeIn 0.4s ease-out;
+}
+
+/* -------------------------------------------------------
+   Buttons Global Hover Style (smooth & themed)
+-------------------------------------------------------- */
+button,
+a,
+.btn {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+button:hover,
+.btn:hover {
+  transform: translateY(-2px);
+}
+
+button:active,
+.btn:active {
+  transform: scale(0.96);
+}
+
+/* Neon button effect for dark mode */
+.dark button,
+.dark .btn {
+  text-shadow: 0 0 10px rgba(var(--accent-color, 255, 0, 255), 0);
+  transition: all 0.2s ease, text-shadow 0.3s ease;
+}
+
+.dark button:hover,
+.dark .btn:hover {
+  text-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+}
+
+/* -------------------------------------------------------
+   Themed Button Variants (use these instead of color utilities)
+-------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  color: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  color: var(--surface);
+}
+
+.btn-primary:hover {
+  box-shadow: var(--shadow-md);
+  filter: saturate(1.1) drop-shadow(0 6px 18px rgba(0, 0, 0, 0.12));
+}
+
+.btn-secondary {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+  color: var(--text-primary);
+  border: 1px solid var(--card-border);
+}
+
+.btn-danger {
+  background: linear-gradient(90deg, #ff6b6b, #ff4c6d);
+  color: white;
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--card-border);
+}
+
+/* Neon glow for dark theme */
+.dark .btn-primary:hover {
+  box-shadow: var(--shadow-glow);
+}
+
+/* -------------------------------------------------------
+   Tab navigation styles
+-------------------------------------------------------- */
+.tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: .5rem;
+  padding: .5rem .75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--card-border);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.tab.active {
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  color: var(--surface);
+  box-shadow: var(--shadow-sm);
+  border-color: transparent;
+}
+
+/* -------------------------------------------------------
+   Toast notification styles
+-------------------------------------------------------- */
+.toast {
+  border-radius: 12px;
+  padding: 0.75rem 1.25rem;
+  font-weight: 600;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--card-border);
+}
+
+.toast.success {
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  color: var(--surface);
+}
+
+.toast.error {
+  background: linear-gradient(90deg, #ff6b6b, #ff4c6d);
+  color: #fff;
+}
+
+.toast.warning {
+  background: linear-gradient(90deg, #ffd580, #ffb84d);
+  color: #1f2937;
+}
+
+.toast.info {
+  background: linear-gradient(90deg, #60a5fa, #38bdf8);
+  color: #fff;
+}
+
+/* Toast container positioning: center-top with modest z-index so header copy remains visible under heavy overlays */
+.toast-container {
+  position: fixed;
+  left: 50%;
+  top: 18px;
+  transform: translateX(-50%);
+  z-index: 1400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+
+/* SweetAlert popup interactivity overrides */
+.swal2-container,
+.swal2-container * {
+  pointer-events: auto !important;
+}
+
+.swal2-container {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 999999 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: auto !important;
+  background: rgba(0, 0, 0, 0.6) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+.swal2-popup,
+.swal2-popup * {
+  pointer-events: auto !important;
+}
+
+.swal2-popup {
+  position: relative !important;
+  z-index: 999999 !important;
+  overflow: visible !important;
+}
+
+.swal2-actions {
+  pointer-events: auto !important;
+}
+
+.swal2-confirm,
+.swal2-cancel {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+.swal2-actions .swal2-confirm,
+.swal2-actions .swal2-cancel {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+.swal2-container .swal2-actions {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.swal2-container .swal2-confirm,
+.swal2-container .swal2-cancel {
+  display: inline-flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  cursor: pointer !important;
+}
+
+/* Slightly smaller text to avoid obscuring header writeups */
+.toast {
+  font-size: 14px;
+  padding: 10px 16px;
+}
+
+/* -------------------------------------------------------
+   Form Helpers (Theme-Aware)
+-------------------------------------------------------- */
+input,
+textarea,
+select {
+  @apply focus:outline-none focus:ring-2;
+  background-color: var(--surface);
+  color: var(--text-primary);
+  border-color: var(--card-border);
+  transition: all 0.3s ease;
+}
+
+/* Input wrapper and field styles for consistent theming */
+.input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--card-border);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+  transition: all 0.25s ease;
+}
+
+.input-wrapper.error {
+  border-color: rgba(255, 92, 108, 0.9);
+  box-shadow: 0 0 12px rgba(255, 92, 108, 0.18);
+}
+
+.input-field {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  width: 100%;
+  font-size: 0.95rem;
+}
+
+.input-wrapper:focus-within {
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  border-color: var(--accent-primary);
+}
+
+.dark .input-wrapper:focus-within {
+  box-shadow: var(--shadow-glow);
+  border-color: var(--dark-neon-pink);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  background-color: var(--surface-hover);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px rgba(var(--accent-primary), 0.1);
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  box-shadow: 0 0 0 3px rgba(255, 0, 255, 0.2);
+  border-color: var(--dark-neon-pink);
+}
+
+/* Disable ugly autofill colors */
+input:-webkit-autofill,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
+  -webkit-text-fill-color: var(--text-primary);
+  transition: background-color 10000s ease-in-out 0s;
+}
+
+/* -------------------------------------------------------
+   Link Styles (Theme-Aware)
+-------------------------------------------------------- */
+a {
+  color: var(--accent-primary);
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+a:hover {
+  color: var(--accent-secondary);
+}
+
+.dark a {
+  color: var(--dark-neon-cyan);
+}
+
+.dark a:hover {
+  color: var(--dark-neon-pink);
+}
+
+/* -------------------------------------------------------
+   Loading & Spinner Styles
+-------------------------------------------------------- */
+.spinner {
+  animation: spinSlow 1s linear infinite;
+  color: var(--accent-primary);
+  transition: color 0.3s ease;
+}
+
+.dark .spinner {
+  color: var(--dark-neon-pink);
+  filter: drop-shadow(0 0 10px rgba(255, 0, 255, 0.5));
+}
+
+/* -------------------------------------------------------
+   Modal & Backdrop Tokens
+-------------------------------------------------------- */
+.modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.6));
+  backdrop-filter: blur(8px) saturate(120%);
+}
+
+.modal-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-2xl);
+  padding: 1rem;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  color: var(--text-primary);
+}
+
+.dark .modal-card {
+  background: linear-gradient(180deg, rgba(26, 0, 80, 0.6), rgba(24, 0, 60, 0.6));
+  box-shadow: var(--dark-shadow-md);
+}
+
+/* -------------------------------------------------------
+   Tag variants
+-------------------------------------------------------- */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: .4rem;
+  padding: .25rem .6rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  border: 1px solid var(--card-border);
+}
+
+.tag.default {
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--text-primary);
+}
+
+.tag.success {
+  background: rgba(56, 199, 147, 0.08);
+  color: #2ee0a9;
+  border-color: rgba(46, 158, 117, 0.25);
+}
+
+.tag.warning {
+  background: rgba(255, 197, 92, 0.08);
+  color: #ffb84d;
+  border-color: rgba(220, 163, 72, 0.2);
+}
+
+.tag.danger {
+  background: rgba(255, 92, 108, 0.08);
+  color: #ff8aa0;
+  border-color: rgba(228, 65, 83, 0.2);
+}
+
+.tag.pink {
+  background: rgba(255, 93, 162, 0.08);
+  color: var(--accent-primary);
+  border-color: rgba(255, 93, 162, 0.15);
+}
+
+/* Small compact tag */
+.tag.small {
+  padding: 3px 8px;
+  font-size: 11px;
+}
+
+/* Quick color helpers */
+.text-success {
+  color: var(--color-success);
+}
+
+.text-danger {
+  color: var(--color-danger);
+}
+
+.text-warning {
+  color: var(--color-warning);
+}
+
+/* Hover accent utilities — use these instead of hardcoded pink classes */
+.hover-accent:hover {
+  border-color: var(--accent-primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.hover-text-accent:hover {
+  color: var(--accent-primary);
+}
+
+.dark .hover-accent:hover {
+  box-shadow: var(--shadow-glow);
+}
+
+/* -------------------------------------------------------
+   Theme Transition Class
+-------------------------------------------------------- */
+.theme-transition {
+  animation: themeTransition 0.6s ease-in-out;
+}
+
+/* -------------------------------------------------------
+   Selection & Highlight Colors
+-------------------------------------------------------- */
+::selection {
+  background-color: var(--accent-primary);
+  color: white;
+}
+
+.dark ::selection {
+  background-color: var(--dark-neon-pink);
+  color: #0a0015;
+}
+
+/* -------------------------------------------------------
+   Utility Classes
+-------------------------------------------------------- */
+.text-primary {
+  color: var(--text-primary);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-tertiary {
+  color: var(--text-tertiary);
+}
+
+.bg-primary {
+  background-color: var(--bg-primary);
+}
+
+.bg-secondary {
+  background-color: var(--bg-secondary);
+}
+
+.bg-surface {
+  background-color: var(--surface);
+}
+
+/* -------------------------------------------------------
+   Feature Page Theme Overrides (Light Mode)
+-------------------------------------------------------- */
+:root:not(.dark) :is(.dashboard-wrapper,
+  .analytics-wrapper,
+  .healing-wrapper,
+  .playtime-wrapper,
+  .mood-wrapper,
+  .timeline-wrapper,
+  .memory-wrapper,
+  .invite-page) {
+  color: var(--light-text-primary) !important;
+  background-image: none !important;
+  background: linear-gradient(135deg, var(--light-bg-primary), var(--light-bg-secondary), var(--light-bg-accent)) !important;
+}
+
+/* Auth pages keep their own layered light backgrounds (LoginPage.css) */
+:root:not(.dark) :is(.login-page, .romantic-page) {
+  color: var(--light-text-primary);
+}
+
+/* Force readable dark text in light mode for page content */
+:root:not(.dark) :is(.dashboard-wrapper,
+  .analytics-wrapper,
+  .healing-wrapper,
+  .playtime-wrapper,
+  .mood-wrapper,
+  .timeline-wrapper,
+  .memory-wrapper,
+  .invite-page) :is(h1, h2, h3, h4, h5, h6, p, span, label, li, strong, small, a, div) {
+  color: var(--light-text-primary) !important;
+}
+
+:root:not(.dark) .login-page :is(h1, h2, h3, h4, h5, h6, p, label, li, strong, small, a) {
+  color: inherit;
+}
+
+:root:not(.dark) .login-page .intro-title .highlight,
+:root:not(.dark) .login-page .highlight {
+  -webkit-text-fill-color: transparent;
+}
+
+/* Secondary copy stays softer but still readable */
+:root:not(.dark) :is(.dashboard-wrapper,
+  .analytics-wrapper,
+  .healing-wrapper,
+  .playtime-wrapper,
+  .mood-wrapper,
+  .timeline-wrapper,
+  .memory-wrapper,
+  .login-page,
+  .romantic-page,
+  .invite-page) :is([class*="subtitle"], [class*="sub"], [class*="label"], [class*="meta"], [class*="helper"], [class*="hint"], [class*="note"]) {
+  color: var(--light-text-secondary) !important;
+}
+
+:root:not(.dark) :is(.dashboard-overlay,
+  .analytics-overlay,
+  .healing-overlay,
+  .playtime-overlay,
+  .mood-overlay,
+  .timeline-overlay,
+  .memory-overlay) {
+  background: radial-gradient(circle at top, rgba(109, 213, 237, 0.12), transparent 55%),
+    linear-gradient(to top, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.72)) !important;
+  mix-blend-mode: normal !important;
+}
+
+:root:not(.dark) :is(.dashboard-badge,
+  .analytics-badge,
+  .healing-badge,
+  .playtime-badge,
+  .mood-badge,
+  .timeline-badge,
+  .memory-badge,
+  .tmw-badge,
+  .bpc-badge,
+  .psc-badge,
+  .npc-badge,
+  .qlg-badge,
+  .an-badge,
+  .hz-badge,
+  .pt-badge,
+  .md-badge,
+  .tl-badge,
+  .ln-badge,
+  .bk-badge) {
+  background: var(--accent-glow) !important;
+  border-color: var(--light-card-border) !important;
+  color: var(--accent-primary) !important;
+}
+
+:root:not(.dark) :is(.dashboard-title,
+  .analytics-title,
+  .healing-title,
+  .playtime-title,
+  .mood-title,
+  .timeline-title,
+  .memory-title,
+  .dashboard-subtitle,
+  .analytics-subtitle,
+  .healing-subtitle,
+  .playtime-subtitle,
+  .mood-subtitle,
+  .timeline-subtitle,
+  .memory-subtitle,
+  .hero-title,
+  .hero-subtitle) {
+  color: var(--light-text-primary) !important;
+  text-shadow: none !important;
+}
+
+:root:not(.dark) :is(.tmw-card,
+  .bpc-card,
+  .psc-card,
+  .npc-card,
+  .qlg-card,
+  .an-card,
+  .hz-card,
+  .pt-card,
+  .md-card,
+  .tl-card,
+  .tl-events-card,
+  .ln-card,
+  .ln-note-card,
+  .mb-card,
+  .mb-memory-card,
+  .bk-card,
+  .bk-vision-card,
+  .special-item) {
+  background: var(--light-card-bg) !important;
+  border-color: var(--light-card-border) !important;
+  color: var(--light-text-primary) !important;
+  box-shadow: var(--light-shadow-md) !important;
+}
+
+:root:not(.dark) :is(.tmw-pill,
+  .psc-block,
+  .psc-split-block,
+  .qlg-tile,
+  .an-metric,
+  .an-breakdown-item,
+  .hz-tile,
+  .pt-tile,
+  .md-tile,
+  .tl-event-item,
+  .npc-empty,
+  .npc-chip,
+  .bk-chip,
+  .mb-chip) {
+  background: rgba(255, 255, 255, 0.8) !important;
+  border-color: var(--light-card-border) !important;
+  color: var(--light-text-primary) !important;
+  box-shadow: var(--light-shadow-sm) !important;
+}
+
+:root:not(.dark) :is(.analytics-tab-btn,
+  .healing-tab-btn,
+  .playtime-tab-btn,
+  .md-tab-btn,
+  .tl-tab-btn) {
+  border-color: var(--light-card-border) !important;
+  background: rgba(255, 255, 255, 0.72) !important;
+  color: var(--light-text-secondary) !important;
+}
+
+:root:not(.dark) :is(.analytics-tab-btn-active,
+  .healing-tab-btn-active,
+  .playtime-tab-btn-active,
+  .md-tab-btn-active,
+  .tl-tab-btn-active) {
+  background: linear-gradient(90deg, var(--light-accent-primary), var(--light-accent-secondary)) !important;
+  color: #fff !important;
+  box-shadow: var(--light-shadow-sm) !important;
+}
+
+/* Keep primary action text readable against gradient buttons */
+:root:not(.dark) :is(.btn-primary, .submit-button, .primary-btn, .analytics-tab-btn-active, .healing-tab-btn-active, .playtime-tab-btn-active, .md-tab-btn-active, .tl-tab-btn-active) {
+  color: #fff !important;
+}
+
+:root:not(.dark) :is(.ln-field input,
+  .ln-field textarea,
+  .bk-field input,
+  .bk-field select,
+  .bk-field textarea,
+  .mb-field input,
+  .mb-field textarea,
+  .mb-field select,
+  .form-input,
+  .input-field) {
+  background: rgba(255, 255, 255, 0.84) !important;
+  border-color: var(--light-card-border) !important;
+  color: var(--light-text-primary) !important;
+}
+
+:root:not(.dark) :is(.ln-field input::placeholder,
+  .ln-field textarea::placeholder,
+  .bk-field input::placeholder,
+  .bk-field textarea::placeholder,
+  .mb-field input::placeholder,
+  .mb-field textarea::placeholder,
+  .form-input::placeholder,
+  .input-field::placeholder) {
+  color: var(--light-text-tertiary) !important;
+}
+
+:root:not(.dark) .intro-title,
+:root:not(.dark) .hero-title,
+:root:not(.dark) .card-title {
+  background: linear-gradient(135deg, var(--light-text-primary), var(--light-text-secondary)) !important;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+:root:not(.dark) .highlight,
+:root:not(.dark) .intro-title .highlight {
+  background: linear-gradient(135deg, var(--light-accent-primary), var(--light-accent-secondary)) !important;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+:root:not(.dark) .couple-photo {
+  background: linear-gradient(135deg, #ffffff, #f3f0ff) !important;
+}
+
+:root:not(.dark) .couple-photo-overlay {
+  background: linear-gradient(to top, rgba(42, 26, 58, 0.35), rgba(42, 26, 58, 0.12), transparent) !important;
+}
+
+/* -------------------------------------------------------
+   Strict Light-Mode Overrides For Requested Pages
+   (Love Notes, Stats, Punishment, Alcohol Analytics,
+    Game/Playtime, Timeline, Mood/Upset)
+-------------------------------------------------------- */
+:root:not(.dark) :is(.love-notes-page,
+  .analytics-wrapper,
+  .playtime-wrapper,
+  .timeline-wrapper,
+  .mood-wrapper,
+  .dashboard-wrapper) :is([class^="ln-"], [class*=" ln-"],
+  [class^="an-"], [class*=" an-"],
+  [class^="pt-"], [class*=" pt-"],
+  [class^="tl-"], [class*=" tl-"],
+  [class^="md-"], [class*=" md-"],
+  [class^="tmw-"], [class*=" tmw-"],
+  [class^="bpc-"], [class*=" bpc-"],
+  [class^="psc-"], [class*=" psc-"],
+  [class^="npc-"], [class*=" npc-"],
+  [class^="qlg-"], [class*=" qlg-"]) {
+  color: var(--light-text-primary) !important;
+}
+
+:root:not(.dark) :is(.love-notes-page,
+  .analytics-wrapper,
+  .playtime-wrapper,
+  .timeline-wrapper,
+  .mood-wrapper,
+  .dashboard-wrapper) :is(.ln-card, .ln-note-card, .ln-stat-box,
+  .an-card, .an-bar-wrapper, .an-range-toggle,
+  .pt-card, .pt-prompt-box, .pt-bingo-cell,
+  .tl-card, .tl-events-card, .tl-reminder-block, .tl-event-date, .tl-event-main,
+  .md-card, .md-upset-form, .md-calendar-cell,
+  .tmw-card, .tmw-pill,
+  .bpc-card,
+  .psc-card, .psc-block, .psc-split-block,
+  .npc-card, .npc-empty, .npc-chip,
+  .qlg-card, .qlg-tile) {
+  background: rgba(255, 255, 255, 0.86) !important;
+  border-color: var(--light-card-border) !important;
+  box-shadow: var(--light-shadow-sm) !important;
+}
+
+:root:not(.dark) :is(.love-notes-page,
+  .analytics-wrapper,
+  .playtime-wrapper,
+  .timeline-wrapper,
+  .mood-wrapper,
+  .dashboard-wrapper) :is(.ln-field input, .ln-field textarea, .ln-field select,
+  .ln-filter-field input, .ln-filter-field select,
+  .an-field input, .an-field textarea, .an-field select,
+  .pt-add-row input,
+  .tl-field input, .tl-field textarea, .tl-field select,
+  .md-field input, .md-field textarea, .md-field select) {
+  background: rgba(255, 255, 255, 0.92) !important;
+  color: var(--light-text-primary) !important;
+  border-color: var(--light-card-border) !important;
+}
+
+:root:not(.dark) :is(.love-notes-page,
+  .analytics-wrapper,
+  .playtime-wrapper,
+  .timeline-wrapper,
+  .mood-wrapper,
+  .dashboard-wrapper) :is(.ln-field label, .ln-note-date, .ln-note-meta, .ln-stat-label, .ln-stat-sub,
+  .an-subtitle, .an-empty, .an-bar-label, .an-bar-value, .an-trend-text, .an-rel-label,
+  .pt-subtitle, .pt-add-label, .pt-prompt-label,
+  .tl-subtitle, .tl-empty, .tl-reminder-label, .tl-reminder-note, .tl-event-year,
+  .md-subtitle, .md-empty, .md-intensity-value, .md-calendar-headcell,
+  .tmw-subtitle, .tmw-note, .tmw-name,
+  .bpc-subtitle, .bpc-stat-label,
+  .psc-subtitle, .psc-label, .psc-mini-label, .psc-leader-text,
+  .npc-subtitle, .npc-empty-sub, .npc-meta-label,
+  .qlg-subtitle, .qlg-desc) {
+  color: var(--light-text-secondary) !important;
+}
+
+:root:not(.dark) :is(.love-notes-page,
+  .analytics-wrapper,
+  .playtime-wrapper,
+  .timeline-wrapper,
+  .mood-wrapper,
+  .dashboard-wrapper) :is(.ln-note-title, .ln-stat-value,
+  .an-chart-total span,
+  .tl-event-title, .tl-event-day,
+  .psc-mini-number, .bpc-stat-number, .npc-title, .qlg-label) {
+  color: var(--light-accent-primary) !important;
+  text-shadow: none !important;
+}
+
+/* keep CTA/tab text readable on gradients */
+:root:not(.dark) :is(.ln-primary-btn, .an-primary-btn, .pt-primary-btn, .pt-add-btn,
+  .tl-primary-btn, .md-primary-btn,
+  .an-range-btn-active, .pt-toggle-btn-active, .md-pov-btn-active,
+  .playtime-tab-btn-active, .analytics-tab-btn-active) {
+  color: #fff !important;
+}
+
+/* status chips keep semantic colors with better light contrast */
+:root:not(.dark) .npc-status-pending {
+  background: rgba(255, 209, 133, 0.35) !important;
+  border-color: rgba(240, 163, 62, 0.55) !important;
+  color: #7a4b00 !important;
+}
+
+:root:not(.dark) .npc-status-fulfilled {
+  background: rgba(174, 241, 196, 0.45) !important;
+  border-color: rgba(76, 175, 120, 0.55) !important;
+  color: #155b35 !important;
+}
+
+:root:not(.dark) .npc-status-overdue {
+  background: rgba(255, 184, 198, 0.45) !important;
+  border-color: rgba(226, 99, 126, 0.5) !important;
+  color: #7d1730 !important;
+}
+
+/* -------------------------------------------------------
+   PT-TOGGLE (Playtime Truth/Dare Toggle)
+-------------------------------------------------------- */
+.pt-toggle {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+}
+
+.pt-toggle-btn {
+  color: var(--text-secondary);
+}
+
+.pt-toggle-btn-active {
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  color: #fff;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent-primary) 40%, transparent);
+}
+
+/* -------------------------------------------------------
+   BK-PROGRESS-CENTER (Bucket Progress Ring Center)
+-------------------------------------------------------- */
+.bk-progress-center {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.bk-progress-percent {
+  color: var(--text-primary);
+}
+
+.bk-progress-label {
+  color: var(--text-secondary);
+}
+
+/* -------------------------------------------------------
+   MD-POV-TOGGLE (Mood POV Selector)
+-------------------------------------------------------- */
+.md-pov-toggle {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+}
+
+.md-pov-btn {
+  color: var(--text-secondary);
+}
+
+.md-pov-btn-active {
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  color: #fff;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent-primary) 40%, transparent);
+}
+
+.md-pov-emoji {
+  color: inherit;
+}
+
+/* -------------------------------------------------------
+   MD-ANALYTICS-ITEM (Mood Analytics Cards)
+-------------------------------------------------------- */
+.md-analytics-item {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+  color: var(--text-primary);
+}
+
+.md-analytics-label {
+  color: var(--text-secondary);
+}
+
+.md-analytics-value {
+  color: var(--accent-primary);
+}
+
+.md-analytics-note {
+  color: var(--text-secondary);
+}
+
+/* -------------------------------------------------------
+   MD-UPSET-STATS (Mood Upset Statistics)
+-------------------------------------------------------- */
+.md-upset-stats {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+  color: var(--text-primary);
+}
+
+.md-upset-stat-row {
+  color: var(--text-secondary);
+}
+
+.md-upset-stat-value {
+  color: var(--accent-primary);
+}
+
+.md-upset-hint {
+  color: var(--text-secondary);
+}
+
+/* -------------------------------------------------------
+   TL-REMINDER-NOTE (Timeline Reminder Note)
+-------------------------------------------------------- */
+.tl-reminder-note {
+  color: var(--text-secondary);
+  opacity: 1;
+}
+
+/* -------------------------------------------------------
+   HZ-STAT-BOX (Healing Zone Stats)
+-------------------------------------------------------- */
+.hz-stat-box {
+  background: var(--card-bg);
+  border-color: var(--card-border);
+  color: var(--text-primary);
+}
+
+.hz-stat-label {
+  color: var(--text-secondary);
+}
+
+.hz-stat-value {
+  color: var(--accent-primary);
+}
+
+.hz-stat-sub {
+  color: var(--text-secondary);
+}
+
+/* -------------------------------------------------------
+   AUTH-BTN-LOGIN (Light Theme Light Color)
+-------------------------------------------------------- */
+:root:not(.dark) .auth-btn-login {
+  background: rgba(255, 245, 250, 0.8) !important;
+  border-color: var(--card-border);
+  color: var(--text-primary);
+}
+
+:root:not(.dark) .auth-btn-login:hover {
+  background: var(--surface) !important;
+  border-color: var(--accent-primary) !important;
+}
+
+/* -------------------------------------------------------
+   MD-CAL-NAV-BTN (Light Theme Light Color)
+-------------------------------------------------------- */
+:root:not(.dark) .md-cal-nav-btn {
+  background: rgba(255, 245, 250, 0.8) !important;
+  border-color: var(--card-border);
+  color: var(--text-primary);
+}
+
+:root:not(.dark) .md-cal-nav-btn:hover {
+  background: var(--surface) !important;
+  border-color: var(--accent-primary) !important;
+}
+
+/* -------------------------------------------------------
+   HZ-CARD (Healing Zone Cards - Light Pink Theme)
+-------------------------------------------------------- */
+:root:not(.dark) .hz-card {
+  background: rgba(255, 240, 248, 0.7) !important;
+  border-color: rgba(255, 182, 193, 0.4) !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 4px 16px rgba(255, 182, 193, 0.15) !important;
+}
+
+:root:not(.dark) .hz-badge {
+  background: rgba(255, 182, 193, 0.25) !important;
+  border-color: rgba(255, 182, 193, 0.5) !important;
+  color: var(--text-primary) !important;
+}
+
+:root:not(.dark) .hz-subtitle {
+  color: var(--text-secondary) !important;
+}
+
+/* -------------------------------------------------------
+   AUTH PAGES LIGHT THEME (Login & Register)
+-------------------------------------------------------- */
+:root:not(.dark) .login-page .login-card {
+  background: #ffffff !important;
+  border-color: rgba(200, 150, 255, 0.35) !important;
+  box-shadow: 0 12px 40px rgba(157, 100, 200, 0.14) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+:root:not(.dark) .intro-title,
+:root:not(.dark) .hero-title {
+  color: var(--light-accent-title) !important;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+  text-shadow: 0 1px 10px rgba(201, 69, 122, 0.14);
+}
+
+:root:not(.dark) .card-title {
+  color: var(--light-accent-title) !important;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+  text-shadow: 0 1px 10px rgba(201, 69, 122, 0.14);
+}
+
+.dark .card-title {
+  color: var(--dark-accent-title) !important;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  transition: color 0.3s ease;
+}
+
+:root:not(.dark) .intro-title .highlight,
+:root:not(.dark) .highlight {
+  background: linear-gradient(135deg, #d63384 0%, #8b5cf6 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+:root:not(.dark) .intro-description,
+:root:not(.dark) .field label,
+:root:not(.dark) .card-description,
+:root:not(.dark) .card-footer,
+:root:not(.dark) .hero-subtitle {
+  color: var(--light-text-rose) !important;
+  transition: color 0.3s ease;
+}
+
+:root:not(.dark) .login-page .field input,
+:root:not(.dark) .login-page .form-input {
+  background: #ffffff !important;
+  border-color: rgba(200, 150, 255, 0.35) !important;
+  color: var(--light-text-primary) !important;
+}
+
+:root:not(.dark) .field input:focus,
+:root:not(.dark) .form-input:focus {
+  border-color: var(--accent-primary) !important;
+  box-shadow: 0 0 0 3px rgba(255, 93, 162, 0.15) !important;
+}
+
+:root:not(.dark) .back-button {
+  color: var(--light-text-rose-soft) !important;
+  transition: color 0.3s ease;
+}
+
+:root:not(.dark) .back-button:hover {
+  color: var(--light-accent-title) !important;
+}
+
+:root:not(.dark) .mobile-intro-title h1 {
+  color: var(--accent-primary) !important;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary)) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+}
+
+:root:not(.dark) .romantic-page {
+  background: radial-gradient(circle at 50% 30%,
+      rgba(255, 182, 193, 0.25),
+      transparent 40%),
+    linear-gradient(180deg, var(--light-bg-primary) 0%, var(--light-bg-secondary) 100%) !important;
+}
+
+:root:not(.dark) .glass-card {
+  background: rgba(255, 240, 248, 0.7) !important;
+}
+
+/* -------------------------------------------------------
+   Responsive & Mobile Optimizations
+-------------------------------------------------------- */
+@media (max-width: 768px) {
+  body {
+    font-size: 14px;
+  }
+
+  .card {
+    padding: 1rem;
+  }
+
+  button,
+  .btn {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* -------------------------------------------------------
+   Reduced Motion Support
+-------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* -------------------------------------------------------
+   Layout Helpers
+-------------------------------------------------------- */
+.section {
+  @apply max-w-6xl mx-auto px-4 sm:px-6 py-6;
+}
+
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* -------------------------------------------------------
+   Toast / Modal compatibility global z-index system
+-------------------------------------------------------- */
+.z-toast {
+  z-index: 2000;
+}
+
+.z-modal {
+  z-index: 1600;
+}
+
+.z-overlay {
+  z-index: 1500;
+}
+
+.z-layout {
+  z-index: 1200;
+}
+
+/* Analytics calendar styles (non-Tailwind) */
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 12px
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px
+}
+
+.calendar-cell {
+  min-height: 88px;
+  padding: 10px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.03);
+  cursor: pointer
+}
+
+.calendar-cell.empty {
+  background: transparent;
+  border: 0
+}
+
+.calendar-cell.status-good {
+  box-shadow: 0 0 8px rgba(34, 197, 94, 0.18);
+  border-color: rgba(34, 197, 94, 0.25)
+}
+
+.calendar-cell.status-moderate {
+  box-shadow: 0 0 8px rgba(250, 204, 21, 0.12);
+  border-color: rgba(250, 204, 21, 0.25)
+}
+
+.calendar-cell.status-bad {
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.12);
+  border-color: rgba(239, 68, 68, 0.25)
+}

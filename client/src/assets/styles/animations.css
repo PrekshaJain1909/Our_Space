@@ -1,0 +1,461 @@
+/* ============================================
+   ARCADE GAMING ANIMATIONS
+   Floating hearts, particles, glowing effects
+   ============================================ */
+
+/* ========== FLOATING HEARTS ANIMATION ========== */
+@keyframes floatHeart {
+  0% {
+    transform: translateY(0) translateX(0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-30vh) translateX(5vw) scale(0.8) rotate(15deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-60vh) translateX(-5vw) scale(0.3) rotate(45deg);
+    opacity: 0;
+  }
+}
+
+@keyframes floatHeartSlow {
+  0% {
+    transform: translateY(0) translateX(0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-25vh) translateX(-8vw) scale(0.85) rotate(-10deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-50vh) translateX(8vw) scale(0.4) rotate(-30deg);
+    opacity: 0;
+  }
+}
+
+@keyframes floatHeartFast {
+  0% {
+    transform: translateY(0) translateX(0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-35vh) translateX(12vw) scale(0.75) rotate(25deg);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translateY(-70vh) translateX(-12vw) scale(0.2) rotate(60deg);
+    opacity: 0;
+  }
+}
+
+.floating-heart {
+  position: fixed;
+  pointer-events: none;
+  font-size: 2rem;
+  animation: floatHeart 4s ease-out forwards;
+  z-index: 50;
+}
+
+.floating-heart.slow {
+  animation: floatHeartSlow 5.5s ease-out forwards;
+}
+
+.floating-heart.fast {
+  animation: floatHeartFast 3s ease-out forwards;
+}
+
+/* ========== PARTICLE EFFECTS ========== */
+@keyframes particleFloat {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(0);
+    opacity: 0;
+  }
+}
+
+@keyframes particleTwinkle {
+  0%, 100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.particle {
+  position: fixed;
+  pointer-events: none;
+  border-radius: 50%;
+  animation: particleFloat 3s ease-out forwards, particleTwinkle 2s ease-in-out infinite;
+  z-index: 30;
+}
+
+.particle.sparkle {
+  animation: particleFloat 2.5s ease-out forwards, particleTwinkle 1.5s ease-in-out infinite;
+}
+
+/* ========== GLOW PULSE EFFECT ========== */
+@keyframes glowPulse {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(var(--accent-color, 255, 0, 255), 0.4),
+                inset 0 0 10px rgba(var(--accent-color, 255, 0, 255), 0.1);
+  }
+  50% {
+    box-shadow: 0 0 40px rgba(var(--accent-color, 255, 0, 255), 0.8),
+                inset 0 0 20px rgba(var(--accent-color, 255, 0, 255), 0.2);
+  }
+}
+
+.glow-pulse {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+/* ========== BUTTON HOVER GLOW ========== */
+@keyframes buttonGlow {
+  0%, 100% {
+    text-shadow: 0 0 10px rgba(var(--accent-color, 255, 0, 255), 0.5);
+    box-shadow: 0 0 20px rgba(var(--accent-color, 255, 0, 255), 0.3),
+                inset 0 0 15px rgba(var(--accent-color, 255, 0, 255), 0.1);
+  }
+  50% {
+    text-shadow: 0 0 20px rgba(var(--accent-color, 255, 0, 255), 0.9);
+    box-shadow: 0 0 40px rgba(var(--accent-color, 255, 0, 255), 0.6),
+                inset 0 0 25px rgba(var(--accent-color, 255, 0, 255), 0.2);
+  }
+}
+
+.button-glow {
+  animation: buttonGlow 2s ease-in-out infinite;
+}
+
+/* ========== NEON FLICKER ========== */
+@keyframes neonFlicker {
+  0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% {
+    text-shadow: 0 0 10px rgba(var(--accent-color, 255, 0, 255), 0.7),
+                 0 0 20px rgba(var(--accent-color, 255, 0, 255), 0.5);
+  }
+  20%, 24%, 55% {
+    text-shadow: 0 0 5px rgba(var(--accent-color, 255, 0, 255), 0.3);
+  }
+}
+
+.neon-flicker {
+  animation: neonFlicker 3s ease-in-out infinite;
+}
+
+/* ========== BOUNCE ANIMATION ========== */
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.bounce {
+  animation: bounce 2s ease-in-out infinite;
+}
+
+/* ========== SLIDE IN FROM LEFT ========== */
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* ========== SLIDE IN FROM RIGHT ========== */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* ========== FADE IN SCALE UP ========== */
+@keyframes fadeInScale {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ========== SMOOTH THEME TRANSITION ========== */
+@keyframes themeTransition {
+  0% {
+    opacity: 0.9;
+    filter: brightness(0.95);
+  }
+  50% {
+    opacity: 0.8;
+    filter: brightness(0.9);
+  }
+  100% {
+    opacity: 1;
+    filter: brightness(1);
+  }
+}
+
+.theme-transition {
+  animation: themeTransition 0.6s ease-in-out;
+}
+
+/* ========== ROTATING GLOW ========== */
+@keyframes rotatingGlow {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.rotating-glow {
+  background-size: 200% 200%;
+  animation: rotatingGlow 3s ease infinite;
+}
+
+/* ========== HEARTBEAT ========== */
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.15);
+  }
+  50% {
+    transform: scale(1);
+  }
+  75% {
+    transform: scale(1.1);
+  }
+}
+
+.heartbeat {
+  animation: heartbeat 1.2s ease-in-out infinite;
+}
+
+/* ========== SHIMMER ========== */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+.shimmer {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.3) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 3s infinite;
+}
+
+/* ========== SUBTLE FLOATING ========== */
+@keyframes subtleFloat {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.subtle-float {
+  animation: subtleFloat 3s ease-in-out infinite;
+}
+
+/* ========== FOCUS RING ANIMATION ========== */
+@keyframes focusRing {
+  0% {
+    box-shadow: 0 0 0 0 rgba(var(--accent-color, 255, 0, 255), 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 15px rgba(var(--accent-color, 255, 0, 255), 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(var(--accent-color, 255, 0, 255), 0);
+  }
+}
+
+.focus-ring {
+  animation: focusRing 2s ease-out infinite;
+}
+
+/* ========== ROTATING BACKGROUND ========== */
+@keyframes rotateBg {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.rotate-bg {
+  background-size: 200% 200%;
+  animation: rotateBg 15s ease infinite;
+}
+
+/* ========== SOFT GLOW ========== */
+@keyframes softGlow {
+  0%, 100% {
+    filter: drop-shadow(0 0 8px rgba(var(--accent-color, 255, 0, 255), 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 16px rgba(var(--accent-color, 255, 0, 255), 0.6));
+  }
+}
+
+.soft-glow {
+  animation: softGlow 3s ease-in-out infinite;
+}
+
+/* ========== GRADIENT ANIMATION ========== */
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.gradient-shift {
+  background-size: 200% 200%;
+  animation: gradientShift 5s ease infinite;
+}
+
+/* ========== SPIN SLOW ========== */
+@keyframes spinSlow {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.spin-slow {
+  animation: spinSlow 8s linear infinite;
+}
+
+/* ========== WIGGLE ========== */
+@keyframes wiggle {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-2deg);
+  }
+  75% {
+    transform: rotate(2deg);
+  }
+}
+
+.wiggle {
+  animation: wiggle 0.5s ease-in-out infinite;
+}
+
+/* ========== SMOOTH SCALE ========== */
+@keyframes smoothScale {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.smooth-scale {
+  animation: smoothScale 3s ease-in-out infinite;
+}
+
+/* ========== FADE IN ========== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}
+
+/* ========== FADE OUT ========== */
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.fade-out {
+  animation: fadeOut 0.5s ease-out;
+}
+
+/* ========== GLOBAL ANIMATION CLASSES ========== */
+.animate-in {
+  animation: fadeInScale 0.4s ease-out;
+}
+
+.animate-out {
+  animation: fadeOut 0.4s ease-out;
+}
+
+.animate-bounce {
+  animation: bounce 2s ease-in-out infinite;
+}
+
+.animate-pulse {
+  animation: glowPulse 2s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  animation: shimmer 3s infinite;
+}
+
+/* ========== TRANSITION HELPER ========== */
+* {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+button, .btn, input, textarea, select {
+  transition: all 0.2s ease;
+}

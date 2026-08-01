@@ -1,0 +1,541 @@
+/* ===== PAGE BACKGROUND ===== */
+
+.mood-wrapper {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  background-image: var(--bg-couple-moon);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #ffe9ff;
+  display: flex;
+  justify-content: center;
+}
+
+.mood-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+      circle at bottom,
+      rgba(255, 140, 140, 0.5),
+      transparent 55%
+    ),
+    linear-gradient(to top, rgba(4, 0, 24, 0.9), rgba(21, 5, 51, 0.85));
+  mix-blend-mode: multiply;
+}
+
+.mood-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1000px;
+  padding: 32px 18px 40px;
+  margin: 0 auto;
+}
+
+/* ===== HEADER ===== */
+
+.mood-header {
+  margin-bottom: 18px;
+}
+
+.mood-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: rgba(255, 188, 245, 0.15);
+  border: 1px solid rgba(255, 204, 255, 0.7);
+  color: #ffd9ff;
+  margin-bottom: 10px;
+}
+
+.mood-title {
+  font-size: 26px;
+  margin-bottom: 4px;
+  text-shadow: 0 0 18px rgba(255, 182, 255, 0.35);
+}
+
+.mood-subtitle {
+  font-size: 13px;
+  opacity: 0.9;
+}
+
+/* ===== LAYOUT ===== */
+
+.mood-column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.mood-block {
+  width: 100%;
+}
+
+/* ===== BASE CARD ===== */
+
+.md-card {
+  background: rgba(15, 6, 40, 0.9);
+  border-radius: 22px;
+  padding: 18px 18px 16px;
+  border: 1px solid rgba(255, 177, 244, 0.4);
+  backdrop-filter: blur(18px);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7);
+  color: #ffe9ff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Header inside card */
+.md-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.md-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 11px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  background: rgba(255, 183, 255, 0.16);
+  border: 1px solid rgba(255, 208, 255, 0.8);
+  color: #ffdfff;
+}
+
+.md-subtitle {
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.md-empty {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+/* ===== FORM COMMON ===== */
+
+.md-form {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.md-row {
+  display: flex;
+  gap: 12px;
+}
+
+.md-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.md-field label {
+  font-size: 13px;
+  margin-bottom: 4px;
+  color: #ffd4ff;
+}
+
+.md-field input,
+.md-field textarea,
+.md-field select {
+  border-radius: 12px;
+  border: 1px solid rgba(255, 184, 255, 0.4);
+  background: rgba(7, 0, 31, 0.8);
+  color: #fff;
+  padding: 9px 12px;
+  font-size: 14px;
+  outline: none;
+  resize: vertical;
+  transition: border 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.md-field textarea {
+  min-height: 60px;
+}
+
+.md-field input::placeholder,
+.md-field textarea::placeholder {
+  color: rgba(255, 220, 255, 0.6);
+}
+
+.md-field input:focus,
+.md-field textarea:focus,
+.md-field select:focus {
+  background: rgba(18, 5, 55, 0.95);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 1px var(--accent-glow);
+}
+
+/* Primary button */
+
+.md-primary-btn {
+  align-self: flex-end;
+  border-radius: 999px;
+  border: none;
+  padding: 9px 18px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  background-image: var(--gradient-primary);
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(99,102,241,0.12);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+.md-primary-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 26px rgba(255, 140, 215, 0.95);
+  filter: brightness(1.04);
+}
+
+.md-primary-btn:active {
+  transform: translateY(1px) scale(0.99);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
+}
+
+/* ===== TODAY MOOD ===== */
+
+.md-mood-select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.md-mood-emoji-big {
+  font-size: 26px;
+}
+
+/* ===== POV TOGGLE ===== */
+
+.md-pov-toggle {
+  margin-top: 8px;
+  display: inline-flex;
+  padding: 2px;
+  border-radius: 999px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  gap: 2px;
+}
+
+.md-pov-btn {
+  border: none;
+  background: none;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+
+.md-pov-btn-active {
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--accent-primary) 40%, transparent);
+  color: #fff;
+}
+
+.md-pov-emoji {
+  font-size: 14px;
+  color: inherit;
+}
+
+/* ===== UPSET FORM ===== */
+
+.md-upset-form {
+  margin-top: 10px;
+  padding: 12px 12px 10px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 184, 255, 0.7);
+  background: rgba(18, 5, 55, 0.95);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.md-upset-male {
+  box-shadow: 0 0 18px rgba(125, 172, 255, 0.5);
+}
+
+.md-upset-female {
+  box-shadow: 0 0 18px rgba(255, 152, 230, 0.6);
+}
+
+.md-upset-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.md-intensity-field label span {
+  font-size: 11px;
+  opacity: 0.85;
+}
+
+.md-intensity-field input[type="range"] {
+  width: 100%;
+  margin-top: 4px;
+}
+
+.md-intensity-value {
+  font-size: 11px;
+  margin-top: 2px;
+  opacity: 0.9;
+}
+
+.md-upset-btn {
+  margin-top: 4px;
+}
+
+/* ===== CALENDAR ===== */
+
+.md-calendar-header {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.md-cal-nav-btn {
+  border-radius: 999px;
+  border: 1px solid var(--card-border);
+  background: var(--card-bg);
+  color: var(--text-primary);
+  width: 28px;
+  height: 28px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.md-cal-nav-btn:hover {
+  background: var(--surface);
+  border-color: var(--accent-primary);
+}
+
+.md-calendar-title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.md-calendar-grid {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.md-calendar-headcell {
+  font-size: 10px;
+  text-align: center;
+  opacity: 0.8;
+}
+
+.md-calendar-cell {
+  min-height: 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 184, 255, 0.3);
+  background: rgba(7, 0, 31, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px;
+  font-size: 11px;
+}
+
+.md-calendar-cell-empty {
+  border-color: transparent;
+  background: transparent;
+}
+
+.md-calendar-cell-today {
+  box-shadow: 0 0 12px var(--accent-glow);
+  border-color: color-mix(in srgb, var(--accent-primary) 40%, white);
+}
+
+.md-calendar-cell-has {
+  background: radial-gradient(
+    circle at top,
+    rgba(255, 192, 255, 0.4),
+    rgba(7, 0, 31, 0.9)
+  );
+}
+
+.md-calendar-daynum {
+  align-self: flex-start;
+  font-size: 10px;
+  margin-left: 3px;
+  margin-top: 3px;
+}
+
+.md-calendar-emoji {
+  font-size: 16px;
+}
+
+/* ===== ANALYTICS ===== */
+
+.md-analytics-top {
+  margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.md-analytics-item {
+  flex: 1;
+  min-width: 100px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-primary);
+}
+
+.md-analytics-label {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.md-analytics-value {
+  font-size: 16px;
+  font-weight: 600;
+  margin-top: 2px;
+  color: var(--accent-primary);
+}
+
+.md-analytics-note {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* mood bar chart */
+
+.md-analytics-bars {
+  margin-top: 10px;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  min-height: 120px;
+}
+
+.md-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.md-bar-wrapper {
+  flex: 1;
+  width: 100%;
+  border-radius: 999px;
+  background: rgba(255, 218, 255, 0.15);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.md-bar {
+  width: 100%;
+  border-radius: 999px;
+  background: var(--gradient-primary);
+  box-shadow: 0 0 10px rgba(99,102,241,0.12);
+  transition: height 0.3s ease;
+}
+
+/* optional mood-based tint variations */
+.md-bar-excited {
+  background: linear-gradient(180deg, var(--color-warning), var(--color-warning-dark));
+}
+.md-bar-happy {
+  background: linear-gradient(180deg, var(--color-primary), var(--accent-secondary));
+}
+.md-bar-romantic {
+  background: linear-gradient(180deg, var(--accent-primary), var(--accent-secondary));
+}
+.md-bar-okay {
+  background: linear-gradient(180deg, var(--accent-secondary), var(--accent-primary));
+}
+.md-bar-tired {
+  background: linear-gradient(180deg, #8883c4, #55507f);
+}
+.md-bar-sad {
+  background: linear-gradient(180deg, #7bb6ff, #4c7bd9);
+}
+.md-bar-anxious {
+  background: linear-gradient(180deg, #7be3ff, #3b90b3);
+}
+.md-bar-angry {
+  background: linear-gradient(180deg, #ff7b7c, #ff3b3b);
+}
+
+.md-bar-label {
+  font-size: 9px;
+  margin-top: 4px;
+  text-align: center;
+}
+
+.md-bar-count {
+  font-size: 10px;
+  opacity: 0.9;
+}
+
+/* upset stats */
+
+.md-upset-stats {
+  margin-top: 10px;
+  border-radius: 14px;
+  padding: 8px 10px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  color: var(--text-primary);
+}
+
+.md-upset-stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.md-upset-stat-value {
+  font-weight: 600;
+  color: var(--accent-primary);
+}
+
+.md-upset-hint {
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+/* ===== RESPONSIVE ===== */
+
+@media (max-width: 700px) {
+  .mood-inner {
+    padding: 26px 14px 32px;
+  }
+
+  .md-row {
+    flex-direction: column;
+  }
+
+  .md-analytics-top {
+    flex-direction: column;
+  }
+}

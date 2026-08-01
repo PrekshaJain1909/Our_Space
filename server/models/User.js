@@ -1,0 +1,47 @@
+const mongoose = require("mongoose");
+
+const userSchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true
+  },
+
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    trim: true,
+    lowercase: true,
+  },
+
+  password: {
+    type: String,
+    required: true
+  },
+
+  role: {
+    type: String,
+    enum: ["partnerA", "partnerB"],
+    required: true
+  },
+
+  coupleId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Couple",
+    default: null
+  },
+
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+
+  gender: {
+    type: String,
+    enum: ["female", "male", "other"],
+    default: null
+  }
+
+}, { timestamps: true });
+
+module.exports = mongoose.model("User", userSchema);

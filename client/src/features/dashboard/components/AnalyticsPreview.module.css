@@ -1,0 +1,28 @@
+.card {
+    background: var(--card);
+    padding: 12px;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+}
+
+.grid {
+    display: flex;
+    gap: 12px;
+}
+
+.item {
+    flex: 1;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), transparent);
+    padding: 12px;
+    border-radius: 10px;
+}
+
+.value {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.label {
+    color: var(--muted);
+    font-size: 12px;
+}
