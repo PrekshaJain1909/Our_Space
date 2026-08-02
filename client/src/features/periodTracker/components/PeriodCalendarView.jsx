@@ -2,21 +2,115 @@ import React, { useState } from "react";
 import { FaChevronLeft, FaChevronRight, FaCalendarAlt, FaRegSmile } from "react-icons/fa";
 
 const DEFAULT_PHASES = [
-  { key: "period", name: "Period Days", desc: "Rest and hydration", color: "#FCA5A5", startDay: 1, endDay: 5 },
-  { key: "freshStart", name: "Fresh Start", desc: "Recovery and renewed energy", color: "#86EFAC", startDay: 6, endDay: 10 },
-  { key: "bestDays", name: "Best Days", desc: "Energetic and confident", color: "#FDE047", startDay: 11, endDay: 16 },
-  { key: "calmDays", name: "Calm Days", desc: "Balanced phase", color: "#A7F3D0", startDay: 17, endDay: 23 },
-  { key: "takeCare", name: "Take Care Days", desc: "Period may be approaching; cravings or bloating possible", color: "#FDBA74", startDay: 24, endDay: 28 },
+  { key: "period", emoji: "🩸", name: "Period Days", desc: "Rest and hydration", color: "#FCA5A5", enabled: true, order: 0, isCustom: false },
+  { key: "freshStart", emoji: "✨", name: "Fresh Start", desc: "Recovery and renewed energy", color: "#86EFAC", enabled: true, order: 1, isCustom: false },
+  { key: "bestDays", emoji: "🌟", name: "Best Days", desc: "Energetic and confident", color: "#FDE047", enabled: true, order: 2, isCustom: false },
+  { key: "calmDays", emoji: "🌿", name: "Calm Days", desc: "Balanced phase", color: "#A7F3D0", enabled: true, order: 3, isCustom: false },
+  { key: "takeCare", emoji: "☁️", name: "Take Care Days", desc: "Period may be approaching; cravings or bloating possible", color: "#FDBA74", enabled: true, order: 4, isCustom: false },
 ];
 
-// Helper to calculate lighter background color based on hex
-const hexToRgba = (hex, alpha) => {
-  if (!hex) return `rgba(200, 200, 200, ${alpha})`;
-  const cleanHex = hex.replace("#", "");
-  const r = parseInt(cleanHex.slice(0, 2), 16) || 200;
-  const g = parseInt(cleanHex.slice(2, 4), 16) || 200;
-  const b = parseInt(cleanHex.slice(4, 6), 16) || 200;
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+function buildPhaseSchedule(phases = [], cycleLength = 28, periodLength = 5) {
+  const sorted = [...phases]
+    .filter((phase) => phase.enabled !== false)
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+  const periodPhase = sorted.find((phase) => phase.key === "period");
+  const nonPeriodPhases = sorted.filter((phase) => phase.key !== "period");
+  const effectivePeriodLength = periodPhase ? Math.min(periodLength, cycleLength) : 0;
+  const remainingDays = Math.max(0, cycleLength - effectivePeriodLength);
+
+  const weights = nonPeriodPhases.map((phase) => {
+    switch (phase.key) {
+      case "freshStart":
+        return 5;
+      case "bestDays":
+        return 6;
+      case "calmDays":
+        return 7;
+      case "takeCare":
+        return 5;
+      default:
+        return 1;
+    }
+  });
+
+  const totalWeight = weights.reduce((sum, item) => sum + item, 0) || 1;
+  let durations = weights.map((weight) => Math.max(0, Math.round((weight / totalWeight) * remainingDays)));
+
+  let totalDuration = durations.reduce((sum, item) => sum + item, 0);
+  let delta = remainingDays - totalDuration;
+  for (let idx = nonPeriodPhases.length - 1; idx >= 0 && delta !== 0; idx -= 1) {
+    durations[idx] += delta > 0 ? 1 : -1;
+    if (durations[idx] < 0) {
+      delta += -durations[idx];
+      durations[idx] = 0;
+    } else {
+      delta += delta > 0 ? -1 : 1;
+    }
+  }
+
+  const scheduled = [];
+  let cursor = 1;
+  if (periodPhase) {
+    scheduled.push({
+      ...periodPhase,
+      startDay: cursor,
+      endDay: cursor + effectivePeriodLength - 1,
+    });
+    cursor += effectivePeriodLength;
+  }
+
+  nonPeriodPhases.forEach((phase, index) => {
+    const phaseLength = Math.max(0, durations[index] || 0);
+    if (phaseLength <= 0) return;
+    scheduled.push({
+      ...phase,
+      startDay: cursor,
+      endDay: cursor + phaseLength - 1,
+    });
+    cursor += phaseLength;
+  });
+
+  if (cursor <= cycleLength) {
+    const lastPhase = scheduled[scheduled.length - 1];
+    if (lastPhase) {
+      lastPhase.endDay = cycleLength;
+    }
+  }
+
+  return scheduled;
+}
+
+// Helper to calculate lighter background color based on hex or rgb strings
+const hexToRgba = (color, alpha) => {
+  if (!color) return `rgba(200, 200, 200, ${alpha})`;
+
+  const trimmed = color.trim();
+  if (trimmed.startsWith("rgb")) {
+    const nums = trimmed
+      .replace(/rgba?\(|\)|\s/g, "")
+      .split(",")
+      .map((value) => Number(value));
+    const [r, g, b] = nums;
+    return `rgba(${r || 200}, ${g || 200}, ${b || 200}, ${alpha})`;
+  }
+
+  const cleanHex = trimmed.replace("#", "");
+  if (cleanHex.length === 3) {
+    const r = parseInt(cleanHex[0] + cleanHex[0], 16);
+    const g = parseInt(cleanHex[1] + cleanHex[1], 16);
+    const b = parseInt(cleanHex[2] + cleanHex[2], 16);
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  if (cleanHex.length >= 6) {
+    const r = parseInt(cleanHex.slice(0, 2), 16) || 200;
+    const g = parseInt(cleanHex.slice(2, 4), 16) || 200;
+    const b = parseInt(cleanHex.slice(4, 6), 16) || 200;
+    return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+  }
+
+  return `rgba(200, 200, 200, ${alpha})`;
 };
 
 export default function PeriodCalendarView({
@@ -24,17 +118,30 @@ export default function PeriodCalendarView({
   baseStartDate,
   logs = [],
   surprises = [],
+  onOpenPhaseStudio,
   onSelectDate,
+  selectedDate,
   currentYear,
   currentMonth,
   onChangeMonthYear,
 }) {
   const [viewMode, setViewMode] = useState("month"); // 'month' | 'year'
 
-  const cycleLength = settings?.cycleLength || 28;
+  const cycleLength = Number(settings?.cycleLength) || 28;
   const startRef = baseStartDate ? new Date(baseStartDate) : new Date();
-  const phases = settings?.phases?.length > 0 ? settings.phases : DEFAULT_PHASES;
+  const dayPhases = buildPhaseSchedule(
+    (settings?.phases?.length > 0 ? settings.phases : DEFAULT_PHASES).map((phase, index) => ({
+      ...phase,
+      order: phase.order ?? index,
+      enabled: phase.enabled !== false,
+      emoji: phase.emoji || "✨",
+      color: phase.color || "#D1D5DB",
+    })),
+    cycleLength,
+    Number(settings?.periodLength) || 5
+  );
 
+  const activePhases = dayPhases.filter((phase) => phase.enabled);
   // Helper to determine phase of any specific Date
   const getPhaseForDate = (date) => {
     const d = new Date(date);
@@ -50,7 +157,7 @@ export default function PeriodCalendarView({
     if (cyclePos < 0) cyclePos += cycleLength;
     const dayInCycle = cyclePos + 1;
 
-    const matchedPhase = phases.find(p => dayInCycle >= p.startDay && dayInCycle <= p.endDay);
+    const matchedPhase = activePhases.find(p => dayInCycle >= p.startDay && dayInCycle <= p.endDay);
 
     if (matchedPhase) {
       return { dayInCycle, ...matchedPhase };
@@ -140,8 +247,23 @@ export default function PeriodCalendarView({
       </div>
 
       {/* Phase Legend */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3">
+        <div>
+          <p className="text-xs uppercase tracking-[0.3em] text-secondary font-semibold">
+            Phase Studio
+          </p>
+          <p className="text-sm text-primary">Your active phase legend</p>
+        </div>
+        <button
+          onClick={onOpenPhaseStudio}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-2xl border border-theme bg-surface-subtle text-xs font-semibold text-secondary hover:border-pink-500 hover:text-pink-600 transition-all"
+        >
+          ⚙ Manage Phases
+        </button>
+      </div>
+
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
-        {phases.map((config) => (
+        {activePhases.map((config) => (
           <div
             key={config.key}
             style={{ 
@@ -150,7 +272,8 @@ export default function PeriodCalendarView({
             }}
             className="p-2.5 rounded-xl border flex flex-col justify-between text-xs space-y-1"
           >
-            <div className="font-bold flex items-center justify-between">
+            <div className="font-bold flex items-center gap-2">
+              <span>{config.emoji}</span>
               <span style={{ color: config.color, filter: "brightness(0.7)" }}>{config.name}</span>
             </div>
             <p className="text-[10px] opacity-80 leading-tight text-secondary">{config.desc}</p>
@@ -190,18 +313,21 @@ export default function PeriodCalendarView({
               const phase = getPhaseForDate(dateObj);
               const isToday =
                 new Date().toISOString().split("T")[0] === dateStr;
+              const isSelected = selectedDate === dateStr;
 
               const dayLog = logs.find((l) => l.date === dateStr);
-
+ 
               return (
                 <button
                   key={dateStr}
                   onClick={() => onSelectDate(dateStr, phase)}
                   style={{
-                    backgroundColor: hexToRgba(phase.color, 0.15),
-                    borderColor: hexToRgba(phase.color, 0.4)
+                    background: isSelected
+                      ? `linear-gradient(135deg, ${hexToRgba(phase.color, 0.2)}, ${hexToRgba(phase.color, 0.07)})`
+                      : hexToRgba(phase.color, 0.12),
+                    borderColor: hexToRgba(phase.color, 0.45),
                   }}
-                  className={`h-20 rounded-xl border p-2 flex flex-col justify-between text-left transition-all hover:scale-[1.02] hover:shadow-md relative ${isToday ? "ring-2 ring-pink-500 font-bold" : ""}`}
+                  className={`h-24 rounded-[28px] border p-3 flex flex-col justify-between text-left transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg relative ${isToday ? "ring-2 ring-pink-500 font-bold" : ""}`}
                 >
                   <div className="flex justify-between items-center text-xs font-bold" style={{ color: phase.color, filter: "brightness(0.7)" }}>
                     <span>{dayNum}</span>
@@ -220,8 +346,11 @@ export default function PeriodCalendarView({
                         <span>{dayLog.moods[0] || dayLog.symptoms[0]}</span>
                       </div>
                     )}
-
-                    <div className="text-[9px] opacity-75 truncate">{phase.name}</div>
+ 
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[12px]">{phase.emoji}</span>
+                      <span className="text-[9px] opacity-75 truncate">{phase.name}</span>
+                    </div>
                   </div>
                 </button>
               );

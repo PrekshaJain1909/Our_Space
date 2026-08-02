@@ -5,12 +5,98 @@ const PeriodSurprise = require("../models/PeriodSurprise");
 const User = require("../models/User");
 
 const DEFAULT_PHASES = [
-  { key: "period", name: "Period Days", startDay: 1, endDay: 5, desc: "Rest and hydration", color: "#FCA5A5", isCustom: false },
-  { key: "freshStart", name: "Fresh Start", startDay: 6, endDay: 10, desc: "Recovery and renewed energy", color: "#86EFAC", isCustom: false },
-  { key: "bestDays", name: "Best Days", startDay: 11, endDay: 16, desc: "Energetic and confident", color: "#FDE047", isCustom: false },
-  { key: "calmDays", name: "Calm Days", startDay: 17, endDay: 23, desc: "Balanced phase", color: "#A7F3D0", isCustom: false },
-  { key: "takeCare", name: "Take Care Days", startDay: 24, endDay: 28, desc: "Period may be approaching; cravings or bloating possible", color: "#FDBA74", isCustom: false },
+  { key: "period", emoji: "🩸", name: "Period Days", desc: "Rest and hydration", color: "#FCA5A5", enabled: true, order: 0, isCustom: false },
+  { key: "freshStart", emoji: "✨", name: "Fresh Start", desc: "Recovery and renewed energy", color: "#86EFAC", enabled: true, order: 1, isCustom: false },
+  { key: "bestDays", emoji: "🌟", name: "Best Days", desc: "Energetic and confident", color: "#FDE047", enabled: true, order: 2, isCustom: false },
+  { key: "calmDays", emoji: "🌿", name: "Calm Days", desc: "Balanced phase", color: "#A7F3D0", enabled: true, order: 3, isCustom: false },
+  { key: "takeCare", emoji: "☁️", name: "Take Care Days", desc: "Period may be approaching; cravings or bloating possible", color: "#FDBA74", enabled: true, order: 4, isCustom: false },
 ];
+
+function sanitizePhase(phase, index) {
+  return {
+    key: phase.key || `custom_${Date.now()}_${index}`,
+    emoji: phase.emoji || "✨",
+    name: phase.name || "Phase",
+    desc: phase.desc || "",
+    color: phase.color || "#FCA5A5",
+    enabled: phase.enabled !== false,
+    order: Number(phase.order) || index,
+    isCustom: phase.isCustom !== false,
+  };
+}
+
+function buildPhaseSchedule(phases = [], cycleLength = 28, periodLength = 5) {
+  const activePhases = Array.isArray(phases) && phases.length > 0 ? phases : DEFAULT_PHASES;
+  const sortedPhases = [...activePhases]
+    .filter((phase) => phase.enabled !== false)
+    .sort((a, b) => (a.order || 0) - (b.order || 0));
+
+  const periodPhase = sortedPhases.find((phase) => phase.key === "period");
+  const nonPeriodPhases = sortedPhases.filter((phase) => phase.key !== "period");
+  const effectivePeriodLength = periodPhase ? Math.min(periodLength, cycleLength) : 0;
+  const remainingDays = Math.max(0, cycleLength - effectivePeriodLength);
+
+  const weights = nonPeriodPhases.map((phase) => {
+    switch (phase.key) {
+      case "freshStart":
+        return 5;
+      case "bestDays":
+        return 6;
+      case "calmDays":
+        return 7;
+      case "takeCare":
+        return 5;
+      default:
+        return 1;
+    }
+  });
+
+  const totalWeight = weights.reduce((sum, item) => sum + item, 0) || 1;
+  let durations = weights.map((weight) => Math.max(0, Math.round((weight / totalWeight) * remainingDays)));
+
+  let totalDuration = durations.reduce((sum, item) => sum + item, 0);
+  let delta = remainingDays - totalDuration;
+  for (let idx = nonPeriodPhases.length - 1; idx >= 0 && delta !== 0; idx -= 1) {
+    durations[idx] += delta > 0 ? 1 : -1;
+    if (durations[idx] < 0) {
+      delta += -durations[idx];
+      durations[idx] = 0;
+    } else {
+      delta += delta > 0 ? -1 : 1;
+    }
+  }
+
+  const scheduled = [];
+  let cursor = 1;
+  if (periodPhase) {
+    scheduled.push({
+      ...periodPhase,
+      startDay: cursor,
+      endDay: cursor + effectivePeriodLength - 1,
+    });
+    cursor += effectivePeriodLength;
+  }
+
+  nonPeriodPhases.forEach((phase, index) => {
+    const phaseLength = Math.max(0, durations[index] || 0);
+    if (phaseLength <= 0) return;
+    scheduled.push({
+      ...phase,
+      startDay: cursor,
+      endDay: cursor + phaseLength - 1,
+    });
+    cursor += phaseLength;
+  });
+
+  if (cursor <= cycleLength) {
+    const lastPhase = scheduled[scheduled.length - 1];
+    if (lastPhase) {
+      lastPhase.endDay = cycleLength;
+    }
+  }
+
+  return scheduled;
+}
 
 /**
  * Phase Helper Function:
@@ -31,8 +117,8 @@ function calculateDayPhase(targetDate, cycleStartDate, cycleLength = 28, periodL
   if (cyclePos < 0) cyclePos += cycleLength;
   const dayInCycle = cyclePos + 1; // 1-indexed
 
-  const activePhases = Array.isArray(phases) && phases.length > 0 ? phases : DEFAULT_PHASES;
-  const matchedPhase = activePhases.find((p) => dayInCycle >= p.startDay && dayInCycle <= p.endDay);
+  const phaseSchedule = buildPhaseSchedule(phases, cycleLength, periodLength);
+  const matchedPhase = phaseSchedule.find((p) => dayInCycle >= p.startDay && dayInCycle <= p.endDay);
 
   if (matchedPhase) {
     return {
@@ -41,7 +127,10 @@ function calculateDayPhase(targetDate, cycleStartDate, cycleLength = 28, periodL
       name: matchedPhase.name,
       description: matchedPhase.desc,
       color: matchedPhase.color,
+      emoji: matchedPhase.emoji,
       isCustom: matchedPhase.isCustom,
+      startDay: matchedPhase.startDay,
+      endDay: matchedPhase.endDay,
     };
   }
 
@@ -105,7 +194,7 @@ exports.saveSettings = async (req, res) => {
     };
 
     if (Array.isArray(phases) && phases.length > 0) {
-      updatedData.phases = phases;
+      updatedData.phases = phases.map((phase, index) => sanitizePhase(phase, index));
     } else if (!settings?.phases || settings.phases.length === 0) {
       updatedData.phases = DEFAULT_PHASES;
     }
@@ -427,6 +516,28 @@ exports.getStatistics = async (req, res) => {
     const minCycle = cycleLengths.length > 0 ? Math.min(...cycleLengths) : settings?.cycleLength || 28;
     const maxCycle = cycleLengths.length > 0 ? Math.max(...cycleLengths) : settings?.cycleLength || 28;
 
+    const predictionDiffs = [];
+    const earlyStarts = [];
+    for (let i = 1; i < cycles.length; i++) {
+      const predicted = new Date(cycles[i - 1].startDate);
+      predicted.setDate(predicted.getDate() + (settings?.cycleLength || 28));
+      predicted.setHours(0, 0, 0, 0);
+
+      const actual = new Date(cycles[i].startDate);
+      actual.setHours(0, 0, 0, 0);
+
+      const diff = Math.round((actual.getTime() - predicted.getTime()) / (1000 * 60 * 60 * 24));
+      predictionDiffs.push(Math.abs(diff));
+      if (diff < 0) {
+        earlyStarts.push(Math.abs(diff));
+      }
+    }
+
+    const avgAbsDelay = predictionDiffs.length > 0 ? Math.round(predictionDiffs.reduce((a, b) => a + b, 0) / predictionDiffs.length) : 0;
+    const predictionAccuracy = Math.max(0, 100 - avgAbsDelay * 10);
+    const regularity = Math.max(0, 100 - ((maxCycle - minCycle) / avgCycleLength) * 100);
+    const averageEarlyStart = earlyStarts.length > 0 ? Math.round(earlyStarts.reduce((a, b) => a + b, 0) / earlyStarts.length) : 0;
+
     // Current cycle day count
     const lastStart = settings?.lastPeriodStart || (cycles.length > 0 ? cycles[cycles.length - 1].startDate : new Date());
     const now = new Date();
@@ -444,6 +555,10 @@ exports.getStatistics = async (req, res) => {
         longestCycle: maxCycle,
         currentCycleDay: Math.max(1, diffDaysCurrent),
         totalCyclesTracked: totalCycles,
+        predictionAccuracy,
+        regularity: Math.round(regularity),
+        averageDelay: avgAbsDelay,
+        averageEarlyStart,
       },
     });
   } catch (error) {

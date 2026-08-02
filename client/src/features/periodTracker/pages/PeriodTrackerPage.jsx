@@ -12,6 +12,7 @@ import {
 } from "../../../api/periodApi";
 
 import FirstTimeSetupModal from "../components/FirstTimeSetupModal";
+import PhaseStudioModal from "../components/PhaseStudioModal";
 import TodayPeriodBanner from "../components/TodayPeriodBanner";
 import PeriodCalendarView from "../components/PeriodCalendarView";
 import SurprisePlanner from "../components/SurprisePlanner";
@@ -40,7 +41,10 @@ export default function PeriodTrackerPage() {
     new Date().toISOString().split("T")[0]
   );
   const [showSetupModal, setShowSetupModal] = useState(false);
+  const [showPhaseStudio, setShowPhaseStudio] = useState(false);
+  const [showAllHistory, setShowAllHistory] = useState(false);
   const [isSavingSettings, setIsSavingSettings] = useState(false);
+  const [isSavingPhaseStudio, setIsSavingPhaseStudio] = useState(false);
 
   // Load Initial Settings & Setup Status
   const fetchSettingsAndStatus = async () => {
@@ -124,6 +128,27 @@ export default function PeriodTrackerPage() {
     }
   };
 
+  const handleSavePhaseStudio = async (updatedPhases) => {
+    try {
+      setIsSavingPhaseStudio(true);
+      const res = await savePeriodSettings({
+        lastPeriodStart: settings?.lastPeriodStart,
+        cycleLength: settings?.cycleLength,
+        periodLength: settings?.periodLength,
+        gender: userGender,
+        phases: updatedPhases,
+      });
+      setSettings(res.settings);
+      setShowPhaseStudio(false);
+      await loadCalendarData(currentYear, currentMonth);
+      await loadStats();
+    } catch (err) {
+      console.error("Failed to save phase studio:", err);
+    } finally {
+      setIsSavingPhaseStudio(false);
+    }
+  };
+
   const handleConfirmPeriod = async (payload) => {
     try {
       await confirmTodayPeriod(payload);
@@ -201,6 +226,70 @@ export default function PeriodTrackerPage() {
         isFemale={isFemale}
       />
 
+      {/* Period History */}
+      <div className="grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
+        <div className="bg-surface border border-theme rounded-3xl p-6 shadow-sm">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p className="text-xs uppercase tracking-[0.35em] text-secondary font-semibold">
+                🩸 Period History
+              </p>
+              <h2 className="mt-2 text-xl font-bold text-primary">Confirmed start dates</h2>
+              <p className="mt-2 text-sm text-secondary max-w-xl">
+                Keep track of confirmed cycle starts only — no extra details, just the dates that matter.
+              </p>
+            </div>
+            {cycles.length > 4 && (
+              <button
+                type="button"
+                onClick={() => setShowAllHistory((prev) => !prev)}
+                className="text-xs font-semibold uppercase tracking-[0.3em] text-pink-500 hover:text-pink-600"
+              >
+                {showAllHistory ? "Show less" : "View all →"}
+              </button>
+            )}
+          </div>
+
+          <div className="mt-6 space-y-3">
+            {cycles.length === 0 ? (
+              <div className="rounded-3xl border border-dashed border-theme bg-surface-subtle p-6 text-center text-sm text-secondary">
+                No confirmed period history yet. Confirm your next period to begin automatic tracking.
+              </div>
+            ) : (
+              (showAllHistory ? cycles : cycles.slice(0, 4)).map((cycle) => (
+                <div
+                  key={cycle._id}
+                  className="flex items-center justify-between rounded-3xl border border-theme/70 bg-surface-subtle p-4"
+                >
+                  <div>
+                    <div className="text-sm font-semibold text-primary">
+                      {new Date(cycle.startDate).toLocaleDateString(undefined, {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </div>
+                    <div className="text-xs text-secondary">Confirmed period start</div>
+                  </div>
+                  <div className="text-2xl">🩸</div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        <div className="bg-surface border border-theme rounded-3xl p-6 shadow-sm">
+          <div className="text-xs uppercase tracking-[0.35em] text-secondary font-semibold">
+            Premium insights
+          </div>
+          <div className="mt-4 space-y-3 text-sm text-secondary">
+            <p>Automatic predictions update when your partner confirms today's period.</p>
+            <p>Phase colors, calendar emojis, and history refresh immediately.</p>
+            <p>Tap Manage Phases any time to tune the experience for your relationship.</p>
+          </div>
+        </div>
+      </div>
+
       {/* Tabs Navigation */}
       <div className="flex overflow-x-auto gap-2 p-1.5 bg-surface border border-theme rounded-2xl text-xs font-semibold no-scrollbar">
         <button
@@ -255,6 +344,8 @@ export default function PeriodTrackerPage() {
           baseStartDate={baseStartDate}
           logs={logs}
           surprises={surprises}
+          onOpenPhaseStudio={() => setShowPhaseStudio(true)}
+          selectedDate={selectedDate}
           onSelectDate={(date) => {
             setSelectedDate(date);
             setActiveTab("mood");
@@ -291,6 +382,17 @@ export default function PeriodTrackerPage() {
         userGender={userGender}
         onSave={handleSaveSetup}
         isSaving={isSavingSettings}
+      />
+
+      {/* Phase Studio Modal */}
+      <PhaseStudioModal
+        isOpen={showPhaseStudio}
+        phases={settings?.phases || []}
+        cycleLength={settings?.cycleLength || 28}
+        periodLength={settings?.periodLength || 5}
+        onClose={() => setShowPhaseStudio(false)}
+        onSave={handleSavePhaseStudio}
+        isSaving={isSavingPhaseStudio}
       />
     </div>
   );

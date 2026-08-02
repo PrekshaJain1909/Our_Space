@@ -1,294 +1,372 @@
-import React, { useState } from "react";
-import { FaCalendarAlt, FaFemale, FaMale, FaCheck, FaPlus, FaTrash } from "react-icons/fa";
+import React, { useEffect, useMemo, useState } from "react";
+import { FaCalendarAlt, FaCheck, FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
-export default function FirstTimeSetupModal({ isOpen, onSave, isSaving, initialData, userGender }) {
-  const [lastPeriodStart, setLastPeriodStart] = useState(
+const PERIOD_OPTIONS = Array.from({ length: 10 }, (_, index) => index + 1);
+const CYCLE_MIN = 21;
+const CYCLE_MAX = 40;
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+const formatDate = (value) => {
+  if (!value) return "";
+  return new Date(value).toLocaleDateString(undefined, {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  });
+};
+
+const getCalendarMatrix = (year, month) => {
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const matrix = Array.from({ length: firstDay }, () => null);
+  for (let day = 1; day <= daysInMonth; day += 1) {
+    matrix.push(day);
+  }
+  return matrix;
+};
+
+export default function FirstTimeSetupModal({
+  isOpen,
+  onSave,
+  isSaving,
+  initialData,
+  userGender,
+}) {
+  const [step, setStep] = useState(1);
+  const [selectedDate, setSelectedDate] = useState(
     initialData?.lastPeriodStart
       ? new Date(initialData.lastPeriodStart).toISOString().split("T")[0]
       : new Date().toISOString().split("T")[0]
   );
-  const [cycleLength, setCycleLength] = useState(initialData?.cycleLength || 28);
-  const [dontRememberCycle, setDontRememberCycle] = useState(false);
+  const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [periodLength, setPeriodLength] = useState(initialData?.periodLength || 5);
-  const [gender, setGender] = useState(userGender || "female");
+  const [cycleLength, setCycleLength] = useState(initialData?.cycleLength || 28);
+  const gender = userGender || "female";
 
-  const [phases, setPhases] = useState(
-    initialData?.phases?.length > 0 ? initialData.phases : [
-      { key: "period", name: "Period Days", desc: "Rest and hydration", color: "#FCA5A5", startDay: 1, endDay: 5 },
-      { key: "freshStart", name: "Fresh Start", desc: "Recovery and renewed energy", color: "#86EFAC", startDay: 6, endDay: 10 },
-      { key: "bestDays", name: "Best Days", desc: "Energetic and confident", color: "#FDE047", startDay: 11, endDay: 16 },
-      { key: "calmDays", name: "Calm Days", desc: "Balanced phase", color: "#A7F3D0", startDay: 17, endDay: 23 },
-      { key: "takeCare", name: "Take Care Days", desc: "Period may be approaching; cravings or bloating possible", color: "#FDBA74", startDay: 24, endDay: 28 },
-    ]
-  );
+  useEffect(() => {
+    if (!isOpen) return;
+    const date = initialData?.lastPeriodStart
+      ? new Date(initialData.lastPeriodStart)
+      : new Date();
+
+    setSelectedDate(date.toISOString().split("T")[0]);
+    setCalendarMonth(new Date(date.getFullYear(), date.getMonth(), 1));
+    setPeriodLength(initialData?.periodLength || 5);
+    setCycleLength(initialData?.cycleLength || 28);
+    setStep(1);
+  }, [isOpen, initialData]);
 
   if (!isOpen) return null;
 
-  const handlePhaseChange = (index, field, value) => {
-    const newPhases = [...phases];
-    newPhases[index][field] = field === "startDay" || field === "endDay" ? Number(value) : value;
-    setPhases(newPhases);
+  const selectedDateObj = new Date(selectedDate);
+  const selectedDisplay = formatDate(selectedDate);
+  const predictedNext = new Date(selectedDateObj);
+  predictedNext.setDate(predictedNext.getDate() + cycleLength);
+  const ovulationDate = new Date(predictedNext);
+  ovulationDate.setDate(ovulationDate.getDate() - 14);
+
+  const calendarDays = useMemo(
+    () => getCalendarMatrix(calendarMonth.getFullYear(), calendarMonth.getMonth()),
+    [calendarMonth]
+  );
+
+  const handlePrevMonth = () => {
+    setCalendarMonth((current) => new Date(current.getFullYear(), current.getMonth() - 1, 1));
   };
 
-  const handleAddPhase = () => {
-    setPhases([...phases, {
-      key: `custom_${Date.now()}`,
-      name: "New Phase",
-      desc: "",
-      color: "#D1D5DB",
-      startDay: 1,
-      endDay: 1,
-      isCustom: true
-    }]);
+  const handleNextMonth = () => {
+    setCalendarMonth((current) => new Date(current.getFullYear(), current.getMonth() + 1, 1));
   };
 
-  const handleRemovePhase = (index) => {
-    const newPhases = phases.filter((_, i) => i !== index);
-    setPhases(newPhases);
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const finalCycleLength = dontRememberCycle ? 28 : Number(cycleLength);
+  const handleSave = () => {
     onSave({
-      lastPeriodStart,
-      cycleLength: finalCycleLength,
-      periodLength: Number(periodLength),
+      lastPeriodStart: selectedDate,
+      cycleLength,
+      periodLength,
       gender,
-      phases,
     });
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-fade-in">
-      <div className="w-full max-w-2xl bg-surface border border-theme rounded-2xl p-6 shadow-2xl flex flex-col max-h-[90vh] text-primary">
-        {/* Header */}
-        <div className="text-center space-y-2 mb-6 shrink-0">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-full bg-pink-500/10 text-pink-500 text-2xl mb-1">
-            🌸
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-2xl p-4">
+      <div className="w-full max-w-5xl overflow-hidden rounded-[32px] border border-theme bg-surface text-primary shadow-2xl">
+        <div className="border-b border-theme bg-surface-subtle p-6">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-[0.35em] text-secondary font-semibold">
+                Premium Onboarding
+              </p>
+              <h2 className="mt-3 text-3xl font-extrabold text-primary">
+                Couple Period Tracker Setup
+              </h2>
+              <p className="mt-2 max-w-2xl text-sm text-secondary">
+                Start with your most recent period and build automatic phase predictions for your shared cycle.
+              </p>
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {[
+                "Date",
+                "Period",
+                "Cycle",
+                "Review",
+              ].map((label, index) => (
+                <div
+                  key={label}
+                  className={`rounded-3xl border px-4 py-3 text-center text-xs uppercase tracking-[0.35em] font-semibold transition ${
+                    step === index + 1
+                      ? "border-pink-500 bg-pink-500/10 text-pink-500"
+                      : "border-theme bg-surface text-secondary"
+                  }`}
+                >
+                  {label}
+                </div>
+              ))}
+            </div>
           </div>
-          <h2 className="text-2xl font-bold">Shared Period Tracker Setup</h2>
-          <p className="text-sm text-secondary">
-            Set up your cycle parameters and customize phases together.
-          </p>
         </div>
 
-        <div className="flex-1 overflow-y-auto pr-2 space-y-8 custom-scrollbar">
-          <form id="setup-form" onSubmit={handleSubmit} className="space-y-6">
-            {/* Gender / Role Selector */}
-            <div className="space-y-2">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-secondary">
-                Your Role / Gender in App
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setGender("female")}
-                  className={`flex items-center justify-center gap-2 p-3 rounded-xl border transition-all ${
-                    gender === "female"
-                      ? "border-pink-500 bg-pink-500/10 text-pink-500 font-bold shadow"
-                      : "border-theme bg-surface-subtle text-secondary hover:text-primary"
-                  }`}
-                >
-                  <FaFemale className="text-lg" />
-                  <span>Female Partner</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setGender("male")}
-                  className={`flex items-center justify-center gap-2 p-3 rounded-xl border transition-all ${
-                    gender === "male"
-                      ? "border-blue-500 bg-blue-500/10 text-blue-500 font-bold shadow"
-                      : "border-theme bg-surface-subtle text-secondary hover:text-primary"
-                  }`}
-                >
-                  <FaMale className="text-lg" />
-                  <span>Male Partner</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Last Period Start Date */}
-            <div className="space-y-2">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-secondary">
-                1. Last Period Start Date
-              </label>
-              <input
-                type="date"
-                value={lastPeriodStart}
-                onChange={(e) => setLastPeriodStart(e.target.value)}
-                required
-                className="w-full px-4 py-2.5 rounded-xl border border-theme bg-surface-subtle focus:outline-none focus:border-pink-500 text-primary"
-              />
-            </div>
-
-            {/* Cycle Length */}
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-secondary">
-                  2. Average Cycle Length (21–35 days)
-                </label>
-                <label className="flex items-center gap-1.5 text-xs text-secondary cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    checked={dontRememberCycle}
-                    onChange={(e) => {
-                      setDontRememberCycle(e.target.checked);
-                      if (e.target.checked) setCycleLength(28);
-                    }}
-                    className="rounded border-theme text-pink-500 focus:ring-0"
-                  />
-                  <span>I don't remember (Default 28)</span>
-                </label>
-              </div>
-              {!dontRememberCycle ? (
-                <div className="flex items-center gap-3">
-                  <input
-                    type="range"
-                    min="21"
-                    max="35"
-                    value={cycleLength}
-                    onChange={(e) => setCycleLength(e.target.value)}
-                    className="w-full accent-pink-500"
-                  />
-                  <span className="w-12 text-center font-bold text-pink-500 text-lg">
-                    {cycleLength}d
-                  </span>
+        <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto custom-scrollbar">
+          {step === 1 && (
+            <section className="space-y-5">
+              <div className="flex items-center justify-between gap-4">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.35em] text-secondary font-semibold">
+                    Step 1 of 4
+                  </p>
+                  <h3 className="mt-2 text-2xl font-bold text-primary">Choose Last Period Started</h3>
                 </div>
-              ) : (
-                <div className="p-2.5 bg-surface-subtle text-xs text-secondary rounded-xl text-center">
-                  Using standard 28-day cycle length.
+                <div className="rounded-3xl border border-theme bg-surface px-4 py-3 text-sm text-secondary">
+                  Selected Date
+                  <div className="mt-2 text-lg font-semibold text-primary">{selectedDisplay}</div>
                 </div>
-              )}
-            </div>
-
-            {/* Period Duration */}
-            <div className="space-y-2">
-              <label className="block text-xs font-semibold uppercase tracking-wider text-secondary">
-                3. Average Period Length (2–10 days)
-              </label>
-              <div className="flex items-center gap-3">
-                <input
-                  type="range"
-                  min="2"
-                  max="10"
-                  value={periodLength}
-                  onChange={(e) => setPeriodLength(e.target.value)}
-                  className="w-full accent-pink-500"
-                />
-                <span className="w-12 text-center font-bold text-pink-500 text-lg">
-                  {periodLength}d
-                </span>
-              </div>
-            </div>
-
-            {/* Phase Configuration */}
-            <div className="space-y-4 pt-4 border-t border-theme">
-              <div className="flex justify-between items-center">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-secondary">
-                  4. Customize Cycle Phases
-                </label>
-                <button
-                  type="button"
-                  onClick={handleAddPhase}
-                  className="flex items-center gap-1.5 text-xs font-semibold text-pink-500 hover:text-pink-600 transition-colors bg-pink-500/10 px-2 py-1 rounded-md"
-                >
-                  <FaPlus /> Add Phase
-                </button>
               </div>
 
-              <div className="space-y-3">
-                {phases.map((phase, idx) => (
-                  <div key={idx} className="p-3 bg-surface-subtle border border-theme rounded-xl space-y-3 relative group">
+              <div className="rounded-[32px] border border-theme bg-surface-subtle p-5 shadow-sm">
+                <div className="flex items-center justify-between gap-4 mb-4">
+                  <div className="text-lg font-semibold text-primary">
+                    {calendarMonth.toLocaleString(undefined, { month: "long" })} {calendarMonth.getFullYear()}
+                  </div>
+                  <div className="flex items-center gap-2">
                     <button
                       type="button"
-                      onClick={() => handleRemovePhase(idx)}
-                      className="absolute top-2 right-2 text-secondary hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={handlePrevMonth}
+                      className="grid h-11 w-11 place-items-center rounded-2xl border border-theme bg-surface text-secondary transition hover:border-pink-500 hover:text-pink-600"
                     >
-                      <FaTrash size={12} />
+                      <FaChevronLeft />
                     </button>
+                    <button
+                      type="button"
+                      onClick={handleNextMonth}
+                      className="grid h-11 w-11 place-items-center rounded-2xl border border-theme bg-surface text-secondary transition hover:border-pink-500 hover:text-pink-600"
+                    >
+                      <FaChevronRight />
+                    </button>
+                  </div>
+                </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pr-6">
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-semibold text-secondary uppercase">Name</label>
-                        <input
-                          type="text"
-                          value={phase.name}
-                          onChange={(e) => handlePhaseChange(idx, "name", e.target.value)}
-                          className="w-full px-2 py-1.5 text-sm rounded-lg border border-theme bg-surface focus:outline-none focus:border-pink-500 text-primary"
-                          required
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-semibold text-secondary uppercase">Color Hex</label>
-                        <div className="flex gap-2 items-center">
-                          <input
-                            type="color"
-                            value={phase.color}
-                            onChange={(e) => handlePhaseChange(idx, "color", e.target.value)}
-                            className="w-8 h-8 p-0 border-0 rounded cursor-pointer"
-                          />
-                          <input
-                            type="text"
-                            value={phase.color}
-                            onChange={(e) => handlePhaseChange(idx, "color", e.target.value)}
-                            className="w-full px-2 py-1.5 text-sm rounded-lg border border-theme bg-surface focus:outline-none focus:border-pink-500 text-primary uppercase"
-                            required
-                          />
+                <div className="grid grid-cols-7 gap-2 pb-3 text-xs uppercase tracking-[0.2em] text-secondary">
+                  {WEEKDAYS.map((label) => (
+                    <div key={label} className="text-center font-semibold">
+                      {label}
+                    </div>
+                  ))}
+                </div>
+                <div className="grid grid-cols-7 gap-3">
+                  {calendarDays.map((day, idx) => {
+                    const date = day
+                      ? new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), day)
+                      : null;
+                    const dateValue = date ? date.toISOString().split("T")[0] : "";
+                    const isSelected = dateValue === selectedDate;
+                    const isToday = dateValue === new Date().toISOString().split("T")[0];
+
+                    return (
+                      <button
+                        key={`${dateValue}-${idx}`}
+                        type="button"
+                        onClick={() => date && setSelectedDate(dateValue)}
+                        disabled={!date}
+                        className={`min-h-[76px] rounded-[24px] border p-3 text-left transition duration-200 ${
+                          date
+                            ? isSelected
+                              ? "border-pink-500 bg-gradient-to-br from-pink-500/15 to-purple-500/10 text-primary shadow-md"
+                              : "border-theme bg-surface hover:border-pink-500 hover:bg-surface-subtle"
+                            : "border-transparent bg-transparent"
+                        } ${isToday ? "ring-2 ring-pink-500/40" : ""}`}
+                      >
+                        <div className="flex items-center justify-between text-sm font-semibold">
+                          <span>{day || ""}</span>
+                          {isToday && <span className="rounded-full bg-pink-500/15 px-2 py-0.5 text-[10px] text-pink-500">Today</span>}
                         </div>
-                      </div>
-                    </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </section>
+          )}
 
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-semibold text-secondary uppercase">Start Day</label>
-                        <input
-                          type="number"
-                          min="1"
-                          max="35"
-                          value={phase.startDay}
-                          onChange={(e) => handlePhaseChange(idx, "startDay", e.target.value)}
-                          className="w-full px-2 py-1.5 text-sm rounded-lg border border-theme bg-surface focus:outline-none focus:border-pink-500 text-primary"
-                          required
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[10px] font-semibold text-secondary uppercase">End Day</label>
-                        <input
-                          type="number"
-                          min="1"
-                          max="35"
-                          value={phase.endDay}
-                          onChange={(e) => handlePhaseChange(idx, "endDay", e.target.value)}
-                          className="w-full px-2 py-1.5 text-sm rounded-lg border border-theme bg-surface focus:outline-none focus:border-pink-500 text-primary"
-                          required
-                        />
-                      </div>
+          {step === 2 && (
+            <section className="space-y-5">
+              <div>
+                <p className="text-xs uppercase tracking-[0.35em] text-secondary font-semibold">
+                  Step 2 of 4
+                </p>
+                <h3 className="mt-2 text-2xl font-bold text-primary">Choose Period Length</h3>
+                <p className="mt-2 text-sm text-secondary max-w-2xl">
+                  Select how many days your period usually lasts. The app will set the start and end automatically.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-5 gap-3">
+                {PERIOD_OPTIONS.map((option) => (
+                  <button
+                    key={option}
+                    type="button"
+                    onClick={() => setPeriodLength(option)}
+                    className={`rounded-3xl border px-4 py-5 text-lg font-semibold transition ${
+                      periodLength === option
+                        ? "border-pink-500 bg-pink-500/10 text-pink-500 shadow"
+                        : "border-theme bg-surface text-primary hover:border-pink-500"
+                    }`}
+                  >
+                    {option}d
+                  </button>
+                ))}
+              </div>
+
+              <div className="rounded-[32px] border border-theme bg-surface-subtle p-5 text-sm text-secondary">
+                <div className="mb-3 text-xs uppercase tracking-[0.3em] text-secondary font-semibold">
+                  Live period preview
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <div className="rounded-3xl border border-theme bg-surface p-4">
+                    <div className="text-[10px] uppercase tracking-[0.3em] text-secondary">Period Start</div>
+                    <div className="mt-2 text-lg font-semibold text-primary">{selectedDisplay}</div>
+                  </div>
+                  <div className="rounded-3xl border border-theme bg-surface p-4">
+                    <div className="text-[10px] uppercase tracking-[0.3em] text-secondary">Period End</div>
+                    <div className="mt-2 text-lg font-semibold text-primary">
+                      {new Date(selectedDateObj.getFullYear(), selectedDateObj.getMonth(), selectedDateObj.getDate() + periodLength - 1).toLocaleDateString(undefined, {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
                     </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {step === 3 && (
+            <section className="space-y-5">
+              <div>
+                <p className="text-xs uppercase tracking-[0.35em] text-secondary font-semibold">
+                  Step 3 of 4
+                </p>
+                <h3 className="mt-2 text-2xl font-bold text-primary">Choose Average Cycle Length</h3>
+                <p className="mt-2 text-sm text-secondary max-w-2xl">
+                  Use the slider to choose a typical cycle length, then preview your next prediction instantly.
+                </p>
+              </div>
+
+              <div className="rounded-[32px] border border-theme bg-surface-subtle p-6">
+                <div className="flex items-center justify-between gap-4 pb-4">
+                  <div>
+                    <p className="text-sm text-secondary">Cycle Length</p>
+                    <p className="mt-2 text-3xl font-bold text-primary">{cycleLength} Days</p>
+                  </div>
+                  <div className="rounded-3xl bg-gradient-to-r from-pink-500/20 to-purple-500/20 px-4 py-3 text-center text-xs uppercase tracking-[0.25em] text-pink-500 font-semibold">
+                    Premium progress
+                  </div>
+                </div>
+                <input
+                  type="range"
+                  min={CYCLE_MIN}
+                  max={CYCLE_MAX}
+                  value={cycleLength}
+                  onChange={(e) => setCycleLength(Number(e.target.value))}
+                  className="w-full accent-pink-500"
+                />
+                <div className="mt-5 grid gap-4 sm:grid-cols-2">
+                  <div className="rounded-3xl border border-theme bg-surface p-4">
+                    <div className="text-[10px] uppercase tracking-[0.3em] text-secondary">Predicted Next Period</div>
+                    <div className="mt-3 text-lg font-semibold text-primary">{formatDate(predictedNext.toISOString().split("T")[0])}</div>
+                  </div>
+                  <div className="rounded-3xl border border-theme bg-surface p-4">
+                    <div className="text-[10px] uppercase tracking-[0.3em] text-secondary">Next Ovulation</div>
+                    <div className="mt-3 text-lg font-semibold text-primary">{formatDate(ovulationDate.toISOString().split("T")[0])}</div>
+                  </div>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {step === 4 && (
+            <section className="space-y-5">
+              <div>
+                <p className="text-xs uppercase tracking-[0.35em] text-secondary font-semibold">
+                  Step 4 of 4
+                </p>
+                <h3 className="mt-2 text-2xl font-bold text-primary">Review your cycle setup</h3>
+                <p className="mt-2 text-sm text-secondary max-w-2xl">
+                  Confirm your shared cycle settings before saving. Everything will automatically update for both partners.
+                </p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                {[
+                  { label: "Last Period", value: selectedDisplay },
+                  { label: "Cycle Length", value: `${cycleLength} Days` },
+                  { label: "Period Length", value: `${periodLength} Days` },
+                  { label: "Predicted Next", value: formatDate(predictedNext.toISOString().split("T")[0]) },
+                  { label: "Next Ovulation", value: formatDate(ovulationDate.toISOString().split("T")[0]) },
+                ].map((item) => (
+                  <div key={item.label} className="rounded-3xl border border-theme bg-surface p-5">
+                    <div className="text-[10px] uppercase tracking-[0.3em] text-secondary font-semibold">
+                      {item.label}
+                    </div>
+                    <div className="mt-4 text-lg font-bold text-primary">{item.value}</div>
                   </div>
                 ))}
               </div>
-            </div>
-          </form>
+            </section>
+          )}
         </div>
 
-        {/* Action Buttons */}
-        <div className="pt-4 mt-4 border-t border-theme shrink-0">
+        <div className="flex flex-col gap-3 border-t border-theme bg-surface-subtle p-6 sm:flex-row sm:items-center sm:justify-between">
           <button
-            type="submit"
-            form="setup-form"
-            disabled={isSaving}
-            className="w-full py-3 px-4 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white font-semibold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-50"
+            type="button"
+            onClick={() => setStep((prev) => Math.max(1, prev - 1))}
+            disabled={step === 1}
+            className="rounded-3xl border border-theme bg-surface px-5 py-3 text-sm font-semibold text-secondary transition hover:border-pink-500 hover:text-pink-600 disabled:opacity-50"
           >
-            {isSaving ? (
-              <span>Saving...</span>
-            ) : (
-              <>
-                <FaCheck /> Save & Open Period Tracker
-              </>
-            )}
+            Back
           </button>
+
+          <div className="flex flex-wrap items-center gap-3">
+            {step < 4 ? (
+              <button
+                type="button"
+                onClick={() => setStep((prev) => Math.min(4, prev + 1))}
+                className="rounded-3xl bg-pink-500 px-5 py-3 text-sm font-semibold text-white shadow hover:bg-pink-600"
+              >
+                Continue
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSave}
+                disabled={isSaving}
+                className="rounded-3xl bg-gradient-to-r from-pink-500 to-rose-500 px-5 py-3 text-sm font-semibold text-white shadow hover:from-pink-600 hover:to-rose-600 disabled:opacity-50"
+              >
+                {isSaving ? "Saving..." : (
+                  <span className="inline-flex items-center gap-2"><FaCheck /> Save Settings</span>
+                )}
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -20,8 +20,8 @@ export default function TodayPeriodBanner({ settings, onConfirmPeriod, isFemale 
   const diffTime = today.getTime() - predictedNext.getTime();
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
 
-  // PRD: Visible from 7 days before until 7 days after predicted date
   const isWithinWindow = diffDays >= -7 && diffDays <= 7;
+  const isStartingSoon = diffDays === -2;
 
   if (!isWithinWindow) return null;
 
@@ -49,7 +49,9 @@ export default function TodayPeriodBanner({ settings, onConfirmPeriod, isFemale 
               </span>
             </h3>
             <p className="text-xs text-secondary mt-0.5">
-              Confirm your period start date to update cycle predictions and unlock special partner surprises! 🎁
+              {isStartingSoon
+                ? "🩸 Your period may start soon."
+                : "Confirm your period start date to update cycle predictions and unlock special partner surprises! 🎁"}
             </p>
           </div>
         </div>

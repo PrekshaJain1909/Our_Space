@@ -27,11 +27,25 @@ export default function PeriodStats({ stats }) {
       color: "text-emerald-500 bg-emerald-500/10 border-emerald-500/30",
     },
     {
-      title: "Cycle Range",
-      value: `${stats.shortestCycle || 28}d – ${stats.longestCycle || 28}d`,
-      desc: "Shortest to longest recorded",
+      title: "Prediction Accuracy",
+      value: `${stats.predictionAccuracy ?? 100}%`,
+      desc: "How closely confirmed dates match predictions",
       icon: FaChartLine,
       color: "text-amber-500 bg-amber-500/10 border-amber-500/30",
+    },
+    {
+      title: "Regularity",
+      value: `${stats.regularity ?? 100}%`,
+      desc: "Consistency across your recorded cycles",
+      icon: FaCalendarCheck,
+      color: "text-blue-500 bg-blue-500/10 border-blue-500/30",
+    },
+    {
+      title: "Average Delay",
+      value: `${stats.averageDelay ?? 0} days`,
+      desc: "Average difference from predicted starts",
+      icon: FaClock,
+      color: "text-violet-500 bg-violet-500/10 border-violet-500/30",
     },
   ];
 
@@ -48,7 +62,7 @@ export default function PeriodStats({ stats }) {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {statItems.map((item, idx) => {
           const IconComp = item.icon;
           return (

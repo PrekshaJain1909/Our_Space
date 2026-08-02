@@ -16,12 +16,12 @@ const periodSettingsSchema = new mongoose.Schema(
       type: Number,
       default: 28,
       min: 21,
-      max: 35,
+      max: 40,
     },
     periodLength: {
       type: Number,
       default: 5,
-      min: 2,
+      min: 1,
       max: 10,
     },
     customColors: {
@@ -54,12 +54,12 @@ const periodSettingsSchema = new mongoose.Schema(
 
     startDay: {
       type: Number,
-      required: true,
+      default: null,
     },
 
     endDay: {
       type: Number,
-      required: true,
+      default: null,
     },
 
     order: {
