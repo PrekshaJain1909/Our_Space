@@ -52,6 +52,16 @@ const periodSettingsSchema = new mongoose.Schema(
       default: "",
     },
 
+    offsetStart: {
+      type: Number,
+      default: 0,
+    },
+
+    offsetEnd: {
+      type: Number,
+      default: null,
+    },
+
     startDay: {
       type: Number,
       default: null,

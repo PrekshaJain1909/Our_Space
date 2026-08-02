@@ -7,23 +7,29 @@ export default function TodayPeriodBanner({ settings, onConfirmPeriod, isFemale 
 
   if (!settings?.lastPeriodStart) return null;
 
-  // Calculate predicted next start date
-  const lastStart = new Date(settings.lastPeriodStart);
-  lastStart.setHours(0, 0, 0, 0);
+  const normalizeDate = (value) => {
+    const date = new Date(value);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  };
 
-  const predictedNext = new Date(lastStart);
-  predictedNext.setDate(predictedNext.getDate() + (settings.cycleLength || 28));
+  const addDays = (date, days) => {
+    const result = new Date(date);
+    result.setHours(0, 0, 0, 0);
+    result.setDate(result.getDate() + Number(days));
+    return result;
+  };
 
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  const lastStart = normalizeDate(settings.lastPeriodStart);
+  const predictedNext = addDays(lastStart, Math.max(0, settings.cycleLength || 28));
+  const today = normalizeDate(new Date());
 
   const diffTime = today.getTime() - predictedNext.getTime();
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-  const isWithinWindow = diffDays >= -7 && diffDays <= 7;
   const isStartingSoon = diffDays === -2;
+  const isVisible = diffDays >= -2;
 
-  if (!isWithinWindow) return null;
+  if (!isVisible) return null;
 
   const handleConfirm = async () => {
     await onConfirmPeriod({ date: today.toISOString().split("T")[0], notes });

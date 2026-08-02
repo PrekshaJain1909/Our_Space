@@ -2,11 +2,66 @@ import React, { useEffect, useState } from "react";
 import { FaCheck, FaGripVertical, FaPlus, FaRedo, FaTrash } from "react-icons/fa";
 
 const DEFAULT_PHASES = [
-  { key: "period", emoji: "🩸", name: "Period Days", desc: "Rest and hydration", color: "#FCA5A5", enabled: true, order: 0, isCustom: false },
-  { key: "freshStart", emoji: "✨", name: "Fresh Start", desc: "Recovery and renewed energy", color: "#86EFAC", enabled: true, order: 1, isCustom: false },
-  { key: "bestDays", emoji: "🌟", name: "Best Days", desc: "Energetic and confident", color: "#FDE047", enabled: true, order: 2, isCustom: false },
-  { key: "calmDays", emoji: "🌿", name: "Calm Days", desc: "Balanced phase", color: "#A7F3D0", enabled: true, order: 3, isCustom: false },
-  { key: "takeCare", emoji: "☁️", name: "Take Care Days", desc: "Period may be approaching; cravings or bloating possible", color: "#FDBA74", enabled: true, order: 4, isCustom: false },
+  {
+    key: "period",
+    emoji: "🩸",
+    name: "Period Days",
+    desc: "Rest and hydration",
+    color: "#FCA5A5",
+    enabled: true,
+    order: 0,
+    isCustom: false,
+    offsetStart: 0,
+    offsetEnd: null,
+  },
+  {
+    key: "takeCare",
+    emoji: "☁️",
+    name: "Take Care Days",
+    desc: "Period may be approaching; cravings or bloating possible",
+    color: "#FDBA74",
+    enabled: true,
+    order: 1,
+    isCustom: false,
+    offsetStart: -1,
+    offsetEnd: -1,
+  },
+  {
+    key: "freshStart",
+    emoji: "✨",
+    name: "Fresh Start",
+    desc: "Recovery and renewed energy",
+    color: "#86EFAC",
+    enabled: true,
+    order: 2,
+    isCustom: false,
+    offsetStart: 1,
+    offsetEnd: 4,
+  },
+  {
+    key: "bestDays",
+    emoji: "🌟",
+    name: "Best Days",
+    desc: "Energetic and confident",
+    color: "#FDE047",
+    enabled: true,
+    order: 3,
+    isCustom: false,
+    offsetStart: 8,
+    offsetEnd: 14,
+  },
+  {
+    key: "calmDays",
+    emoji: "🌿",
+    name: "Calm Days",
+    desc: "Balanced phase",
+    color: "#A7F3D0",
+    enabled: true,
+    order: 4,
+    isCustom: false,
+    offsetStart: 15,
+    offsetEnd: 22,
+  },
 ];
 
 const colorSwatches = [
@@ -70,6 +125,16 @@ const normalizePhases = (phases = []) =>
       color: phase.color || "#D1D5DB",
       hue: phase.hue || 0,
       enabled: phase.enabled !== false,
+      offsetStart:
+        phase.offsetStart !== undefined && !Number.isNaN(Number(phase.offsetStart))
+          ? Number(phase.offsetStart)
+          : 0,
+      offsetEnd:
+        phase.offsetEnd !== undefined && !Number.isNaN(Number(phase.offsetEnd))
+          ? Number(phase.offsetEnd)
+          : phase.offsetStart !== undefined && !Number.isNaN(Number(phase.offsetStart))
+          ? Number(phase.offsetStart)
+          : 0,
       order: Number(phase.order) || index,
       isCustom: phase.isCustom !== false,
     }))
@@ -109,7 +174,11 @@ export default function PhaseStudioModal({
     const updated = [...editedPhases];
     updated[index] = {
       ...updated[index],
-      [field]: field === "enabled" ? Boolean(value) : value,
+      [field]: field === "enabled"
+        ? Boolean(value)
+        : field === "offsetStart" || field === "offsetEnd"
+        ? Number(value)
+        : value,
     };
     setEditedPhases(updated);
   };
@@ -119,11 +188,13 @@ export default function PhaseStudioModal({
       ...current,
       {
         key: `custom_${Date.now()}`,
-        emoji: "?",
+        emoji: "✨",
         name: "New Phase",
         desc: "",
         color: "#D1D5DB",
         enabled: true,
+        offsetStart: 1,
+        offsetEnd: 2,
         order: current.length,
         isCustom: true,
       },
@@ -301,6 +372,38 @@ export default function PhaseStudioModal({
                         placeholder="What does this phase feel like?"
                       />
                     </label>
+
+                    <div className="grid gap-3 sm:grid-cols-2 lg:col-span-2">
+                      <label className="space-y-2 text-sm text-secondary">
+                        Offset Start
+                        <input
+                          type="number"
+                          value={phase.offsetStart}
+                          onChange={(event) => handlePhaseChange(index, "offsetStart", event.target.value)}
+                          disabled={phase.key === "period"}
+                          className="w-full rounded-3xl border border-theme bg-surface px-4 py-3 text-base text-primary focus:outline-none focus:border-pink-500 disabled:cursor-not-allowed disabled:opacity-50"
+                          placeholder="e.g. -1 or 1"
+                        />
+                        <p className="text-[11px] text-secondary/80">
+                          Relative to period start. Use negative values for pre-period days.
+                        </p>
+                      </label>
+
+                      <label className="space-y-2 text-sm text-secondary">
+                        Offset End
+                        <input
+                          type="number"
+                          value={phase.offsetEnd ?? ""}
+                          onChange={(event) => handlePhaseChange(index, "offsetEnd", event.target.value)}
+                          disabled={phase.key === "period"}
+                          className="w-full rounded-3xl border border-theme bg-surface px-4 py-3 text-base text-primary focus:outline-none focus:border-pink-500 disabled:cursor-not-allowed disabled:opacity-50"
+                          placeholder="e.g. -1 or 4"
+                        />
+                        <p className="text-[11px] text-secondary/80">
+                          Relative end day of this phase from period start.
+                        </p>
+                      </label>
+                    </div>
 
                     <div className="space-y-2 text-sm text-secondary">
                       <div className="flex items-center justify-between">

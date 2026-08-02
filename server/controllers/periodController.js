@@ -5,24 +5,120 @@ const PeriodSurprise = require("../models/PeriodSurprise");
 const User = require("../models/User");
 
 const DEFAULT_PHASES = [
-  { key: "period", emoji: "🩸", name: "Period Days", desc: "Rest and hydration", color: "#FCA5A5", enabled: true, order: 0, isCustom: false },
-  { key: "freshStart", emoji: "✨", name: "Fresh Start", desc: "Recovery and renewed energy", color: "#86EFAC", enabled: true, order: 1, isCustom: false },
-  { key: "bestDays", emoji: "🌟", name: "Best Days", desc: "Energetic and confident", color: "#FDE047", enabled: true, order: 2, isCustom: false },
-  { key: "calmDays", emoji: "🌿", name: "Calm Days", desc: "Balanced phase", color: "#A7F3D0", enabled: true, order: 3, isCustom: false },
-  { key: "takeCare", emoji: "☁️", name: "Take Care Days", desc: "Period may be approaching; cravings or bloating possible", color: "#FDBA74", enabled: true, order: 4, isCustom: false },
+  {
+    key: "period",
+    emoji: "🩸",
+    name: "Period Days",
+    desc: "Rest and hydration",
+    color: "#FCA5A5",
+    enabled: true,
+    order: 0,
+    isCustom: false,
+    offsetStart: 0,
+    offsetEnd: null,
+  },
+  {
+    key: "takeCare",
+    emoji: "☁️",
+    name: "Take Care Days",
+    desc: "Period may be approaching; cravings or bloating possible",
+    color: "#FDBA74",
+    enabled: true,
+    order: 1,
+    isCustom: false,
+    offsetStart: -1,
+    offsetEnd: -1,
+  },
+  {
+    key: "freshStart",
+    emoji: "✨",
+    name: "Fresh Start",
+    desc: "Recovery and renewed energy",
+    color: "#86EFAC",
+    enabled: true,
+    order: 2,
+    isCustom: false,
+    offsetStart: 1,
+    offsetEnd: 4,
+  },
+  {
+    key: "bestDays",
+    emoji: "🌟",
+    name: "Best Days",
+    desc: "Energetic and confident",
+    color: "#FDE047",
+    enabled: true,
+    order: 3,
+    isCustom: false,
+    offsetStart: 8,
+    offsetEnd: 14,
+  },
+  {
+    key: "calmDays",
+    emoji: "🌿",
+    name: "Calm Days",
+    desc: "Balanced phase",
+    color: "#A7F3D0",
+    enabled: true,
+    order: 4,
+    isCustom: false,
+    offsetStart: 15,
+    offsetEnd: 22,
+  },
 ];
 
+function normalizeDate(dateValue) {
+  if (!dateValue) return null;
+  const date = new Date(dateValue);
+  date.setHours(0, 0, 0, 0);
+  return date;
+}
+
+function addDays(dateValue, days) {
+  const date = new Date(dateValue);
+  date.setHours(0, 0, 0, 0);
+  date.setDate(date.getDate() + Number(days));
+  return date;
+}
+
+function getPredictedStartDate(lastPeriodStart, cycleLength = 28) {
+  if (!lastPeriodStart) return null;
+  return addDays(lastPeriodStart, Math.max(0, Number(cycleLength)));
+}
+
 function sanitizePhase(phase, index) {
+  const isPeriodPhase = phase.key === "period";
+  const offsetStart = isPeriodPhase
+    ? 0
+    : phase.offsetStart !== undefined && !Number.isNaN(Number(phase.offsetStart))
+    ? Number(phase.offsetStart)
+    : 0;
+  const offsetEnd = isPeriodPhase
+    ? null
+    : phase.offsetEnd !== undefined && !Number.isNaN(Number(phase.offsetEnd))
+    ? Number(phase.offsetEnd)
+    : phase.offsetStart !== undefined && !Number.isNaN(Number(phase.offsetStart))
+    ? Number(phase.offsetStart)
+    : offsetStart;
+
   return {
     key: phase.key || `custom_${Date.now()}_${index}`,
     emoji: phase.emoji || "✨",
     name: phase.name || "Phase",
     desc: phase.desc || "",
     color: phase.color || "#FCA5A5",
+    offsetStart,
+    offsetEnd,
     enabled: phase.enabled !== false,
     order: Number(phase.order) || index,
     isCustom: phase.isCustom !== false,
   };
+}
+
+function clampPhaseRange(startDay, endDay, cycleLength) {
+  const normalizedStart = Math.max(1, Math.min(startDay, cycleLength));
+  const normalizedEnd = Math.max(1, Math.min(endDay, cycleLength));
+  return [Math.min(normalizedStart, normalizedEnd), Math.max(normalizedStart, normalizedEnd)];
 }
 
 function buildPhaseSchedule(phases = [], cycleLength = 28, periodLength = 5) {
@@ -31,71 +127,35 @@ function buildPhaseSchedule(phases = [], cycleLength = 28, periodLength = 5) {
     .filter((phase) => phase.enabled !== false)
     .sort((a, b) => (a.order || 0) - (b.order || 0));
 
+  const effectivePeriodLength = Math.min(Math.max(Number(periodLength) || 1, 1), Number(cycleLength) || 28);
+  const schedule = [];
+
   const periodPhase = sortedPhases.find((phase) => phase.key === "period");
-  const nonPeriodPhases = sortedPhases.filter((phase) => phase.key !== "period");
-  const effectivePeriodLength = periodPhase ? Math.min(periodLength, cycleLength) : 0;
-  const remainingDays = Math.max(0, cycleLength - effectivePeriodLength);
-
-  const weights = nonPeriodPhases.map((phase) => {
-    switch (phase.key) {
-      case "freshStart":
-        return 5;
-      case "bestDays":
-        return 6;
-      case "calmDays":
-        return 7;
-      case "takeCare":
-        return 5;
-      default:
-        return 1;
-    }
-  });
-
-  const totalWeight = weights.reduce((sum, item) => sum + item, 0) || 1;
-  let durations = weights.map((weight) => Math.max(0, Math.round((weight / totalWeight) * remainingDays)));
-
-  let totalDuration = durations.reduce((sum, item) => sum + item, 0);
-  let delta = remainingDays - totalDuration;
-  for (let idx = nonPeriodPhases.length - 1; idx >= 0 && delta !== 0; idx -= 1) {
-    durations[idx] += delta > 0 ? 1 : -1;
-    if (durations[idx] < 0) {
-      delta += -durations[idx];
-      durations[idx] = 0;
-    } else {
-      delta += delta > 0 ? -1 : 1;
-    }
-  }
-
-  const scheduled = [];
-  let cursor = 1;
   if (periodPhase) {
-    scheduled.push({
+    schedule.push({
       ...periodPhase,
-      startDay: cursor,
-      endDay: cursor + effectivePeriodLength - 1,
+      startDay: 1,
+      endDay: Math.min(effectivePeriodLength, cycleLength),
     });
-    cursor += effectivePeriodLength;
   }
 
-  nonPeriodPhases.forEach((phase, index) => {
-    const phaseLength = Math.max(0, durations[index] || 0);
-    if (phaseLength <= 0) return;
-    scheduled.push({
-      ...phase,
-      startDay: cursor,
-      endDay: cursor + phaseLength - 1,
+  sortedPhases
+    .filter((phase) => phase.key !== "period")
+    .forEach((phase) => {
+      const startOffset = Number.isFinite(phase.offsetStart) ? Number(phase.offsetStart) : 0;
+      const endOffset = Number.isFinite(phase.offsetEnd) ? Number(phase.offsetEnd) : startOffset;
+      const rawStart = startOffset >= 0 ? startOffset + 1 : cycleLength + startOffset + 1;
+      const rawEnd = endOffset >= 0 ? endOffset + 1 : cycleLength + endOffset + 1;
+      const [startDay, endDay] = clampPhaseRange(rawStart, rawEnd, cycleLength);
+      if (startDay > endDay) return;
+      schedule.push({
+        ...phase,
+        startDay,
+        endDay,
+      });
     });
-    cursor += phaseLength;
-  });
 
-  if (cursor <= cycleLength) {
-    const lastPhase = scheduled[scheduled.length - 1];
-    if (lastPhase) {
-      lastPhase.endDay = cycleLength;
-    }
-  }
-
-  return scheduled;
+  return schedule;
 }
 
 /**
@@ -104,18 +164,25 @@ function buildPhaseSchedule(phases = [], cycleLength = 28, periodLength = 5) {
  * returns phase key & details based on saved/default phases.
  */
 function calculateDayPhase(targetDate, cycleStartDate, cycleLength = 28, periodLength = 5, phases = null) {
-  const t = new Date(targetDate);
-  t.setHours(0, 0, 0, 0);
+  const t = normalizeDate(targetDate);
+  const start = normalizeDate(cycleStartDate);
 
-  const start = new Date(cycleStartDate);
-  start.setHours(0, 0, 0, 0);
+  if (!t || !start) {
+    return {
+      phaseKey: "unknown",
+      dayInCycle: 0,
+      name: "No phase",
+      description: "Date information missing",
+      color: "#D1D5DB",
+      emoji: "✨",
+    };
+  }
 
   const diffTime = t.getTime() - start.getTime();
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
   let cyclePos = diffDays % cycleLength;
   if (cyclePos < 0) cyclePos += cycleLength;
-  const dayInCycle = cyclePos + 1; // 1-indexed
+  const dayInCycle = cyclePos + 1;
 
   const phaseSchedule = buildPhaseSchedule(phases, cycleLength, periodLength);
   const matchedPhase = phaseSchedule.find((p) => dayInCycle >= p.startDay && dayInCycle <= p.endDay);
@@ -134,10 +201,14 @@ function calculateDayPhase(targetDate, cycleStartDate, cycleLength = 28, periodL
     };
   }
 
-  if (dayInCycle <= periodLength) {
-    return { phaseKey: "period", dayInCycle, name: "Period Days", description: "Rest and hydration", color: "#FCA5A5" };
-  }
-  return { phaseKey: "calmDays", dayInCycle, name: "Calm Days", description: "Balanced phase", color: "#A7F3D0" };
+  return {
+    phaseKey: "unknown",
+    dayInCycle,
+    name: "Unassigned",
+    description: "No phase configured",
+    color: "#D1D5DB",
+    emoji: "✨",
+  };
 }
 
 // 1. Get Period Settings & User Role/Gender
@@ -280,11 +351,14 @@ exports.getCalendarData = async (req, res) => {
     }
     const surprises = await PeriodSurprise.find(surpriseQuery).sort({ createdAt: -1 });
 
+    const predictedNextStart = getPredictedStartDate(baseStartDate, settings.cycleLength);
+
     res.status(200).json({
       success: true,
       isConfigured: true,
       settings,
       baseStartDate,
+      predictedNextStart,
       cycles,
       logs,
       surprises,

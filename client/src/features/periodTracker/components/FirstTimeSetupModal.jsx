@@ -61,7 +61,7 @@ export default function FirstTimeSetupModal({
   const selectedDateObj = new Date(selectedDate);
   const selectedDisplay = formatDate(selectedDate);
   const predictedNext = new Date(selectedDateObj);
-  predictedNext.setDate(predictedNext.getDate() + cycleLength);
+  predictedNext.setDate(predictedNext.getDate() + Math.max(0, cycleLength));
   const ovulationDate = new Date(predictedNext);
   ovulationDate.setDate(ovulationDate.getDate() - 14);
 
