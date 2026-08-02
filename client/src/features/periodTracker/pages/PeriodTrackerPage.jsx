@@ -20,6 +20,7 @@ import MoodSymptomTracker from "../components/MoodSymptomTracker";
 import PeriodStats from "../components/PeriodStats";
 
 import { FaCalendarAlt, FaGift, FaSmile, FaChartBar, FaCog } from "react-icons/fa";
+import { toLocalDateString } from "../utils/dateUtils";
 
 export default function PeriodTrackerPage() {
   const [activeTab, setActiveTab] = useState("calendar"); // 'calendar' | 'surprises' | 'mood' | 'stats' | 'settings'
@@ -37,9 +38,7 @@ export default function PeriodTrackerPage() {
   const [surprises, setSurprises] = useState([]);
   const [stats, setStats] = useState(null);
 
-  const [selectedDate, setSelectedDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
+  const [selectedDate, setSelectedDate] = useState(toLocalDateString(new Date()));
   const [showSetupModal, setShowSetupModal] = useState(false);
   const [showPhaseStudio, setShowPhaseStudio] = useState(false);
   const [showAllHistory, setShowAllHistory] = useState(false);

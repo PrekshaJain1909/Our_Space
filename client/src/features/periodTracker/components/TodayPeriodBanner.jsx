@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FaHeart, FaGift, FaCheckCircle } from "react-icons/fa";
+import { toLocalDate, toLocalDateString } from "../utils/dateUtils";
 
 export default function TodayPeriodBanner({ settings, onConfirmPeriod, isFemale }) {
   const [isConfirming, setIsConfirming] = useState(false);
@@ -7,15 +8,11 @@ export default function TodayPeriodBanner({ settings, onConfirmPeriod, isFemale 
 
   if (!settings?.lastPeriodStart) return null;
 
-  const normalizeDate = (value) => {
-    const date = new Date(value);
-    date.setHours(0, 0, 0, 0);
-    return date;
-  };
+  const normalizeDate = (value) => toLocalDate(value);
 
   const addDays = (date, days) => {
-    const result = new Date(date);
-    result.setHours(0, 0, 0, 0);
+    const result = toLocalDate(date);
+    if (!result) return null;
     result.setDate(result.getDate() + Number(days));
     return result;
   };
@@ -32,7 +29,7 @@ export default function TodayPeriodBanner({ settings, onConfirmPeriod, isFemale 
   if (!isVisible) return null;
 
   const handleConfirm = async () => {
-    await onConfirmPeriod({ date: today.toISOString().split("T")[0], notes });
+    await onConfirmPeriod({ date: toLocalDateString(today), notes });
     setIsConfirming(false);
   };
 

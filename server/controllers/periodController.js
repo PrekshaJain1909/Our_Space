@@ -67,16 +67,39 @@ const DEFAULT_PHASES = [
   },
 ];
 
-function normalizeDate(dateValue) {
+function parseLocalDateInput(dateValue) {
   if (!dateValue) return null;
-  const date = new Date(dateValue);
-  date.setHours(0, 0, 0, 0);
-  return date;
+
+  if (dateValue instanceof Date) {
+    return new Date(dateValue.getFullYear(), dateValue.getMonth(), dateValue.getDate());
+  }
+
+  if (typeof dateValue === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+    const [year, month, day] = dateValue.split("-").map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  const parsed = new Date(dateValue);
+  return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+}
+
+function toLocalDateString(dateValue) {
+  const date = parseLocalDateInput(dateValue);
+  if (!date) return null;
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function normalizeDate(dateValue) {
+  return parseLocalDateInput(dateValue);
 }
 
 function addDays(dateValue, days) {
-  const date = new Date(dateValue);
-  date.setHours(0, 0, 0, 0);
+  const date = parseLocalDateInput(dateValue);
+  if (!date) return null;
   date.setDate(date.getDate() + Number(days));
   return date;
 }
@@ -144,8 +167,8 @@ function buildPhaseSchedule(phases = [], cycleLength = 28, periodLength = 5) {
     .forEach((phase) => {
       const startOffset = Number.isFinite(phase.offsetStart) ? Number(phase.offsetStart) : 0;
       const endOffset = Number.isFinite(phase.offsetEnd) ? Number(phase.offsetEnd) : startOffset;
-      const rawStart = startOffset >= 0 ? startOffset + 1 : cycleLength + startOffset + 1;
-      const rawEnd = endOffset >= 0 ? endOffset + 1 : cycleLength + endOffset + 1;
+      const rawStart = startOffset >= 0 ? effectivePeriodLength + startOffset : cycleLength + startOffset + 1;
+      const rawEnd = endOffset >= 0 ? effectivePeriodLength + endOffset : cycleLength + endOffset + 1;
       const [startDay, endDay] = clampPhaseRange(rawStart, rawEnd, cycleLength);
       if (startDay > endDay) return;
       schedule.push({
@@ -257,9 +280,10 @@ exports.saveSettings = async (req, res) => {
 
     let settings = await PeriodSettings.findOne({ coupleId });
 
+    const normalizedLastPeriodStart = parseLocalDateInput(lastPeriodStart) || settings?.lastPeriodStart || new Date();
     const updatedData = {
       coupleId,
-      lastPeriodStart: lastPeriodStart ? new Date(lastPeriodStart) : settings?.lastPeriodStart || new Date(),
+      lastPeriodStart: normalizedLastPeriodStart,
       cycleLength: Number(cycleLength) || settings?.cycleLength || 28,
       periodLength: Number(periodLength) || settings?.periodLength || 5,
     };
@@ -386,7 +410,7 @@ exports.confirmTodayPeriod = async (req, res) => {
     }
 
     const { date, notes } = req.body;
-    const confirmDate = date ? new Date(date) : new Date();
+    const confirmDate = parseLocalDateInput(date) || new Date();
     confirmDate.setHours(0, 0, 0, 0);
 
     // Save cycle record
@@ -440,15 +464,16 @@ exports.saveDailyLog = async (req, res) => {
     }
 
     const { date, moods, symptoms, notes } = req.body;
-    if (!date) {
+    const normalizedDate = toLocalDateString(date);
+    if (!normalizedDate) {
       return res.status(400).json({ success: false, message: "Date is required (YYYY-MM-DD)." });
     }
 
-    let log = await PeriodLog.findOne({ coupleId, date });
+    let log = await PeriodLog.findOne({ coupleId, date: normalizedDate });
     if (!log) {
       log = await PeriodLog.create({
         coupleId,
-        date,
+        date: normalizedDate,
         moods: moods || [],
         symptoms: symptoms || [],
         notes: notes || "",

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { FaChevronLeft, FaChevronRight, FaCalendarAlt, FaRegSmile } from "react-icons/fa";
+import { toLocalDate, toLocalDateString } from "../utils/dateUtils";
 
 const DEFAULT_PHASES = [
   {
@@ -64,12 +65,7 @@ const DEFAULT_PHASES = [
   },
 ];
 
-const normalizeDate = (dateInput) => {
-  if (!dateInput) return null;
-  const date = new Date(dateInput);
-  date.setHours(0, 0, 0, 0);
-  return date;
-};
+const normalizeDate = (dateInput) => toLocalDate(dateInput);
 
 const addDays = (dateInput, days) => {
   const date = normalizeDate(dateInput);
@@ -83,9 +79,12 @@ const getPredictedStartDate = (lastPeriodStart, cycleLength = 28) => {
   return addDays(lastPeriodStart, Math.max(0, Number(cycleLength)));
 };
 
-const getRangeFromOffset = (offset, cycleLength) => {
+const getRangeFromOffset = (offset, cycleLength, periodLength = 5) => {
   if (!Number.isFinite(offset)) return null;
-  return offset >= 0 ? offset + 1 : cycleLength + offset + 1;
+  if (offset >= 0) {
+    return Number(periodLength) + Number(offset);
+  }
+  return cycleLength + offset + 1;
 };
 
 const clampPhaseBounds = (startDay, endDay, cycleLength) => {
@@ -114,10 +113,11 @@ function buildPhaseSchedule(phases = [], cycleLength = 28, periodLength = 5) {
   sorted
     .filter((phase) => phase.key !== "period")
     .forEach((phase) => {
-      const startDay = getRangeFromOffset(phase.offsetStart ?? 0, cycleLength);
+      const startDay = getRangeFromOffset(phase.offsetStart ?? 0, cycleLength, effectivePeriodLength);
       const endDay = getRangeFromOffset(
         Number.isFinite(phase.offsetEnd) ? phase.offsetEnd : phase.offsetStart,
-        cycleLength
+        cycleLength,
+        effectivePeriodLength
       );
       if (startDay === null || endDay === null) return;
       const [normalizedStart, normalizedEnd] = clampPhaseBounds(startDay, endDay, cycleLength);
@@ -396,8 +396,7 @@ export default function PeriodCalendarView({
               const dateObj = new Date(currentYear, currentMonth - 1, dayNum);
 
               const phase = getPhaseForDate(dateObj);
-              const isToday =
-                new Date().toISOString().split("T")[0] === dateStr;
+              const isToday = toLocalDateString(new Date()) === dateStr;
               const isSelected = selectedDate === dateStr;
 
               const dayLog = logs.find((l) => l.date === dateStr);

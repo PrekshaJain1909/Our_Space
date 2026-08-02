@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { FaCalendarAlt, FaCheck, FaChevronLeft, FaChevronRight } from "react-icons/fa";
+import { toLocalDate, toLocalDateString } from "../utils/dateUtils";
 
 const PERIOD_OPTIONS = Array.from({ length: 10 }, (_, index) => index + 1);
 const CYCLE_MIN = 21;
@@ -8,7 +9,9 @@ const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const formatDate = (value) => {
   if (!value) return "";
-  return new Date(value).toLocaleDateString(undefined, {
+  const date = toLocalDate(value);
+  if (!date) return "";
+  return date.toLocaleDateString(undefined, {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -35,8 +38,8 @@ export default function FirstTimeSetupModal({
   const [step, setStep] = useState(1);
   const [selectedDate, setSelectedDate] = useState(
     initialData?.lastPeriodStart
-      ? new Date(initialData.lastPeriodStart).toISOString().split("T")[0]
-      : new Date().toISOString().split("T")[0]
+      ? toLocalDateString(initialData.lastPeriodStart)
+      : toLocalDateString(new Date())
   );
   const [calendarMonth, setCalendarMonth] = useState(new Date());
   const [periodLength, setPeriodLength] = useState(initialData?.periodLength || 5);
@@ -49,7 +52,7 @@ export default function FirstTimeSetupModal({
       ? new Date(initialData.lastPeriodStart)
       : new Date();
 
-    setSelectedDate(date.toISOString().split("T")[0]);
+    setSelectedDate(toLocalDateString(date));
     setCalendarMonth(new Date(date.getFullYear(), date.getMonth(), 1));
     setPeriodLength(initialData?.periodLength || 5);
     setCycleLength(initialData?.cycleLength || 28);
@@ -58,7 +61,7 @@ export default function FirstTimeSetupModal({
 
   if (!isOpen) return null;
 
-  const selectedDateObj = new Date(selectedDate);
+  const selectedDateObj = toLocalDate(selectedDate);
   const selectedDisplay = formatDate(selectedDate);
   const predictedNext = new Date(selectedDateObj);
   predictedNext.setDate(predictedNext.getDate() + Math.max(0, cycleLength));
@@ -176,9 +179,9 @@ export default function FirstTimeSetupModal({
                     const date = day
                       ? new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), day)
                       : null;
-                    const dateValue = date ? date.toISOString().split("T")[0] : "";
+                    const dateValue = date ? toLocalDateString(date) : "";
                     const isSelected = dateValue === selectedDate;
-                    const isToday = dateValue === new Date().toISOString().split("T")[0];
+                    const isToday = dateValue === toLocalDateString(new Date());
 
                     return (
                       <button
@@ -292,11 +295,11 @@ export default function FirstTimeSetupModal({
                 <div className="mt-5 grid gap-4 sm:grid-cols-2">
                   <div className="rounded-3xl border border-theme bg-surface p-4">
                     <div className="text-[10px] uppercase tracking-[0.3em] text-secondary">Predicted Next Period</div>
-                    <div className="mt-3 text-lg font-semibold text-primary">{formatDate(predictedNext.toISOString().split("T")[0])}</div>
+                    <div className="mt-3 text-lg font-semibold text-primary">{formatDate(toLocalDateString(predictedNext))}</div>
                   </div>
                   <div className="rounded-3xl border border-theme bg-surface p-4">
                     <div className="text-[10px] uppercase tracking-[0.3em] text-secondary">Next Ovulation</div>
-                    <div className="mt-3 text-lg font-semibold text-primary">{formatDate(ovulationDate.toISOString().split("T")[0])}</div>
+                    <div className="mt-3 text-lg font-semibold text-primary">{formatDate(toLocalDateString(ovulationDate))}</div>
                   </div>
                 </div>
               </div>
@@ -320,8 +323,8 @@ export default function FirstTimeSetupModal({
                   { label: "Last Period", value: selectedDisplay },
                   { label: "Cycle Length", value: `${cycleLength} Days` },
                   { label: "Period Length", value: `${periodLength} Days` },
-                  { label: "Predicted Next", value: formatDate(predictedNext.toISOString().split("T")[0]) },
-                  { label: "Next Ovulation", value: formatDate(ovulationDate.toISOString().split("T")[0]) },
+                  { label: "Predicted Next", value: formatDate(toLocalDateString(predictedNext)) },
+                  { label: "Next Ovulation", value: formatDate(toLocalDateString(ovulationDate)) },
                 ].map((item) => (
                   <div key={item.label} className="rounded-3xl border border-theme bg-surface p-5">
                     <div className="text-[10px] uppercase tracking-[0.3em] text-secondary font-semibold">

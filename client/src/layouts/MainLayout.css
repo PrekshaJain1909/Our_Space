@@ -708,10 +708,13 @@ body {
 .content {
   padding: 2rem;
   min-height: calc(100vh - var(--topbar-height) - var(--topbar-gap));
-  background-image: radial-gradient(1200px 600px at 20% 10%,
+  background-image: radial-gradient(
+      1200px 600px at 20% 10%,
       rgba(255, 110, 159, 0.025),
-      transparent);
-  overflow-y: auto;
+      transparent
+  );
+  overflow-y: visible;
+  overflow-x: hidden;
   flex: 1;
 }
 
