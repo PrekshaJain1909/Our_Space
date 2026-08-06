@@ -1,12 +1,13 @@
 import React from 'react';
 import styles from './RecentMemories.module.css';
+import ThemeCard from './ThemeCard';
 import { motion } from 'framer-motion';
 
 export default function RecentMemories({ items = [] }) {
     const hasItems = Array.isArray(items) && items.length > 0;
 
     return (
-        <div className={styles.card}>
+        <ThemeCard className={styles.card}>
             <div className={styles.header}><h4>Recent Memories</h4><button className={styles.viewAll}>View All</button></div>
             {hasItems ? (
                 <div className={styles.grid}>
@@ -21,6 +22,6 @@ export default function RecentMemories({ items = [] }) {
                     <p>Start saving your favorite moments to unlock this space.</p>
                 </div>
             )}
-        </div>
+        </ThemeCard>
     );
 }

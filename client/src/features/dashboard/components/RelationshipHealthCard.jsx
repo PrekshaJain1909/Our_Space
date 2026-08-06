@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './RelationshipHealthCard.module.css';
+import ThemeCard from './ThemeCard';
 import { motion } from 'framer-motion';
 
 export default function RelationshipHealthCard({ stats = {} }) {
@@ -14,7 +15,7 @@ export default function RelationshipHealthCard({ stats = {} }) {
     ];
 
     return (
-        <motion.div className={styles.card} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+        <ThemeCard as={motion.div} className={styles.card} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
             <div className={styles.left}>
                 <div className={styles.circle}>{hasData ? `${score}%` : '--'}</div>
                 <div className={styles.label}>Relationship Score</div>
@@ -36,6 +37,6 @@ export default function RelationshipHealthCard({ stats = {} }) {
                     </div>
                 )}
             </div>
-        </motion.div>
+        </ThemeCard>
     );
 }

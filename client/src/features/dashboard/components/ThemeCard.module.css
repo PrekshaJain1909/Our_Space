@@ -1,0 +1,14 @@
+.card {
+    background: linear-gradient(135deg, var(--card-bg, rgba(30, 18, 50, 0.92)), rgba(255, 255, 255, 0.05));
+    border: 1px solid var(--card-border, rgba(255, 255, 255, 0.08));
+    box-shadow: var(--card-shadow, 0 8px 30px rgba(0, 0, 0, 0.35));
+    border-radius: 20px;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+:global([data-theme='light']) .card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.88), rgba(244, 239, 255, 0.8));
+    border: 1px solid rgba(130, 94, 255, 0.14);
+    box-shadow: 0 10px 30px rgba(103, 67, 183, 0.12);
+}

@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './AISummaryCard.module.css';
+import ThemeCard from './ThemeCard';
 import { motion } from 'framer-motion';
 
 export default function AISummaryCard({ summary, stats = {}, activeDays = 0, onRefresh }) {
@@ -8,11 +9,14 @@ export default function AISummaryCard({ summary, stats = {}, activeDays = 0, onR
     const progress = Math.min(100, Math.round((activeDays / requiredDays) * 100));
 
     return (
-        <motion.article className={styles.card} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+        <ThemeCard as={motion.article} className={styles.card} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
             <div className={styles.header}>
-                <div>
+                <div className={styles.headerMeta}>
                     <div className={styles.tag}>AI Relationship Summary</div>
-                    <h3>🤖</h3>
+                    <div className={styles.titleRow}>
+                        <h3 className={styles.title}>Your relationship pulse</h3>
+                        <div className={styles.badgeIcon}>💜</div>
+                    </div>
                 </div>
                 {hasSummary && (
                     <button className={styles.refresh} onClick={onRefresh}>Refresh</button>
@@ -55,6 +59,6 @@ export default function AISummaryCard({ summary, stats = {}, activeDays = 0, onR
                     <div className={styles.unlockText}>✨ AI Summary unlocks automatically after 5 active days.</div>
                 </div>
             )}
-        </motion.article>
+        </ThemeCard>
     );
 }

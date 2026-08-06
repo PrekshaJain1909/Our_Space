@@ -31,6 +31,8 @@
   --light-accent-title: #8f1a47;
   --light-text-rose: #4f1030;
   --light-text-rose-soft: #6b1438;
+  --accent: var(--light-accent-primary);
+  --accent-gradient: linear-gradient(135deg, var(--light-accent-primary), var(--light-accent-secondary), var(--light-accent-tertiary));
 
   --light-shadow-sm: 0 2px 8px rgba(99, 102, 241, 0.06);
   --light-shadow-md: 0 6px 20px rgba(99, 102, 241, 0.08);
@@ -55,6 +57,8 @@
   --dark-accent-glow: #ff00ff;
   --dark-accent-title: #ffeefc;
   --dark-text-rose: #f3c4e1;
+  --accent: var(--dark-accent-primary);
+  --accent-gradient: linear-gradient(135deg, var(--dark-accent-primary), var(--dark-accent-secondary), var(--dark-accent-tertiary));
 
   --dark-neon-pink: #ff00ff;
   --dark-neon-cyan: #00ffff;

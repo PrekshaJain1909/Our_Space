@@ -1,11 +1,12 @@
 import React from 'react';
 import styles from './RecentLoveNotes.module.css';
+import ThemeCard from './ThemeCard';
 
 export default function RecentLoveNotes({ notes = [] }) {
     const hasNotes = Array.isArray(notes) && notes.length > 0;
 
     return (
-        <div className={styles.card}>
+        <ThemeCard className={styles.card}>
             <h4>Recent Love Notes</h4>
             {hasNotes ? (
                 <div className={styles.list}>
@@ -23,6 +24,6 @@ export default function RecentLoveNotes({ notes = [] }) {
                     <p>Write Love Notes to make this feed feel alive.</p>
                 </div>
             )}
-        </div>
+        </ThemeCard>
     );
 }

@@ -1,11 +1,15 @@
 ﻿.card {
-    background: var(--card);
-    padding: 24px;
-    border-radius: 28px;
-    box-shadow: var(--shadow);
     display: grid;
     gap: 20px;
     min-height: 320px;
+    padding: 24px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+    border-color: color-mix(in srgb, var(--accent-primary) 34%, transparent);
 }
 
 .header {
@@ -15,14 +19,41 @@
     gap: 16px;
 }
 
+.headerMeta {
+    display: grid;
+    gap: 10px;
+}
+
+.titleRow {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.title {
+    margin: 0;
+    color: var(--text-primary, #FFFFFF);
+    font-size: 1.08rem;
+}
+
+.badgeIcon {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    background: linear-gradient(135deg, rgba(255, 117, 198, 0.24), rgba(139, 92, 246, 0.2));
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15);
+}
+
 .tag {
     display: inline-flex;
     align-items: center;
     gap: 8px;
     padding: 8px 14px;
     border-radius: 999px;
-    background: rgba(255, 117, 198, 0.12);
-    color: var(--accent-start);
+    background: color-mix(in srgb, var(--accent-primary, #FF75C6) 14%, transparent);
+    color: var(--accent-primary, #FF75C6);
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 0.04em;
@@ -30,13 +61,19 @@
 }
 
 .refresh {
-    background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
-    color: white;
+    background: var(--accent-gradient, linear-gradient(90deg, #ff75c6, #8b5cf6));
+    color: #FFFFFF;
     border: none;
     padding: 12px 18px;
     border-radius: 999px;
     cursor: pointer;
     font-weight: 700;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.refresh:hover {
+    transform: translateY(-1px) scale(1.01);
+    box-shadow: 0 10px 24px rgba(139, 92, 246, 0.18);
 }
 
 .summaryCard {
@@ -46,7 +83,7 @@
 
 .summary {
     margin: 0;
-    color: var(--text);
+    color: var(--text-primary, #FFFFFF);
     line-height: 1.8;
 }
 
@@ -54,7 +91,7 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px 18px;
-    color: var(--muted);
+    color: var(--text-secondary, #CFC6E8);
     font-size: 14px;
 }
 
@@ -67,12 +104,12 @@
     margin: 0;
     font-size: 1rem;
     font-weight: 700;
-    color: var(--text);
+    color: var(--text-primary, #FFFFFF);
 }
 
 .onboardingText {
     margin: 0;
-    color: var(--muted);
+    color: var(--text-secondary, #CFC6E8);
     line-height: 1.75;
 }
 
@@ -80,26 +117,26 @@
     display: flex;
     justify-content: space-between;
     gap: 16px;
-    color: var(--muted);
+    color: var(--text-secondary, #CFC6E8);
     font-size: 14px;
 }
 
 .progressBar {
     height: 12px;
     border-radius: 999px;
-    background: rgba(149, 85, 255, 0.12);
+    background: color-mix(in srgb, var(--accent-primary, #8b5cf6) 16%, transparent);
     overflow: hidden;
 }
 
 .progressFill {
     height: 100%;
-    background: linear-gradient(90deg, var(--accent-start), var(--accent-end));
+    background: var(--accent-gradient, linear-gradient(90deg, #ff75c6, #8b5cf6 55%, #22d3ee 100%));
     border-radius: 999px;
 }
 
 .progressPercent {
     margin: 0;
-    color: var(--text);
+    color: var(--text-primary, #FFFFFF);
     font-weight: 700;
     text-align: right;
 }
@@ -108,18 +145,19 @@
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
-    color: var(--muted);
+    color: var(--text-secondary, #CFC6E8);
     font-size: 14px;
 }
 
 .unlockText {
     margin: 0;
-    color: var(--muted);
+    color: var(--text-secondary, #CFC6E8);
     font-size: 14px;
     line-height: 1.6;
 }
 
 @media (max-width: 720px) {
+
     .summaryList,
     .statsGrid {
         grid-template-columns: 1fr;

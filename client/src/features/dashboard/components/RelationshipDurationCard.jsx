@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './RelationshipDurationCard.module.css';
+import ThemeCard from './ThemeCard';
 import { motion } from 'framer-motion';
 
 function humanDuration(start) {
@@ -17,7 +18,7 @@ function humanDuration(start) {
 export default function RelationshipDurationCard({ startedAt }) {
     const { years, months, days } = humanDuration(startedAt);
     return (
-        <motion.div className={styles.card} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
+        <ThemeCard as={motion.div} className={styles.card} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
             <div className={styles.head}>Together Since</div>
             <div className={styles.photo}>👩‍❤️‍👨</div>
             <div className={styles.counts}>
@@ -25,6 +26,6 @@ export default function RelationshipDurationCard({ startedAt }) {
                 <div><strong>{months}</strong><span>Months</span></div>
                 <div><strong>{days}</strong><span>Days</span></div>
             </div>
-        </motion.div>
+        </ThemeCard>
     );
 }

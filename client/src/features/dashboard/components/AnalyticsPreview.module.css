@@ -1,8 +1,5 @@
 .card {
-    background: var(--card);
-    padding: 12px;
-    border-radius: 14px;
-    box-shadow: var(--shadow);
+    padding: 16px;
 }
 
 .grid {
@@ -12,17 +9,19 @@
 
 .item {
     flex: 1;
-    background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), transparent);
+    background: linear-gradient(135deg, color-mix(in srgb, var(--accent-primary, #FF75C6) 12%, transparent), color-mix(in srgb, var(--accent-secondary, #8b5cf6) 8%, transparent));
     padding: 12px;
-    border-radius: 10px;
+    border-radius: 16px;
+    border: 1px solid var(--card-border, rgba(255, 255, 255, 0.08));
 }
 
 .value {
     font-size: 20px;
     font-weight: 700;
+    color: var(--text-primary, #FFFFFF);
 }
 
 .label {
-    color: var(--muted);
+    color: var(--text-secondary, #CFC6E8);
     font-size: 12px;
 }

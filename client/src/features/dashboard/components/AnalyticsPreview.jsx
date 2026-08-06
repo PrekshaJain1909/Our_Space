@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './AnalyticsPreview.module.css';
+import ThemeCard from './ThemeCard';
 
 export default function AnalyticsPreview({ stats = {} }) {
     const items = [
@@ -9,7 +10,7 @@ export default function AnalyticsPreview({ stats = {} }) {
     ];
 
     return (
-        <div className={styles.card}>
+        <ThemeCard className={styles.card}>
             <div className={styles.grid}>
                 {items.map((it) => (
                     <div key={it.label} className={styles.item}>
@@ -18,6 +19,6 @@ export default function AnalyticsPreview({ stats = {} }) {
                     </div>
                 ))}
             </div>
-        </div>
+        </ThemeCard>
     );
 }
