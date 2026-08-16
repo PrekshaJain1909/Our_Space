@@ -347,7 +347,7 @@ export default function PeriodCalendarView({
         </button>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+      <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-2.5">
         {activePhases.map((config) => (
           <div
             key={config.key}
@@ -368,7 +368,7 @@ export default function PeriodCalendarView({
 
       {/* Month View Grid */}
       {viewMode === "month" ? (
-        <div className="bg-surface border border-theme rounded-2xl p-4 shadow-sm space-y-3">
+        <div className="bg-surface border border-theme rounded-2xl p-4 shadow-sm space-y-3 overflow-x-auto w-full">
           {/* Day Names Header */}
           <div className="grid grid-cols-7 text-center text-xs font-semibold text-secondary pb-2 border-b border-theme">
             <span>Sun</span>
@@ -381,7 +381,7 @@ export default function PeriodCalendarView({
           </div>
 
           {/* Days Grid */}
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-7 gap-2 min-w-[980px]">
             {/* Empty slots for leading days */}
             {Array.from({ length: firstDayOfWeek }).map((_, idx) => (
               <div key={`empty-${idx}`} className="h-20 rounded-xl bg-surface-subtle/30" />
@@ -411,7 +411,7 @@ export default function PeriodCalendarView({
                       : hexToRgba(phase.color, 0.12),
                     borderColor: hexToRgba(phase.color, 0.45),
                   }}
-                  className={`h-24 rounded-[28px] border p-3 flex flex-col justify-between text-left transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg relative ${isToday ? "ring-2 ring-pink-500 font-bold" : ""}`}
+                  className={`h-20 lg:h-24 min-w-[130px] rounded-2xl border p-2 lg:p-3 flex flex-col justify-between text-left transition-transform duration-200 hover:-translate-y-0.5 hover:shadow-lg relative ${isToday ? "ring-2 ring-pink-500 font-bold" : ""}`}
                 >
                   <div className="flex justify-between items-center text-xs font-bold" style={{ color: phase.color, filter: "brightness(0.7)" }}>
                     <span>{dayNum}</span>

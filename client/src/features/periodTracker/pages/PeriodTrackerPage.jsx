@@ -198,7 +198,7 @@ export default function PeriodTrackerPage() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-4 sm:p-6 space-y-6 animate-fade-in text-primary">
+    <div className="w-full px-4 lg:px-6 space-y-6 animate-fade-in text-primary">
       {/* Top Title Banner */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 bg-surface border border-theme rounded-2xl p-6 shadow-sm">
         <div className="space-y-1">

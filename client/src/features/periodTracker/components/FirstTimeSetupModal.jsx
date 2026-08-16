@@ -47,31 +47,32 @@ export default function FirstTimeSetupModal({
   const gender = userGender || "female";
 
   useEffect(() => {
-    if (!isOpen) return;
-    const date = initialData?.lastPeriodStart
-      ? new Date(initialData.lastPeriodStart)
-      : new Date();
+  if (!isOpen) return;
+  const date = initialData?.lastPeriodStart
+    ? new Date(initialData.lastPeriodStart)
+    : new Date();
 
-    setSelectedDate(toLocalDateString(date));
-    setCalendarMonth(new Date(date.getFullYear(), date.getMonth(), 1));
-    setPeriodLength(initialData?.periodLength || 5);
-    setCycleLength(initialData?.cycleLength || 28);
-    setStep(1);
-  }, [isOpen, initialData]);
+  setSelectedDate(toLocalDateString(date));
+  setCalendarMonth(new Date(date.getFullYear(), date.getMonth(), 1));
+  setPeriodLength(initialData?.periodLength || 5);
+  setCycleLength(initialData?.cycleLength || 28);
+  setStep(1);
+}, [isOpen, initialData]);
 
-  if (!isOpen) return null;
+const calendarDays = useMemo(
+  () => getCalendarMatrix(calendarMonth.getFullYear(), calendarMonth.getMonth()),
+  [calendarMonth]
+);
 
-  const selectedDateObj = toLocalDate(selectedDate);
-  const selectedDisplay = formatDate(selectedDate);
-  const predictedNext = new Date(selectedDateObj);
-  predictedNext.setDate(predictedNext.getDate() + Math.max(0, cycleLength));
-  const ovulationDate = new Date(predictedNext);
-  ovulationDate.setDate(ovulationDate.getDate() - 14);
+if (!isOpen) return null;
 
-  const calendarDays = useMemo(
-    () => getCalendarMatrix(calendarMonth.getFullYear(), calendarMonth.getMonth()),
-    [calendarMonth]
-  );
+const selectedDateObj = toLocalDate(selectedDate);
+const selectedDisplay = formatDate(selectedDate);
+const predictedNext = new Date(selectedDateObj);
+predictedNext.setDate(predictedNext.getDate() + Math.max(0, cycleLength));
+const ovulationDate = new Date(predictedNext);
+ovulationDate.setDate(ovulationDate.getDate() - 14);
+
 
   const handlePrevMonth = () => {
     setCalendarMonth((current) => new Date(current.getFullYear(), current.getMonth() - 1, 1));
@@ -91,8 +92,8 @@ export default function FirstTimeSetupModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-2xl p-4">
-      <div className="w-full max-w-5xl overflow-hidden rounded-[32px] border border-theme bg-surface text-primary shadow-2xl">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-2xl">
+      <div className="mx-auto my-6 w-[95vw] max-w-7xl rounded-[32px] border border-theme bg-surface text-primary shadow-2xl">
         <div className="border-b border-theme bg-surface-subtle p-6">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -128,10 +129,10 @@ export default function FirstTimeSetupModal({
           </div>
         </div>
 
-        <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto custom-scrollbar">
+        <div className="p-4 lg:p-6 space-y-6">
           {step === 1 && (
             <section className="space-y-5">
-              <div className="flex items-center justify-between gap-4">
+              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div>
                   <p className="text-xs uppercase tracking-[0.35em] text-secondary font-semibold">
                     Step 1 of 4
@@ -174,7 +175,7 @@ export default function FirstTimeSetupModal({
                     </div>
                   ))}
                 </div>
-                <div className="grid grid-cols-7 gap-3">
+                <div className="grid grid-cols-7 gap-2">
                   {calendarDays.map((day, idx) => {
                     const date = day
                       ? new Date(calendarMonth.getFullYear(), calendarMonth.getMonth(), day)
@@ -189,7 +190,7 @@ export default function FirstTimeSetupModal({
                         type="button"
                         onClick={() => date && setSelectedDate(dateValue)}
                         disabled={!date}
-                        className={`min-h-[76px] rounded-[24px] border p-3 text-left transition duration-200 ${
+                        className={`min-h-[56px] md:min-h-[64px] lg:min-h-[76px] rounded-2xl border p-1 md:p-2 lg:p-3 text-left transition duration-200 ${
                           date
                             ? isSelected
                               ? "border-pink-500 bg-gradient-to-br from-pink-500/15 to-purple-500/10 text-primary shadow-md"
